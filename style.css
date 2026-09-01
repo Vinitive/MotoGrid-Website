@@ -2299,4 +2299,13 @@ body::before {
     .guide-help {
         padding: 45px 20px;
     }
+
+    .guides-page {
+    border: 20px solid red !important;
+}
+
+.guide-navigation {
+    background: red !important;
+    padding: 100px !important;
+}
 }
