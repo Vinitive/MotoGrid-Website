@@ -256,6 +256,103 @@
     .hosting-feature:last-child {
         border-bottom: none;
     }
+    /* =========================================
+   MOTOGRID ACCOUNT BUTTONS
+========================================= */
+
+.nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+
+/* LOGIN */
+
+.account-login-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    height: 42px;
+    padding: 0 20px;
+
+    border: 1px solid rgba(255, 255, 255, 0.18);
+
+    background: rgba(255, 255, 255, 0.03);
+    color: #ffffff !important;
+
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    text-decoration: none !important;
+
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease,
+        color 0.2s ease,
+        transform 0.2s ease;
+}
+
+.account-login-btn:hover {
+    border-color: #7cff00;
+    color: #7cff00 !important;
+    background: rgba(124, 255, 0, 0.05);
+
+    transform: translateY(-2px);
+}
+
+
+/* CREATE ACCOUNT */
+
+.account-register-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    height: 42px;
+    padding: 0 22px;
+
+    border: 1px solid #7cff00;
+
+    background: #7cff00;
+    color: #050705 !important;
+
+    font-size: 10px;
+    font-weight: 1000;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    text-decoration: none !important;
+
+    box-shadow: 0 0 20px rgba(124, 255, 0, 0.08);
+
+    transition:
+        background 0.2s ease,
+        box-shadow 0.2s ease,
+        transform 0.2s ease;
+}
+
+.account-register-btn:hover {
+    background: #91ff28;
+
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 8px 30px rgba(124, 255, 0, 0.22);
+}
+
+
+/* MOBILE */
+
+@media (max-width: 900px) {
+
+    .account-login-btn,
+    .account-register-btn {
+        display: none;
+    }
+
+}
 }
 </style>
 </head>
