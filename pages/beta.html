@@ -1,0 +1,934 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Beta Testing | Motogrid</title>
+
+    <link rel="stylesheet" href="../css/style.css">
+
+    <!--
+        Inline styling is intentional.
+        This avoids the stylesheet issue we've experienced
+        with page-specific Motogrid styling.
+    -->
+    <style>
+
+        /* =========================================
+           MOTOGRID BETA APPLICATION
+        ========================================= */
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            background: #050605;
+            color: #ffffff;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        .beta-page {
+            min-height: 100vh;
+
+            background:
+                radial-gradient(
+                    circle at 50% 15%,
+                    rgba(124, 255, 0, 0.08),
+                    transparent 30%
+                ),
+                #050605;
+
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* GRID BACKGROUND */
+
+        .beta-page::before {
+            content: "";
+
+            position: fixed;
+            inset: 0;
+
+            pointer-events: none;
+
+            background-image:
+                linear-gradient(
+                    rgba(255, 255, 255, 0.025) 1px,
+                    transparent 1px
+                ),
+                linear-gradient(
+                    90deg,
+                    rgba(255, 255, 255, 0.025) 1px,
+                    transparent 1px
+                );
+
+            background-size: 55px 55px;
+
+            mask-image:
+                radial-gradient(
+                    circle at center,
+                    black,
+                    transparent 80%
+                );
+        }
+
+        /* TOP BAR */
+
+        .beta-topbar {
+            position: relative;
+            z-index: 10;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            max-width: 1200px;
+
+            margin: 0 auto;
+
+            padding: 24px 30px;
+
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .beta-logo {
+            height: 55px;
+            width: auto;
+            display: block;
+        }
+
+        .beta-back {
+            color: #999;
+
+            text-decoration: none;
+
+            font-size: 11px;
+            font-weight: 900;
+
+            letter-spacing: 2px;
+
+            transition: color 0.2s ease;
+        }
+
+        .beta-back:hover {
+            color: #7cff00;
+        }
+
+        /* MAIN CONTAINER */
+
+        .beta-container {
+            position: relative;
+            z-index: 2;
+
+            width: min(900px, calc(100% - 40px));
+
+            margin: 0 auto;
+
+            padding: 80px 0 100px;
+        }
+
+        /* HEADER */
+
+        .beta-header {
+            text-align: center;
+
+            margin-bottom: 55px;
+        }
+
+        .beta-status {
+            display: inline-block;
+
+            padding: 8px 14px;
+
+            margin-bottom: 22px;
+
+            border: 1px solid #7cff00;
+
+            background: rgba(124,255,0,0.05);
+
+            color: #7cff00;
+
+            font-size: 10px;
+            font-weight: 900;
+
+            letter-spacing: 3px;
+        }
+
+        .beta-eyebrow {
+            margin: 0 0 10px;
+
+            color: #777;
+
+            font-size: 11px;
+            font-weight: 900;
+
+            letter-spacing: 5px;
+        }
+
+        .beta-header h1 {
+            margin: 0;
+
+            font-size: clamp(44px, 7vw, 82px);
+
+            line-height: 0.9;
+
+            font-weight: 1000;
+
+            letter-spacing: -3px;
+
+            font-style: italic;
+
+            text-transform: uppercase;
+        }
+
+        .beta-header h1 span {
+            display: block;
+
+            color: #7cff00;
+        }
+
+        .beta-line {
+            width: 90px;
+            height: 4px;
+
+            margin: 28px auto;
+
+            background: #7cff00;
+
+            transform: skewX(-20deg);
+
+            box-shadow:
+                0 0 20px rgba(124,255,0,0.35);
+        }
+
+        .beta-description {
+            max-width: 650px;
+
+            margin: 0 auto;
+
+            color: #999;
+
+            font-size: 15px;
+
+            line-height: 1.7;
+        }
+
+        /* FORM */
+
+        .beta-form {
+            background: rgba(12,14,12,0.92);
+
+            border: 1px solid rgba(255,255,255,0.1);
+
+            padding: 45px;
+
+            box-shadow:
+                0 30px 80px rgba(0,0,0,0.35);
+        }
+
+        /* FORM HEADER */
+
+        .form-heading {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+
+            margin-bottom: 35px;
+
+            padding-bottom: 20px;
+
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .form-heading-number {
+            color: #7cff00;
+
+            font-size: 11px;
+            font-weight: 900;
+
+            letter-spacing: 2px;
+        }
+
+        .form-heading h2 {
+            margin: 0;
+
+            font-size: 18px;
+
+            text-transform: uppercase;
+
+            letter-spacing: 1px;
+        }
+
+        /* ROWS */
+
+        .form-row {
+            display: grid;
+
+            grid-template-columns: 1fr 1fr;
+
+            gap: 22px;
+        }
+
+        .form-group {
+            margin-bottom: 26px;
+        }
+
+        /* LABEL */
+
+        .form-group label {
+            display: block;
+
+            margin-bottom: 9px;
+
+            color: #d5d5d5;
+
+            font-size: 10px;
+            font-weight: 900;
+
+            letter-spacing: 1.5px;
+
+            text-transform: uppercase;
+        }
+
+        .required {
+            color: #7cff00;
+        }
+
+        /* INPUTS */
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+
+            padding: 15px 16px;
+
+            border: 1px solid rgba(255,255,255,0.12);
+
+            outline: none;
+
+            background: #090b09;
+
+            color: #ffffff;
+
+            font-family: inherit;
+
+            font-size: 14px;
+
+            transition:
+                border-color 0.2s ease,
+                box-shadow 0.2s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            border-color: #7cff00;
+
+            box-shadow:
+                0 0 0 2px rgba(124,255,0,0.06);
+        }
+
+        .form-group input::placeholder,
+        .form-group textarea::placeholder {
+            color: #444;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+
+            min-height: 125px;
+
+            line-height: 1.5;
+        }
+
+        /* FIELD HELP */
+
+        .field-help {
+            display: block;
+
+            margin-top: 7px;
+
+            color: #555;
+
+            font-size: 10px;
+
+            line-height: 1.5;
+        }
+
+        /* DIVIDER */
+
+        .form-divider {
+            margin: 20px 0 35px;
+
+            border: none;
+
+            border-top: 1px solid rgba(255,255,255,0.08);
+        }
+
+        /* CHECKBOX */
+
+        .checkbox-group {
+            display: flex;
+
+            gap: 12px;
+
+            align-items: flex-start;
+
+            margin: 30px 0;
+        }
+
+        .checkbox-group input {
+            width: 18px;
+            height: 18px;
+
+            margin-top: 2px;
+
+            accent-color: #7cff00;
+
+            cursor: pointer;
+        }
+
+        .checkbox-group label {
+            color: #888;
+
+            font-size: 11px;
+
+            line-height: 1.6;
+
+            cursor: pointer;
+        }
+
+        /* SUBMIT */
+
+        .beta-submit {
+            width: 100%;
+
+            padding: 18px 25px;
+
+            border: none;
+
+            background: #7cff00;
+
+            color: #060806;
+
+            font-size: 12px;
+            font-weight: 1000;
+
+            letter-spacing: 2px;
+
+            text-transform: uppercase;
+
+            cursor: pointer;
+
+            transition:
+                transform 0.2s ease,
+                box-shadow 0.2s ease;
+        }
+
+        .beta-submit:hover {
+            transform: translateY(-2px);
+
+            box-shadow:
+                0 12px 35px rgba(124,255,0,0.18);
+        }
+
+        /* PRIVACY TEXT */
+
+        .application-note {
+            margin: 18px 0 0;
+
+            text-align: center;
+
+            color: #484848;
+
+            font-size: 9px;
+
+            letter-spacing: 1px;
+
+            line-height: 1.6;
+        }
+
+        /* FOOTER */
+
+        .beta-footer {
+            position: relative;
+
+            margin-top: 50px;
+
+            text-align: center;
+
+            color: #444;
+
+            font-size: 9px;
+            font-weight: 800;
+
+            letter-spacing: 2px;
+        }
+
+        /* MOBILE */
+
+        @media (max-width: 700px) {
+
+            .beta-topbar {
+                padding: 18px 20px;
+            }
+
+            .beta-logo {
+                height: 42px;
+            }
+
+            .beta-container {
+                padding: 55px 0 70px;
+            }
+
+            .beta-form {
+                padding: 28px 20px;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+
+                gap: 0;
+            }
+
+            .beta-header h1 {
+                letter-spacing: -2px;
+            }
+
+        }
+
+    </style>
+</head>
+
+<body>
+
+<div class="beta-page">
+
+    <!-- TOP BAR -->
+    <div class="beta-topbar">
+
+        <a href="../index.html">
+            <img
+                src="../assets/logo/motogrid-logo.png"
+                alt="Motogrid"
+                class="beta-logo"
+            >
+        </a>
+
+        <a href="../index.html" class="beta-back">
+            ← BACK TO MOTOGRID
+        </a>
+
+    </div>
+
+
+    <!-- MAIN -->
+    <main class="beta-container">
+
+        <!-- HEADER -->
+        <section class="beta-header">
+
+            <div class="beta-status">
+                APPLICATIONS OPEN
+            </div>
+
+            <p class="beta-eyebrow">
+                MOTOGRID SERVER HOSTING
+            </p>
+
+            <h1>
+                BECOME A
+                <span>BETA TESTER</span>
+            </h1>
+
+            <div class="beta-line"></div>
+
+            <p class="beta-description">
+                Help us test and shape the Motogrid MX Bikes Server Hosting
+                Platform before its public release. We're looking for members
+                of the MX Bikes community who are willing to test the platform,
+                host servers, report issues, and provide feedback.
+            </p>
+
+        </section>
+
+
+        <!-- APPLICATION -->
+        <form class="beta-form" id="betaApplicationForm">
+
+            <!-- BASIC INFORMATION -->
+
+            <div class="form-heading">
+                <span class="form-heading-number">01</span>
+                <h2>Basic Information</h2>
+            </div>
+
+
+            <div class="form-row">
+
+                <div class="form-group">
+                    <label for="discord">
+                        Discord Username
+                        <span class="required">*</span>
+                    </label>
+
+                    <input
+                        type="text"
+                        id="discord"
+                        name="discord"
+                        placeholder="yourusername"
+                        required
+                    >
+                </div>
+
+
+                <div class="form-group">
+                    <label for="region">
+                        Region
+                        <span class="required">*</span>
+                    </label>
+
+                    <select
+                        id="region"
+                        name="region"
+                        required
+                    >
+                        <option value="" selected disabled>
+                            Select your region
+                        </option>
+
+                        <option value="North America East">
+                            North America - East
+                        </option>
+
+                        <option value="North America Central">
+                            North America - Central
+                        </option>
+
+                        <option value="North America West">
+                            North America - West
+                        </option>
+
+                        <option value="Europe">
+                            Europe
+                        </option>
+
+                        <option value="Oceania">
+                            Oceania
+                        </option>
+
+                        <option value="South America">
+                            South America
+                        </option>
+
+                        <option value="Asia">
+                            Asia
+                        </option>
+
+                        <option value="Other">
+                            Other
+                        </option>
+
+                    </select>
+                </div>
+
+            </div>
+
+
+            <div class="form-row">
+
+                <div class="form-group">
+                    <label for="mxbHours">
+                        MX Bikes Experience
+                        <span class="required">*</span>
+                    </label>
+
+                    <select
+                        id="mxbHours"
+                        name="mxbHours"
+                        required
+                    >
+
+                        <option value="" selected disabled>
+                            Select experience
+                        </option>
+
+                        <option value="Under 50 Hours">
+                            Under 50 Hours
+                        </option>
+
+                        <option value="50-250 Hours">
+                            50 - 250 Hours
+                        </option>
+
+                        <option value="250-500 Hours">
+                            250 - 500 Hours
+                        </option>
+
+                        <option value="500-1000 Hours">
+                            500 - 1,000 Hours
+                        </option>
+
+                        <option value="1000+ Hours">
+                            1,000+ Hours
+                        </option>
+
+                    </select>
+                </div>
+
+
+                <div class="form-group">
+                    <label for="serverExperience">
+                        Server Hosting Experience
+                        <span class="required">*</span>
+                    </label>
+
+                    <select
+                        id="serverExperience"
+                        name="serverExperience"
+                        required
+                    >
+
+                        <option value="" selected disabled>
+                            Select experience
+                        </option>
+
+                        <option value="None">
+                            None
+                        </option>
+
+                        <option value="Beginner">
+                            Beginner
+                        </option>
+
+                        <option value="Intermediate">
+                            Intermediate
+                        </option>
+
+                        <option value="Experienced">
+                            Experienced
+                        </option>
+
+                        <option value="Advanced">
+                            Advanced
+                        </option>
+
+                    </select>
+                </div>
+
+            </div>
+
+
+            <hr class="form-divider">
+
+
+            <!-- TESTING INFORMATION -->
+
+            <div class="form-heading">
+                <span class="form-heading-number">02</span>
+                <h2>Testing Information</h2>
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="currentHosting">
+                    How Do You Currently Host MX Bikes Servers?
+                </label>
+
+                <select
+                    id="currentHosting"
+                    name="currentHosting"
+                >
+
+                    <option value="" selected>
+                        Select an option
+                    </option>
+
+                    <option value="Never Hosted">
+                        I've Never Hosted One
+                    </option>
+
+                    <option value="Personal PC">
+                        Personal PC
+                    </option>
+
+                    <option value="VPS">
+                        VPS
+                    </option>
+
+                    <option value="Dedicated Server">
+                        Dedicated Server
+                    </option>
+
+                    <option value="Hosting Provider">
+                        Existing Hosting Provider
+                    </option>
+
+                    <option value="Other">
+                        Other
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="testingReason">
+                    Why Do You Want To Beta Test Motogrid?
+                    <span class="required">*</span>
+                </label>
+
+                <textarea
+                    id="testingReason"
+                    name="testingReason"
+                    maxlength="1000"
+                    placeholder="Tell us why you're interested in testing the Motogrid hosting platform..."
+                    required
+                ></textarea>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="hostingProblems">
+                    What Would Make MX Bikes Server Hosting Easier For You?
+                    <span class="required">*</span>
+                </label>
+
+                <textarea
+                    id="hostingProblems"
+                    name="hostingProblems"
+                    maxlength="1000"
+                    placeholder="Tell us what you would like to see improved about setting up, managing, or running MX Bikes servers..."
+                    required
+                ></textarea>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="availability">
+                    Testing Availability
+                    <span class="required">*</span>
+                </label>
+
+                <select
+                    id="availability"
+                    name="availability"
+                    required
+                >
+
+                    <option value="" selected disabled>
+                        Select availability
+                    </option>
+
+                    <option value="Occasionally">
+                        Occasionally
+                    </option>
+
+                    <option value="1-2 Days Per Week">
+                        1 - 2 Days Per Week
+                    </option>
+
+                    <option value="3-4 Days Per Week">
+                        3 - 4 Days Per Week
+                    </option>
+
+                    <option value="5+ Days Per Week">
+                        5+ Days Per Week
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <hr class="form-divider">
+
+
+            <!-- AGREEMENT -->
+
+            <div class="form-heading">
+                <span class="form-heading-number">03</span>
+                <h2>Beta Agreement</h2>
+            </div>
+
+
+            <div class="checkbox-group">
+
+                <input
+                    type="checkbox"
+                    id="feedbackAgreement"
+                    name="feedbackAgreement"
+                    required
+                >
+
+                <label for="feedbackAgreement">
+                    I understand that the Motogrid Server Hosting Platform
+                    is still in development and may contain bugs, outages,
+                    unfinished features, or other issues. I agree to provide
+                    useful feedback and report problems encountered during
+                    testing.
+                </label>
+
+            </div>
+
+
+            <button
+                type="submit"
+                class="beta-submit"
+            >
+                SUBMIT BETA APPLICATION →
+            </button>
+
+
+            <p class="application-note">
+                APPLICATIONS ARE REVIEWED BY THE MOTOGRID TEAM.
+                SUBMITTING AN APPLICATION DOES NOT GUARANTEE BETA ACCESS.
+            </p>
+
+        </form>
+
+
+        <div class="beta-footer">
+            MOTOGRID // MX BIKES COMMUNITY PLATFORM
+        </div>
+
+    </main>
+
+</div>
+
+
+<script>
+    /*
+        Discord submission will be added next.
+
+        We intentionally DO NOT place the Discord webhook
+        directly in this HTML file because this site is public.
+    */
+
+    const betaForm = document.getElementById("betaApplicationForm");
+
+    betaForm.addEventListener("submit", function(event) {
+
+        event.preventDefault();
+
+        alert(
+            "Application form is working. Discord submission will be connected next."
+        );
+
+    });
+</script>
+
+</body>
+</html>
