@@ -256,13 +256,6 @@
     .hosting-feature:last-child {
         border-bottom: none;
     }
-
-    .site-header .discord-button {
-    margin-left: 0;
-    margin-right: 20px;
-    flex-shrink: 0;
-}
-    
 }
 </style>
 </head>
@@ -347,40 +340,51 @@
     </div>
 </div>
 
- <a
-        href="https://discord.gg/JbyvJCdxUD"
-        class="discord-button"
-        target="_blank"
-        rel="noopener noreferrer"
-        style="
-            position: absolute;
-            left: 20px;
-            top: 50%;
-            transform: translateY(-50%);
-            z-index: 50;
-        "
-    >
-        Join Discord
-    </a>
-
     <!-- =========================
          HEADER / NAVIGATION
     ========================== -->
     <header class="site-header">
         <div class="nav-container">
 
-            <a href="index.html" class="brand">
-                <img
-                    src="assets/logo/motogrid-logo.png"
-                    alt="Motogrid Logo"
-                    class="brand-logo"
+            <!-- LEFT SIDE: DISCORD + MOTOGRID BRAND -->
+            <div
+                class="nav-left-group"
+                style="
+                    display: flex;
+                    align-items: center;
+                    gap: 18px;
+                    flex-shrink: 0;
+                "
+            >
+
+                <a
+                    href="https://discord.gg/JbyvJCdxUD"
+                    class="discord-button"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style="
+                        display: inline-flex;
+                        align-items: center;
+                        justify-content: center;
+                        flex-shrink: 0;
+                    "
                 >
+                    Join Discord
+                </a>
 
-                <span class="brand-name">
-    MOTO<span>GRID</span>
-</span>
-</a>
+                <a href="index.html" class="brand">
+                    <img
+                        src="assets/logo/motogrid-logo.png"
+                        alt="Motogrid Logo"
+                        class="brand-logo"
+                    >
 
+                    <span class="brand-name">
+                        MOTO<span>GRID</span>
+                    </span>
+                </a>
+
+            </div>
 
             <nav class="main-nav" id="mainNav">
                 <a href="index.html" class="nav-link active">Home</a>
@@ -393,62 +397,61 @@
 
             <div class="nav-actions">
 
-    <a
-    href="pages/login.html"
-    class="account-login-btn"
-    style="
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        height: 42px;
-        padding: 0 20px;
-        border: 1px solid #7cff00;
-        background: #0a0c0a;
-        color: #7cff00;
-        font-size: 10px;
-        font-weight: 900;
-        letter-spacing: 1.5px;
-        text-transform: uppercase;
-        text-decoration: none;
-        cursor: pointer;
-    "
->
-    LOGIN
-</a>
+                <a
+                    href="pages/login.html"
+                    class="account-login-btn"
+                    style="
+                        display: inline-flex;
+                        align-items: center;
+                        justify-content: center;
+                        height: 42px;
+                        padding: 0 20px;
+                        border: 1px solid #7cff00;
+                        background: #0a0c0a;
+                        color: #7cff00;
+                        font-size: 10px;
+                        font-weight: 900;
+                        letter-spacing: 1.5px;
+                        text-transform: uppercase;
+                        text-decoration: none;
+                        cursor: pointer;
+                    "
+                >
+                    LOGIN
+                </a>
 
-<a
-    href="pages/register.html"
-    class="account-register-btn"
-    style="
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        height: 42px;
-        padding: 0 22px;
-        border: 1px solid #7cff00;
-        background: #7cff00;
-        color: #050705;
-        font-size: 10px;
-        font-weight: 900;
-        letter-spacing: 1.5px;
-        text-transform: uppercase;
-        text-decoration: none;
-        cursor: pointer;
-    "
->
-    CREATE ACCOUNT
-</a>
+                <a
+                    href="pages/register.html"
+                    class="account-register-btn"
+                    style="
+                        display: inline-flex;
+                        align-items: center;
+                        justify-content: center;
+                        height: 42px;
+                        padding: 0 22px;
+                        border: 1px solid #7cff00;
+                        background: #7cff00;
+                        color: #050705;
+                        font-size: 10px;
+                        font-weight: 900;
+                        letter-spacing: 1.5px;
+                        text-transform: uppercase;
+                        text-decoration: none;
+                        cursor: pointer;
+                    "
+                >
+                    CREATE ACCOUNT
+                </a>
 
+                <button
+                    class="mobile-menu-button"
+                    id="mobileMenuButton"
+                    aria-label="Open navigation menu"
+                >
+                    ☰
+                </button>
 
-    <button
-        class="mobile-menu-button"
-        id="mobileMenuButton"
-        aria-label="Open navigation menu"
-    >
-        ☰
-    </button>
-
-</div>
+            </div>
 
         </div>
     </header>
