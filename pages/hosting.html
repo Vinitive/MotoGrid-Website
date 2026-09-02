@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>MX Bikes Hosting | Motogrid</title>
+
+    <link rel="stylesheet" href="../css/style.css">
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            background: #050605;
+            color: #fff;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        .hosting-page {
+            min-height: 100vh;
+            position: relative;
+
+            background:
+                radial-gradient(
+                    circle at 50% 15%,
+                    rgba(124, 255, 0, 0.08),
+                    transparent 32%
+                ),
+                #050605;
+
+            overflow: hidden;
+        }
+
+        .hosting-page::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+
+            background-image:
+                linear-gradient(
+                    rgba(255,255,255,0.025) 1px,
+                    transparent 1px
+                ),
+                linear-gradient(
+                    90deg,
+                    rgba(255,255,255,0.025) 1px,
+                    transparent 1px
+                );
+
+            background-size: 55px 55px;
+
+            mask-image:
+                radial-gradient(
+                    circle at center,
+                    black,
+                    transparent 85%
+                );
+        }
+
+        /* TOP BAR */
+
+        .hosting-topbar {
+            position: relative;
+            z-index: 10;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            max-width: 1200px;
+
+            margin: 0 auto;
+            padding: 24px 30px;
+
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .hosting-logo {
+            height: 55px;
+            width: auto;
+            display: block;
+        }
+
+        .hosting-back {
+            color: #999;
+            text-decoration: none;
+
+            font-size: 11px;
+            font-weight: 900;
+
+            letter-spacing: 2px;
+
+            transition: color 0.2s ease;
+        }
+
+        .hosting-back:hover {
+            color: #7cff00;
+        }
+
+        /* PAGE CONTENT */
+
+        .hosting-container {
+            position: relative;
+            z-index: 2;
+
+            width: min(1100px, calc(100% - 40px));
+
+            margin: 0 auto;
+
+            padding: 85px 0 110px;
+        }
+
+        /* HERO */
+
+        .hosting-hero {
+            text-align: center;
+
+            max-width: 850px;
+
+            margin: 0 auto 65px;
+        }
+
+        .hosting-status {
+            display: inline-block;
+
+            padding: 8px 14px;
+
+            margin-bottom: 22px;
+
+            border: 1px solid #7cff00;
+
+            background: rgba(124,255,0,0.05);
+
+            color: #7cff00;
+
+            font-size: 10px;
+            font-weight: 900;
+
+            letter-spacing: 3px;
+        }
+
+        .hosting-eyebrow {
+            margin: 0 0 10px;
+
+            color: #777;
+
+            font-size: 11px;
+            font-weight: 900;
+
+            letter-spacing: 5px;
+        }
+
+        .hosting-hero h1 {
+            margin: 0;
+
+            font-size: clamp(48px, 8vw, 90px);
+
+            line-height: 0.88;
+
+            font-weight: 1000;
+
+            letter-spacing: -4px;
+
+            text-transform: uppercase;
+
+            font-style: italic;
+        }
+
+        .hosting-hero h1 span {
+            display: block;
+            color: #7cff00;
+        }
+
+        .hosting-line {
+            width: 100px;
+            height: 4px;
+
+            margin: 30px auto;
+
+            background: #7cff00;
+
+            transform: skewX(-20deg);
+
+            box-shadow:
+                0 0 20px rgba(124,255,0,0.35);
+        }
+
+        .hosting-description {
+            max-width: 700px;
+
+            margin: 0 auto;
+
+            color: #999;
+
+            font-size: 16px;
+
+            line-height: 1.7;
+        }
+
+        /* PACKAGE GRID */
+
+        .package-grid {
+            display: grid;
+
+            grid-template-columns: repeat(2, 1fr);
+
+            gap: 28px;
+
+            max-width: 950px;
+
+            margin: 0 auto;
+        }
+
+        /* PACKAGE CARD */
+
+        .package-card {
+            position: relative;
+
+            display: flex;
+            flex-direction: column;
+
+            min-height: 570px;
+
+            padding: 42px;
+
+            background:
+                linear-gradient(
+                    145deg,
+                    rgba(255,255,255,0.035),
+                    rgba(255,255,255,0.01)
+                ),
+                #0a0c0a;
+
+            border: 1px solid rgba(255,255,255,0.1);
+
+            overflow: hidden;
+
+            transition:
+                transform 0.25s ease,
+                border-color 0.25s ease,
+                box-shadow 0.25s ease;
+        }
+
+        .package-card::before {
+            content: "";
+
+            position: absolute;
+
+            top: 0;
+            left: 0;
+
+            width: 100%;
+            height: 3px;
+
+            background: #555;
+        }
+
+        .package-card:hover {
+            transform: translateY(-7px);
+
+            border-color: rgba(124,255,0,0.35);
+        }
+
+        /* FEATURED PACKAGE */
+
+        .package-card.featured {
+            border-color: rgba(124,255,0,0.45);
+
+            box-shadow:
+                0 0 45px rgba(124,255,0,0.06);
+        }
+
+        .package-card.featured::before {
+            background: #7cff00;
+
+            box-shadow:
+                0 0 18px rgba(124,255,0,0.6);
+        }
+
+        /* POPULAR TAG */
+
+        .package-popular {
+            position: absolute;
+
+            top: 22px;
+            right: -38px;
+
+            width: 150px;
+
+            padding: 7px 0;
+
+            background: #7cff00;
+
+            color: #050705;
+
+            text-align: center;
+
+            font-size: 9px;
+            font-weight: 1000;
+
+            letter-spacing: 1.5px;
+
+            transform: rotate(45deg);
+        }
+
+        /* PACKAGE HEADER */
+
+        .package-number {
+            color: #555;
+
+            font-size: 10px;
+            font-weight: 900;
+
+            letter-spacing: 3px;
+
+            margin-bottom: 18px;
+        }
+
+        .featured .package-number {
+            color: #7cff00;
+        }
+
+        .package-card h2 {
+            margin: 0;
+
+            font-size: 33px;
+
+            font-weight: 1000;
+
+            letter-spacing: -1px;
+
+            text-transform: uppercase;
+
+            font-style: italic;
+        }
+
+        .package-subtitle {
+            margin: 8px 0 0;
+
+            color: #777;
+
+            font-size: 12px;
+
+            line-height: 1.5;
+        }
+
+        /* PRICE */
+
+        .package-price {
+            display: flex;
+            align-items: flex-start;
+
+            margin: 32px 0;
+        }
+
+        .price-dollar {
+            color: #7cff00;
+
+            font-size: 23px;
+            font-weight: 900;
+
+            margin-top: 8px;
+        }
+
+        .price-amount {
+            color: #fff;
+
+            font-size: 68px;
+            font-weight: 1000;
+
+            letter-spacing: -4px;
+
+            line-height: 1;
+        }
+
+        .price-period {
+            align-self: flex-end;
+
+            margin: 0 0 8px 8px;
+
+            color: #666;
+
+            font-size: 11px;
+
+            font-weight: 800;
+
+            letter-spacing: 1px;
+        }
+
+        /* DIVIDER */
+
+        .package-divider {
+            height: 1px;
+
+            margin-bottom: 28px;
+
+            background: rgba(255,255,255,0.08);
+        }
+
+        /* FEATURES */
+
+        .package-features {
+            list-style: none;
+
+            margin: 0;
+            padding: 0;
+
+            display: flex;
+            flex-direction: column;
+
+            gap: 16px;
+        }
+
+        .package-features li {
+            display: flex;
+
+            align-items: center;
+
+            gap: 12px;
+
+            color: #aaa;
+
+            font-size: 13px;
+
+            line-height: 1.4;
+        }
+
+        .feature-check {
+            flex-shrink: 0;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            width: 19px;
+            height: 19px;
+
+            border: 1px solid rgba(124,255,0,0.35);
+
+            color: #7cff00;
+
+            font-size: 10px;
+
+            background: rgba(124,255,0,0.04);
+        }
+
+        /* BUTTON AREA */
+
+        .package-action {
+            margin-top: auto;
+
+            padding-top: 35px;
+        }
+
+        .package-button {
+            display: block;
+
+            width: 100%;
+
+            padding: 17px 20px;
+
+            border: 1px solid #7cff00;
+
+            background: transparent;
+
+            color: #7cff00;
+
+            text-align: center;
+            text-decoration: none;
+
+            font-size: 11px;
+            font-weight: 1000;
+
+            letter-spacing: 2px;
+
+            text-transform: uppercase;
+
+            cursor: pointer;
+
+            transition:
+                background 0.2s ease,
+                color 0.2s ease,
+                transform 0.2s ease,
+                box-shadow 0.2s ease;
+        }
+
+        .package-button:hover {
+            background: #7cff00;
+
+            color: #050705;
+
+            transform: translateY(-2px);
+        }
+
+        .featured .package-button {
+            background: #7cff00;
+
+            color: #050705;
+        }
+
+        .featured .package-button:hover {
+            box-shadow:
+                0 10px 35px rgba(124,255,0,0.2);
+        }
+
+        /* COMING SOON */
+
+        .hosting-notice {
+            max-width: 950px;
+
+            margin: 55px auto 0;
+
+            padding: 24px 25px;
+
+            border: 1px solid rgba(255,255,255,0.08);
+
+            background: rgba(255,255,255,0.02);
+
+            text-align: center;
+        }
+
+        .hosting-notice strong {
+            color: #7cff00;
+
+            font-size: 10px;
+
+            letter-spacing: 2px;
+        }
+
+        .hosting-notice p {
+            margin: 9px 0 0;
+
+            color: #666;
+
+            font-size: 11px;
+
+            line-height: 1.6;
+        }
+
+        /* FOOTER */
+
+        .hosting-footer {
+            margin-top: 50px;
+
+            text-align: center;
+
+            color: #444;
+
+            font-size: 9px;
+            font-weight: 800;
+
+            letter-spacing: 2px;
+        }
+
+        /* MOBILE */
+
+        @media (max-width: 760px) {
+
+            .hosting-topbar {
+                padding: 18px 20px;
+            }
+
+            .hosting-logo {
+                height: 42px;
+            }
+
+            .hosting-container {
+                padding: 55px 0 75px;
+            }
+
+            .hosting-hero {
+                margin-bottom: 45px;
+            }
+
+            .hosting-hero h1 {
+                letter-spacing: -2px;
+            }
+
+            .package-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .package-card {
+                min-height: auto;
+                padding: 32px 25px;
+            }
+
+            .package-action {
+                margin-top: 35px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="hosting-page">
+
+    <!-- TOP BAR -->
+
+    <div class="hosting-topbar">
+
+        <a href="../index.html">
+            <img
+                src="../assets/logo/motogrid-logo.png"
+                alt="Motogrid"
+                class="hosting-logo"
+            >
+        </a>
+
+        <a href="../index.html" class="hosting-back">
+            ← BACK TO MOTOGRID
+        </a>
+
+    </div>
+
+
+    <main class="hosting-container">
+
+        <!-- HERO -->
+
+        <section class="hosting-hero">
+
+            <div class="hosting-status">
+                MX BIKES SERVER HOSTING
+            </div>
+
+            <p class="hosting-eyebrow">
+                POWERED BY MOTOGRID
+            </p>
+
+            <h1>
+                PICK YOUR
+                <span>PACKAGE</span>
+            </h1>
+
+            <div class="hosting-line"></div>
+
+            <p class="hosting-description">
+                MX Bikes server hosting built to make getting online easier.
+                Choose the package that fits how you ride, race, and manage
+                your community.
+            </p>
+
+        </section>
+
+
+        <!-- PACKAGES -->
+
+        <section class="package-grid">
+
+
+            <!-- STANDARD -->
+
+            <article class="package-card">
+
+                <div class="package-number">
+                    PACKAGE // 01
+                </div>
+
+                <h2>Standard</h2>
+
+                <p class="package-subtitle">
+                    Everything you need to get an MX Bikes server online.
+                </p>
+
+                <div class="package-price">
+
+                    <span class="price-dollar">$</span>
+
+                    <span class="price-amount">7</span>
+
+                    <span class="price-period">
+                        / MONTH
+                    </span>
+
+                </div>
+
+                <div class="package-divider"></div>
+
+
+                <ul class="package-features">
+
+                    <li>
+                        <span class="feature-check">✓</span>
+                        MX Bikes Dedicated Server
+                    </li>
+
+                    <li>
+                        <span class="feature-check">✓</span>
+                        Easy Server Configuration
+                    </li>
+
+                    <li>
+                        <span class="feature-check">✓</span>
+                        Start, Stop & Restart Controls
+                    </li>
+
+                    <li>
+                        <span class="feature-check">✓</span>
+                        Track & Race Configuration
+                    </li>
+
+                    <li>
+                        <span class="feature-check">✓</span>
+                        Server Status Monitoring
+                    </li>
+
+                </ul>
+
+
+                <div class="package-action">
+
+                    <button
+                        type="button"
+                        class="package-button"
+                        id="standardPackage"
+                    >
+                        SELECT STANDARD
+                    </button>
+
+                </div>
+
+            </article>
+
+
+            <!-- RACE PACKAGE -->
+
+            <article class="package-card featured">
+
+                <div class="package-popular">
+                    RACE READY
+                </div>
+
+                <div class="package-number">
+                    PACKAGE // 02
+                </div>
+
+                <h2>Race Package</h2>
+
+                <p class="package-subtitle">
+                    Built for leagues, events, championships and serious racing.
+                </p>
+
+                <div class="package-price">
+
+                    <span class="price-dollar">$</span>
+
+                    <span class="price-amount">15</span>
+
+                    <span class="price-period">
+                        / MONTH
+                    </span>
+
+                </div>
+
+                <div class="package-divider"></div>
+
+
+                <ul class="package-features">
+
+                    <li>
+                        <span class="feature-check">✓</span>
+                        Everything Included In Standard
+                    </li>
+
+                    <li>
+                        <span class="feature-check">✓</span>
+                        Race & Event Focused Hosting
+                    </li>
+
+                    <li>
+                        <span class="feature-check">✓</span>
+                        Race Results Management
+                    </li>
+
+                    <li>
+                        <span class="feature-check">✓</span>
+                        Championship / Series Tools
+                    </li>
+
+                    <li>
+                        <span class="feature-check">✓</span>
+                        Priority Hosting Features
+                    </li>
+
+                </ul>
+
+
+                <div class="package-action">
+
+                    <button
+                        type="button"
+                        class="package-button"
+                        id="racePackage"
+                    >
+                        SELECT RACE PACKAGE
+                    </button>
+
+                </div>
+
+            </article>
+
+        </section>
+
+
+        <!-- DEVELOPMENT NOTICE -->
+
+        <div class="hosting-notice">
+
+            <strong>
+                HOSTING PLATFORM IN DEVELOPMENT
+            </strong>
+
+            <p>
+                Package purchasing and automatic server deployment are
+                currently being built. Pricing and features may be adjusted
+                before public release.
+            </p>
+
+        </div>
+
+
+        <div class="hosting-footer">
+            MOTOGRID // MX BIKES SERVER HOSTING
+        </div>
+
+    </main>
+
+</div>
+
+
+<script>
+    const standardPackage =
+        document.getElementById("standardPackage");
+
+    const racePackage =
+        document.getElementById("racePackage");
+
+
+    standardPackage.addEventListener("click", function () {
+
+        alert(
+            "Standard Package selected. Purchasing will be available soon."
+        );
+
+    });
+
+
+    racePackage.addEventListener("click", function () {
+
+        alert(
+            "Race Package selected. Purchasing will be available soon."
+        );
+
+    });
+</script>
+
+</body>
+</html>
