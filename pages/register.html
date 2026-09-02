@@ -556,6 +556,10 @@
 
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../js/supabase.js"></script>
+
+
 
 <script>
     const registerForm =
@@ -564,9 +568,12 @@
     const registerMessage =
         document.getElementById("registerMessage");
 
+    const registerButton =
+        document.getElementById("registerButton");
+
     registerForm.addEventListener(
         "submit",
-        function(event) {
+        async function(event) {
 
             event.preventDefault();
 
@@ -581,6 +588,9 @@
 
             const confirmPassword =
                 document.getElementById("confirmPassword").value;
+
+            const discord =
+                document.getElementById("discord").value.trim();
 
             registerMessage.className = "auth-message";
             registerMessage.textContent = "";
@@ -622,18 +632,67 @@
             }
 
 
+            registerButton.disabled = true;
+            registerButton.textContent = "CREATING ACCOUNT...";
+
+
+            const { data, error } =
+                await supabaseClient.auth.signUp({
+                    email: email,
+                    password: password,
+
+                    options: {
+                        data: {
+                            username: username,
+                            discord: discord
+                        }
+                    }
+                });
+
+
+            if (error) {
+
+                registerMessage.className =
+                    "auth-message error";
+
+                registerMessage.textContent =
+                    error.message;
+
+                registerButton.disabled = false;
+
+                registerButton.textContent =
+                    "CREATE MOTOGRID ACCOUNT →";
+
+                return;
+            }
+
+
             registerMessage.className =
                 "auth-message success";
 
-            registerMessage.textContent =
-                "Form is working. Account creation will be connected next.";
+
+            if (data.session) {
+
+                registerMessage.textContent =
+                    "Account created successfully. Redirecting...";
+
+                setTimeout(() => {
+                    window.location.href = "account.html";
+                }, 1200);
+
+            } else {
+
+                registerMessage.textContent =
+                    "Account created. Check your email to verify your account before logging in.";
+
+                registerButton.textContent =
+                    "ACCOUNT CREATED";
+            }
 
         }
     );
 </script>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="../js/supabase.js"></script>
 
 </body>
 </html>
