@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Create Account | Motogrid</title>
+
+    <link rel="stylesheet" href="../css/style.css">
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: #050605;
+            color: #fff;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        .auth-page {
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background:
+                radial-gradient(
+                    circle at 50% 25%,
+                    rgba(124, 255, 0, 0.08),
+                    transparent 35%
+                ),
+                #050605;
+            overflow: hidden;
+        }
+
+        .auth-page::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            background-image:
+                linear-gradient(
+                    rgba(255,255,255,0.025) 1px,
+                    transparent 1px
+                ),
+                linear-gradient(
+                    90deg,
+                    rgba(255,255,255,0.025) 1px,
+                    transparent 1px
+                );
+            background-size: 55px 55px;
+        }
+
+        .auth-topbar {
+            position: relative;
+            z-index: 5;
+            width: min(1200px, calc(100% - 40px));
+            margin: 0 auto;
+            padding: 22px 0;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .auth-logo {
+            height: 55px;
+            width: auto;
+            display: block;
+        }
+
+        .auth-back {
+            color: #888;
+            text-decoration: none;
+            font-size: 10px;
+            font-weight: 900;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .auth-back:hover {
+            color: #7cff00;
+        }
+
+        .auth-container {
+            position: relative;
+            z-index: 2;
+
+            flex: 1;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            width: 100%;
+            padding: 60px 20px;
+        }
+
+        .auth-box {
+            width: min(520px, 100%);
+            padding: 45px;
+
+            background:
+                linear-gradient(
+                    145deg,
+                    rgba(255,255,255,0.04),
+                    rgba(255,255,255,0.01)
+                ),
+                #0a0c0a;
+
+            border: 1px solid rgba(255,255,255,0.1);
+            border-top: 3px solid #7cff00;
+
+            box-shadow:
+                0 30px 80px rgba(0,0,0,0.35),
+                0 0 40px rgba(124,255,0,0.03);
+        }
+
+        .auth-status {
+            color: #7cff00;
+            font-size: 9px;
+            font-weight: 900;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
+
+        .auth-box h1 {
+            margin: 12px 0 8px;
+            font-size: 42px;
+            line-height: 1;
+            font-weight: 1000;
+            letter-spacing: -2px;
+            text-transform: uppercase;
+            font-style: italic;
+        }
+
+        .auth-description {
+            margin: 0 0 35px;
+            color: #777;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .auth-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 9px;
+        }
+
+        .form-group label {
+            color: #aaa;
+            font-size: 9px;
+            font-weight: 900;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 15px 16px;
+
+            border: 1px solid rgba(255,255,255,0.12);
+            outline: none;
+
+            background: #060706;
+            color: #fff;
+
+            font-size: 14px;
+
+            transition:
+                border-color 0.2s ease,
+                box-shadow 0.2s ease;
+        }
+
+        .form-group input:focus {
+            border-color: #7cff00;
+            box-shadow: 0 0 0 2px rgba(124,255,0,0.05);
+        }
+
+        .form-group input::placeholder {
+            color: #444;
+        }
+
+        .password-hint {
+            margin-top: 3px;
+            color: #555;
+            font-size: 9px;
+            line-height: 1.5;
+        }
+
+        .terms-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+
+            color: #777;
+            font-size: 10px;
+            line-height: 1.6;
+        }
+
+        .terms-row input {
+            margin-top: 3px;
+            accent-color: #7cff00;
+        }
+
+        .terms-row a {
+            color: #7cff00;
+            text-decoration: none;
+            font-weight: 800;
+        }
+
+        .terms-row a:hover {
+            text-decoration: underline;
+        }
+
+        .auth-message {
+            display: none;
+            padding: 12px 14px;
+            border: 1px solid rgba(255,255,255,0.1);
+            background: rgba(255,255,255,0.03);
+            font-size: 11px;
+            line-height: 1.5;
+        }
+
+        .auth-message.error {
+            display: block;
+            color: #ff6868;
+            border-color: rgba(255,104,104,0.35);
+            background: rgba(255,104,104,0.06);
+        }
+
+        .auth-message.success {
+            display: block;
+            color: #7cff00;
+            border-color: rgba(124,255,0,0.35);
+            background: rgba(124,255,0,0.05);
+        }
+
+        .auth-button {
+            width: 100%;
+            padding: 17px 20px;
+
+            border: none;
+
+            background: #7cff00;
+            color: #050705;
+
+            font-size: 11px;
+            font-weight: 1000;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+
+            cursor: pointer;
+
+            transition:
+                transform 0.2s ease,
+                box-shadow 0.2s ease,
+                opacity 0.2s ease;
+        }
+
+        .auth-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 35px rgba(124,255,0,0.18);
+        }
+
+        .auth-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .auth-divider {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin: 30px 0;
+            color: #444;
+            font-size: 9px;
+            font-weight: 900;
+            letter-spacing: 2px;
+        }
+
+        .auth-divider::before,
+        .auth-divider::after {
+            content: "";
+            flex: 1;
+            height: 1px;
+            background: rgba(255,255,255,0.08);
+        }
+
+        .auth-switch {
+            text-align: center;
+            color: #777;
+            font-size: 12px;
+        }
+
+        .auth-switch a {
+            margin-left: 4px;
+            color: #7cff00;
+            font-weight: 900;
+            text-decoration: none;
+        }
+
+        .auth-switch a:hover {
+            text-decoration: underline;
+        }
+
+        .auth-footer {
+            position: relative;
+            z-index: 2;
+
+            padding: 25px;
+
+            text-align: center;
+
+            color: #333;
+            font-size: 8px;
+            font-weight: 800;
+            letter-spacing: 2px;
+        }
+
+        @media (max-width: 600px) {
+            .auth-box {
+                padding: 35px 25px;
+            }
+
+            .auth-logo {
+                height: 42px;
+            }
+
+            .auth-box h1 {
+                font-size: 36px;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="auth-page">
+
+    <header class="auth-topbar">
+
+        <a href="../index.html">
+            <img
+                src="../assets/logo/motogrid-logo.png"
+                alt="Motogrid"
+                class="auth-logo"
+            >
+        </a>
+
+        <a href="../index.html" class="auth-back">
+            ← Back to Motogrid
+        </a>
+
+    </header>
+
+
+    <main class="auth-container">
+
+        <div class="auth-box">
+
+            <span class="auth-status">
+                JOIN MOTOGRID
+            </span>
+
+            <h1>Create Account.</h1>
+
+            <p class="auth-description">
+                Create your Motogrid account to access hosting,
+                server management, race tools and future community features.
+            </p>
+
+
+            <form class="auth-form" id="registerForm">
+
+                <div class="form-group">
+
+                    <label for="username">
+                        Username
+                    </label>
+
+                    <input
+                        type="text"
+                        id="username"
+                        name="username"
+                        placeholder="Choose a username"
+                        autocomplete="username"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="email">
+                        Email Address
+                    </label>
+
+                    <input
+                        type="email"
+                        id="email"
+                        name="email"
+                        placeholder="you@example.com"
+                        autocomplete="email"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="form-row">
+
+                    <div class="form-group">
+
+                        <label for="password">
+                            Password
+                        </label>
+
+                        <input
+                            type="password"
+                            id="password"
+                            name="password"
+                            placeholder="Create password"
+                            autocomplete="new-password"
+                            minlength="8"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="confirmPassword">
+                            Confirm Password
+                        </label>
+
+                        <input
+                            type="password"
+                            id="confirmPassword"
+                            name="confirmPassword"
+                            placeholder="Repeat password"
+                            autocomplete="new-password"
+                            minlength="8"
+                            required
+                        >
+
+                    </div>
+
+                </div>
+
+
+                <p class="password-hint">
+                    Password must be at least 8 characters.
+                </p>
+
+
+                <div class="form-group">
+
+                    <label for="discord">
+                        Discord Username
+                    </label>
+
+                    <input
+                        type="text"
+                        id="discord"
+                        name="discord"
+                        placeholder="Optional"
+                    >
+
+                </div>
+
+
+                <label class="terms-row">
+
+                    <input
+                        type="checkbox"
+                        id="terms"
+                        required
+                    >
+
+                    <span>
+                        I agree to the Motogrid
+                        <a href="#">Terms of Service</a>
+                        and
+                        <a href="#">Privacy Policy</a>.
+                    </span>
+
+                </label>
+
+
+                <div
+                    class="auth-message"
+                    id="registerMessage"
+                ></div>
+
+
+                <button
+                    type="submit"
+                    class="auth-button"
+                    id="registerButton"
+                >
+                    CREATE MOTOGRID ACCOUNT →
+                </button>
+
+            </form>
+
+
+            <div class="auth-divider">
+                ALREADY ON THE GRID
+            </div>
+
+
+            <div class="auth-switch">
+
+                Already have an account?
+
+                <a href="login.html">
+                    Login
+                </a>
+
+            </div>
+
+        </div>
+
+    </main>
+
+
+    <footer class="auth-footer">
+        MOTOGRID // MX BIKES COMMUNITY
+    </footer>
+
+</div>
+
+
+<script>
+    const registerForm =
+        document.getElementById("registerForm");
+
+    const registerMessage =
+        document.getElementById("registerMessage");
+
+    registerForm.addEventListener(
+        "submit",
+        function(event) {
+
+            event.preventDefault();
+
+            const username =
+                document.getElementById("username").value.trim();
+
+            const email =
+                document.getElementById("email").value.trim();
+
+            const password =
+                document.getElementById("password").value;
+
+            const confirmPassword =
+                document.getElementById("confirmPassword").value;
+
+            registerMessage.className = "auth-message";
+            registerMessage.textContent = "";
+
+
+            if (username.length < 3) {
+
+                registerMessage.className =
+                    "auth-message error";
+
+                registerMessage.textContent =
+                    "Username must be at least 3 characters.";
+
+                return;
+            }
+
+
+            if (password.length < 8) {
+
+                registerMessage.className =
+                    "auth-message error";
+
+                registerMessage.textContent =
+                    "Password must be at least 8 characters.";
+
+                return;
+            }
+
+
+            if (password !== confirmPassword) {
+
+                registerMessage.className =
+                    "auth-message error";
+
+                registerMessage.textContent =
+                    "Your passwords do not match.";
+
+                return;
+            }
+
+
+            registerMessage.className =
+                "auth-message success";
+
+            registerMessage.textContent =
+                "Form is working. Account creation will be connected next.";
+
+        }
+    );
+</script>
+
+</body>
+</html>
