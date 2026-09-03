@@ -1,0 +1,1311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>My Account | Motogrid</title>
+
+    <link rel="stylesheet" href="../css/style.css">
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: #050605;
+            color: #fff;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        button,
+        input {
+            font: inherit;
+        }
+
+        .account-page {
+            min-height: 100vh;
+            background:
+                radial-gradient(circle at 50% 0%, rgba(124,255,0,0.07), transparent 28%),
+                #050605;
+        }
+
+        .account-grid-bg {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            background-image:
+                linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+            background-size: 55px 55px;
+            z-index: 0;
+        }
+
+        .account-topbar {
+            position: relative;
+            z-index: 3;
+            width: min(1400px, calc(100% - 40px));
+            margin: 0 auto;
+            min-height: 84px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .account-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #fff;
+            text-decoration: none;
+        }
+
+        .account-logo {
+            width: auto;
+            height: 52px;
+            display: block;
+        }
+
+        .account-brand-name {
+            font-size: 18px;
+            font-weight: 1000;
+            letter-spacing: 1px;
+            font-style: italic;
+        }
+
+        .account-brand-name span {
+            color: #7cff00;
+        }
+
+        .account-top-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .top-button {
+            min-height: 40px;
+            padding: 0 16px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(255,255,255,0.12);
+            background: #090b09;
+            color: #aaa;
+            text-decoration: none;
+            font-size: 9px;
+            font-weight: 900;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            cursor: pointer;
+        }
+
+        .top-button:hover {
+            color: #7cff00;
+            border-color: #7cff00;
+        }
+
+        .logout-button {
+            border-color: #7cff00;
+            color: #7cff00;
+        }
+
+        .account-shell {
+            position: relative;
+            z-index: 2;
+            width: min(1400px, calc(100% - 40px));
+            margin: 0 auto;
+            padding: 52px 0 70px;
+        }
+
+        .account-heading {
+            margin-bottom: 34px;
+        }
+
+        .account-eyebrow {
+            color: #7cff00;
+            font-size: 10px;
+            font-weight: 900;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
+
+        .account-heading h1 {
+            margin: 8px 0 8px;
+            font-size: clamp(42px, 7vw, 76px);
+            line-height: 0.95;
+            letter-spacing: -3px;
+            font-style: italic;
+            text-transform: uppercase;
+        }
+
+        .account-heading p {
+            margin: 0;
+            color: #777;
+            font-size: 13px;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 18px;
+        }
+
+        .panel {
+            position: relative;
+            background:
+                linear-gradient(145deg, rgba(255,255,255,0.035), rgba(255,255,255,0.01)),
+                #0a0c0a;
+            border: 1px solid rgba(255,255,255,0.09);
+            padding: 28px;
+            overflow: hidden;
+        }
+
+        .panel::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 72px;
+            height: 3px;
+            background: #7cff00;
+        }
+
+        .profile-panel {
+            grid-column: span 4;
+        }
+
+        .tier-panel {
+            grid-column: span 8;
+        }
+
+        .subscription-panel {
+            grid-column: span 4;
+        }
+
+        .discord-panel {
+            grid-column: span 4;
+        }
+
+        .guid-panel {
+            grid-column: span 4;
+        }
+
+        .password-panel {
+            grid-column: span 12;
+        }
+
+        .panel-kicker {
+            color: #666;
+            font-size: 9px;
+            font-weight: 900;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .panel h2 {
+            margin: 8px 0 22px;
+            font-size: 22px;
+            text-transform: uppercase;
+            letter-spacing: -0.5px;
+        }
+
+        .profile-name {
+            margin: 8px 0 4px;
+            font-size: 28px;
+            font-weight: 1000;
+            text-transform: uppercase;
+            font-style: italic;
+        }
+
+        .profile-email {
+            color: #777;
+            font-size: 12px;
+            overflow-wrap: anywhere;
+        }
+
+        .profile-meta {
+            margin-top: 26px;
+            display: grid;
+            gap: 12px;
+        }
+
+        .meta-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+            padding: 11px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            font-size: 11px;
+        }
+
+        .meta-row span {
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 800;
+        }
+
+        .meta-row strong {
+            color: #ddd;
+            text-align: right;
+        }
+
+        .tier-current {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            gap: 18px;
+            margin-bottom: 20px;
+        }
+
+        .tier-name {
+            font-size: clamp(38px, 5vw, 64px);
+            font-weight: 1000;
+            font-style: italic;
+            text-transform: uppercase;
+            line-height: 0.95;
+        }
+
+        .tier-points {
+            color: #888;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 1px;
+            text-align: right;
+        }
+
+        .tier-progress-track {
+            width: 100%;
+            height: 14px;
+            background: #050605;
+            border: 1px solid rgba(255,255,255,0.09);
+            overflow: hidden;
+        }
+
+        .tier-progress-bar {
+            width: 0%;
+            height: 100%;
+            background: #7cff00;
+            transition: width 0.5s ease;
+        }
+
+        .tier-progress-labels {
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            color: #666;
+            font-size: 9px;
+            font-weight: 900;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .tier-ladder {
+            margin-top: 28px;
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            gap: 7px;
+        }
+
+        .tier-chip {
+            padding: 10px 6px;
+            border: 1px solid rgba(255,255,255,0.08);
+            background: #070807;
+            color: #555;
+            text-align: center;
+            font-size: 8px;
+            font-weight: 900;
+            letter-spacing: 0.7px;
+            text-transform: uppercase;
+        }
+
+        .tier-chip.active {
+            color: #7cff00;
+            border-color: #7cff00;
+            background: rgba(124,255,0,0.05);
+        }
+
+        .subscription-badge {
+            display: inline-flex;
+            align-items: center;
+            min-height: 38px;
+            padding: 0 14px;
+            border: 1px solid #7cff00;
+            color: #7cff00;
+            font-size: 10px;
+            font-weight: 1000;
+            letter-spacing: 1.6px;
+            text-transform: uppercase;
+        }
+
+        .subscription-status {
+            margin: 18px 0 0;
+            color: #777;
+            font-size: 12px;
+            line-height: 1.6;
+        }
+
+        .subscription-detail {
+            margin-top: 18px;
+            display: flex;
+            justify-content: space-between;
+            gap: 14px;
+            padding-top: 16px;
+            border-top: 1px solid rgba(255,255,255,0.07);
+            font-size: 10px;
+        }
+
+        .subscription-detail span {
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .subscription-detail strong {
+            color: #ddd;
+        }
+
+        .form-stack {
+            display: grid;
+            gap: 13px;
+        }
+
+        .field-label {
+            color: #777;
+            font-size: 9px;
+            font-weight: 900;
+            letter-spacing: 1.7px;
+            text-transform: uppercase;
+        }
+
+        .account-input {
+            width: 100%;
+            min-height: 47px;
+            padding: 0 14px;
+            border: 1px solid rgba(255,255,255,0.12);
+            outline: none;
+            background: #060706;
+            color: #fff;
+            font-size: 13px;
+        }
+
+        .account-input:focus {
+            border-color: #7cff00;
+            box-shadow: 0 0 0 2px rgba(124,255,0,0.05);
+        }
+
+        .account-input::placeholder {
+            color: #3d3d3d;
+        }
+
+        .panel-button {
+            min-height: 45px;
+            padding: 0 16px;
+            border: 1px solid #7cff00;
+            background: #7cff00;
+            color: #050705;
+            font-size: 9px;
+            font-weight: 1000;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            cursor: pointer;
+        }
+
+        .panel-button:hover {
+            box-shadow: 0 10px 28px rgba(124,255,0,0.14);
+        }
+
+        .panel-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        .small-note {
+            margin: 0;
+            color: #5f5f5f;
+            font-size: 10px;
+            line-height: 1.55;
+        }
+
+        .account-message {
+            min-height: 16px;
+            margin-top: 10px;
+            color: #777;
+            font-size: 10px;
+            line-height: 1.4;
+        }
+
+        .account-message.success {
+            color: #7cff00;
+        }
+
+        .account-message.error {
+            color: #ff6b6b;
+        }
+
+        .password-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr auto;
+            gap: 12px;
+            align-items: end;
+        }
+
+        .password-field {
+            display: grid;
+            gap: 8px;
+        }
+
+        .loading-screen {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #050605;
+            color: #7cff00;
+            font-size: 11px;
+            font-weight: 900;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
+
+        .loading-screen.hidden {
+            display: none;
+        }
+
+        @media (max-width: 1050px) {
+            .profile-panel,
+            .subscription-panel,
+            .discord-panel,
+            .guid-panel {
+                grid-column: span 6;
+            }
+
+            .tier-panel {
+                grid-column: span 12;
+            }
+
+            .tier-ladder {
+                grid-template-columns: repeat(4, 1fr);
+            }
+
+            .password-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .password-grid .panel-button {
+                grid-column: span 2;
+            }
+        }
+
+        @media (max-width: 700px) {
+            .account-topbar,
+            .account-shell {
+                width: min(100% - 24px, 1400px);
+            }
+
+            .account-topbar {
+                min-height: 74px;
+            }
+
+            .account-logo {
+                height: 42px;
+            }
+
+            .account-brand-name {
+                display: none;
+            }
+
+            .top-button {
+                padding: 0 10px;
+                font-size: 8px;
+            }
+
+            .account-shell {
+                padding-top: 34px;
+            }
+
+            .account-heading h1 {
+                letter-spacing: -2px;
+            }
+
+            .profile-panel,
+            .tier-panel,
+            .subscription-panel,
+            .discord-panel,
+            .guid-panel,
+            .password-panel {
+                grid-column: span 12;
+            }
+
+            .panel {
+                padding: 23px 20px;
+            }
+
+            .tier-current {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .tier-points {
+                text-align: left;
+            }
+
+            .tier-ladder {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .password-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .password-grid .panel-button {
+                grid-column: span 1;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="loading-screen" id="loadingScreen">
+    Loading Motogrid Account...
+</div>
+
+<div class="account-page">
+    <div class="account-grid-bg"></div>
+
+    <header class="account-topbar">
+        <a href="../index.html" class="account-brand">
+            <img
+                src="../assets/logo/motogrid-logo.png"
+                alt="Motogrid"
+                class="account-logo"
+            >
+
+            <span class="account-brand-name">
+                MOTO<span>GRID</span>
+            </span>
+        </a>
+
+        <div class="account-top-actions">
+            <a href="../index.html" class="top-button">
+                Back to Site
+            </a>
+
+            <button
+                type="button"
+                class="top-button logout-button"
+                id="logoutButton"
+            >
+                Logout
+            </button>
+        </div>
+    </header>
+
+    <main class="account-shell">
+
+        <div class="account-heading">
+            <span class="account-eyebrow">
+                RIDER CONTROL CENTER
+            </span>
+
+            <h1>
+                My Account
+            </h1>
+
+            <p>
+                Manage your Motogrid profile, rider identity and account security.
+            </p>
+        </div>
+
+        <div class="dashboard-grid">
+
+            <section class="panel profile-panel">
+                <span class="panel-kicker">
+                    Profile
+                </span>
+
+                <h2>
+                    Rider
+                </h2>
+
+                <div class="profile-name" id="profileUsername">
+                    Rider
+                </div>
+
+                <div class="profile-email" id="profileEmail">
+                    —
+                </div>
+
+                <div class="profile-meta">
+                    <div class="meta-row">
+                        <span>Discord</span>
+                        <strong id="profileDiscord">Not linked</strong>
+                    </div>
+
+                    <div class="meta-row">
+                        <span>MX Bikes GUID</span>
+                        <strong id="profileGuid">Not set</strong>
+                    </div>
+                </div>
+            </section>
+
+            <section class="panel tier-panel">
+                <span class="panel-kicker">
+                    Rider Progression
+                </span>
+
+                <h2>
+                    Rider Tier
+                </h2>
+
+                <div class="tier-current">
+                    <div
+                        class="tier-name"
+                        id="tierName"
+                    >
+                        Copper
+                    </div>
+
+                    <div
+                        class="tier-points"
+                        id="tierPointsText"
+                    >
+                        0 points
+                    </div>
+                </div>
+
+                <div class="tier-progress-track">
+                    <div
+                        class="tier-progress-bar"
+                        id="tierProgressBar"
+                    ></div>
+                </div>
+
+                <div class="tier-progress-labels">
+                    <span id="tierStartLabel">
+                        Copper
+                    </span>
+
+                    <span id="tierNextLabel">
+                        Bronze
+                    </span>
+                </div>
+
+                <div class="tier-ladder" id="tierLadder"></div>
+            </section>
+
+            <section class="panel subscription-panel">
+                <span class="panel-kicker">
+                    Hosting
+                </span>
+
+                <h2>
+                    Server Subscription
+                </h2>
+
+                <div
+                    class="subscription-badge"
+                    id="subscriptionTier"
+                >
+                    No Active Plan
+                </div>
+
+                <p
+                    class="subscription-status"
+                    id="subscriptionStatusText"
+                >
+                    You do not currently have an active Motogrid server subscription.
+                </p>
+
+                <div class="subscription-detail">
+                    <span>Status</span>
+                    <strong id="subscriptionStatus">Inactive</strong>
+                </div>
+            </section>
+
+            <section class="panel discord-panel">
+                <span class="panel-kicker">
+                    Community
+                </span>
+
+                <h2>
+                    Discord
+                </h2>
+
+                <form class="form-stack" id="discordForm">
+                    <label
+                        class="field-label"
+                        for="discordInput"
+                    >
+                        Discord Username
+                    </label>
+
+                    <input
+                        class="account-input"
+                        type="text"
+                        id="discordInput"
+                        placeholder="yourdiscordname"
+                        autocomplete="off"
+                    >
+
+                    <p class="small-note">
+                        This saves your Discord username to your Motogrid account.
+                        Full Discord OAuth linking can be added later.
+                    </p>
+
+                    <button
+                        class="panel-button"
+                        type="submit"
+                        id="discordSaveButton"
+                    >
+                        Save Discord
+                    </button>
+                </form>
+
+                <div
+                    class="account-message"
+                    id="discordMessage"
+                ></div>
+            </section>
+
+            <section class="panel guid-panel">
+                <span class="panel-kicker">
+                    MX Bikes
+                </span>
+
+                <h2>
+                    Rider GUID
+                </h2>
+
+                <form class="form-stack" id="guidForm">
+                    <label
+                        class="field-label"
+                        for="guidInput"
+                    >
+                        MX Bikes GUID
+                    </label>
+
+                    <input
+                        class="account-input"
+                        type="text"
+                        id="guidInput"
+                        placeholder="Enter your MX Bikes GUID"
+                        autocomplete="off"
+                    >
+
+                    <p class="small-note">
+                        Your GUID can later be used to associate server activity,
+                        race results and rider progression with your Motogrid account.
+                    </p>
+
+                    <button
+                        class="panel-button"
+                        type="submit"
+                        id="guidSaveButton"
+                    >
+                        Save GUID
+                    </button>
+                </form>
+
+                <div
+                    class="account-message"
+                    id="guidMessage"
+                ></div>
+            </section>
+
+            <section class="panel password-panel">
+                <span class="panel-kicker">
+                    Security
+                </span>
+
+                <h2>
+                    Change Password
+                </h2>
+
+                <form id="passwordForm">
+                    <div class="password-grid">
+
+                        <div class="password-field">
+                            <label
+                                class="field-label"
+                                for="newPassword"
+                            >
+                                New Password
+                            </label>
+
+                            <input
+                                class="account-input"
+                                type="password"
+                                id="newPassword"
+                                placeholder="Minimum 8 characters"
+                                minlength="8"
+                                required
+                            >
+                        </div>
+
+                        <div class="password-field">
+                            <label
+                                class="field-label"
+                                for="confirmNewPassword"
+                            >
+                                Confirm Password
+                            </label>
+
+                            <input
+                                class="account-input"
+                                type="password"
+                                id="confirmNewPassword"
+                                placeholder="Confirm new password"
+                                minlength="8"
+                                required
+                            >
+                        </div>
+
+                        <button
+                            class="panel-button"
+                            type="submit"
+                            id="passwordSaveButton"
+                        >
+                            Update Password
+                        </button>
+
+                    </div>
+                </form>
+
+                <div
+                    class="account-message"
+                    id="passwordMessage"
+                ></div>
+            </section>
+
+        </div>
+    </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../js/supabase.js"></script>
+
+<script>
+    const loadingScreen = document.getElementById("loadingScreen");
+
+    const profileUsername = document.getElementById("profileUsername");
+    const profileEmail = document.getElementById("profileEmail");
+    const profileDiscord = document.getElementById("profileDiscord");
+    const profileGuid = document.getElementById("profileGuid");
+
+    const tierName = document.getElementById("tierName");
+    const tierPointsText = document.getElementById("tierPointsText");
+    const tierProgressBar = document.getElementById("tierProgressBar");
+    const tierStartLabel = document.getElementById("tierStartLabel");
+    const tierNextLabel = document.getElementById("tierNextLabel");
+    const tierLadder = document.getElementById("tierLadder");
+
+    const subscriptionTier = document.getElementById("subscriptionTier");
+    const subscriptionStatus = document.getElementById("subscriptionStatus");
+    const subscriptionStatusText =
+        document.getElementById("subscriptionStatusText");
+
+    const discordForm = document.getElementById("discordForm");
+    const discordInput = document.getElementById("discordInput");
+    const discordMessage = document.getElementById("discordMessage");
+    const discordSaveButton =
+        document.getElementById("discordSaveButton");
+
+    const guidForm = document.getElementById("guidForm");
+    const guidInput = document.getElementById("guidInput");
+    const guidMessage = document.getElementById("guidMessage");
+    const guidSaveButton =
+        document.getElementById("guidSaveButton");
+
+    const passwordForm = document.getElementById("passwordForm");
+    const newPassword = document.getElementById("newPassword");
+    const confirmNewPassword =
+        document.getElementById("confirmNewPassword");
+    const passwordMessage =
+        document.getElementById("passwordMessage");
+    const passwordSaveButton =
+        document.getElementById("passwordSaveButton");
+
+    const logoutButton = document.getElementById("logoutButton");
+
+    /*
+        Rider tier thresholds.
+
+        rider_points can later be awarded from race results,
+        participation, hosted events, or whatever progression
+        system you decide to build.
+
+        Change these values whenever you want.
+    */
+    const RIDER_TIERS = [
+        { name: "Copper", minimum: 0 },
+        { name: "Bronze", minimum: 100 },
+        { name: "Silver", minimum: 250 },
+        { name: "Gold", minimum: 500 },
+        { name: "Platinum", minimum: 1000 },
+        { name: "Diamond", minimum: 1750 },
+        { name: "Emerald", minimum: 2750 },
+        { name: "Magenta", minimum: 4000 }
+    ];
+
+
+    function setMessage(element, text, type = "") {
+        element.className = "account-message";
+
+        if (type) {
+            element.classList.add(type);
+        }
+
+        element.textContent = text;
+    }
+
+
+    function getTierData(points) {
+        let currentIndex = 0;
+
+        for (let i = 0; i < RIDER_TIERS.length; i++) {
+            if (points >= RIDER_TIERS[i].minimum) {
+                currentIndex = i;
+            } else {
+                break;
+            }
+        }
+
+        const current = RIDER_TIERS[currentIndex];
+        const next = RIDER_TIERS[currentIndex + 1] || null;
+
+        let progress = 100;
+
+        if (next) {
+            const tierRange = next.minimum - current.minimum;
+            const progressIntoTier = points - current.minimum;
+
+            progress = Math.max(
+                0,
+                Math.min(
+                    100,
+                    (progressIntoTier / tierRange) * 100
+                )
+            );
+        }
+
+        return {
+            currentIndex,
+            current,
+            next,
+            progress
+        };
+    }
+
+
+    function renderTier(points) {
+        const safePoints = Number.isFinite(points) ? points : 0;
+        const tier = getTierData(safePoints);
+
+        tierName.textContent = tier.current.name;
+        tierPointsText.textContent =
+            `${safePoints.toLocaleString()} rider points`;
+
+        tierProgressBar.style.width =
+            `${tier.progress}%`;
+
+        tierStartLabel.textContent =
+            tier.current.name;
+
+        if (tier.next) {
+            const remaining =
+                Math.max(0, tier.next.minimum - safePoints);
+
+            tierNextLabel.textContent =
+                `${tier.next.name} • ${remaining.toLocaleString()} points to go`;
+        } else {
+            tierNextLabel.textContent =
+                "Maximum Rider Tier";
+        }
+
+        tierLadder.innerHTML = "";
+
+        RIDER_TIERS.forEach((item, index) => {
+            const chip = document.createElement("div");
+
+            chip.className = "tier-chip";
+            chip.textContent = item.name;
+
+            if (index === tier.currentIndex) {
+                chip.classList.add("active");
+            }
+
+            tierLadder.appendChild(chip);
+        });
+    }
+
+
+    function renderSubscription(metadata) {
+        const rawTier =
+            (metadata.subscription_tier || "").toString().toLowerCase();
+
+        const rawStatus =
+            (metadata.subscription_status || "").toString().toLowerCase();
+
+        let displayTier = "No Active Plan";
+        let displayStatus = "Inactive";
+
+        if (rawTier === "standard") {
+            displayTier = "Standard";
+        }
+
+        if (rawTier === "race") {
+            displayTier = "Race";
+        }
+
+        if (
+            rawStatus === "active" &&
+            (rawTier === "standard" || rawTier === "race")
+        ) {
+            displayStatus = "Active";
+        }
+
+        subscriptionTier.textContent = displayTier;
+        subscriptionStatus.textContent = displayStatus;
+
+        if (displayStatus === "Active") {
+            subscriptionStatusText.textContent =
+                `Your ${displayTier} Motogrid server subscription is active.`;
+        } else {
+            subscriptionStatusText.textContent =
+                "You do not currently have an active Motogrid server subscription.";
+        }
+    }
+
+
+    async function loadAccount() {
+        try {
+            const {
+                data: { user },
+                error
+            } = await supabaseClient.auth.getUser();
+
+            if (error || !user) {
+                window.location.href = "login.html";
+                return;
+            }
+
+            const metadata = user.user_metadata || {};
+
+            const username =
+                metadata.username ||
+                user.email?.split("@")[0] ||
+                "Rider";
+
+            const discord =
+                metadata.discord || "";
+
+            const guid =
+                metadata.mxbikes_guid || "";
+
+            const riderPoints =
+                Number(metadata.rider_points || 0);
+
+            profileUsername.textContent = username;
+            profileEmail.textContent = user.email || "—";
+
+            profileDiscord.textContent =
+                discord || "Not linked";
+
+            profileGuid.textContent =
+                guid || "Not set";
+
+            discordInput.value = discord;
+            guidInput.value = guid;
+
+            renderTier(riderPoints);
+            renderSubscription(metadata);
+
+            loadingScreen.classList.add("hidden");
+
+        } catch (error) {
+            console.error(error);
+            window.location.href = "login.html";
+        }
+    }
+
+
+    discordForm.addEventListener(
+        "submit",
+        async function(event) {
+            event.preventDefault();
+
+            const discord =
+                discordInput.value.trim();
+
+            discordSaveButton.disabled = true;
+            discordSaveButton.textContent = "SAVING...";
+
+            setMessage(discordMessage, "");
+
+            const { data, error } =
+                await supabaseClient.auth.updateUser({
+                    data: {
+                        discord: discord
+                    }
+                });
+
+            if (error) {
+                setMessage(
+                    discordMessage,
+                    error.message,
+                    "error"
+                );
+            } else {
+                profileDiscord.textContent =
+                    discord || "Not linked";
+
+                setMessage(
+                    discordMessage,
+                    "Discord username saved.",
+                    "success"
+                );
+            }
+
+            discordSaveButton.disabled = false;
+            discordSaveButton.textContent = "SAVE DISCORD";
+        }
+    );
+
+
+    guidForm.addEventListener(
+        "submit",
+        async function(event) {
+            event.preventDefault();
+
+            const guid =
+                guidInput.value.trim();
+
+            guidSaveButton.disabled = true;
+            guidSaveButton.textContent = "SAVING...";
+
+            setMessage(guidMessage, "");
+
+            const { data, error } =
+                await supabaseClient.auth.updateUser({
+                    data: {
+                        mxbikes_guid: guid
+                    }
+                });
+
+            if (error) {
+                setMessage(
+                    guidMessage,
+                    error.message,
+                    "error"
+                );
+            } else {
+                profileGuid.textContent =
+                    guid || "Not set";
+
+                setMessage(
+                    guidMessage,
+                    "MX Bikes GUID saved.",
+                    "success"
+                );
+            }
+
+            guidSaveButton.disabled = false;
+            guidSaveButton.textContent = "SAVE GUID";
+        }
+    );
+
+
+    passwordForm.addEventListener(
+        "submit",
+        async function(event) {
+            event.preventDefault();
+
+            const password =
+                newPassword.value;
+
+            const confirmPassword =
+                confirmNewPassword.value;
+
+            setMessage(passwordMessage, "");
+
+            if (password.length < 8) {
+                setMessage(
+                    passwordMessage,
+                    "Password must be at least 8 characters.",
+                    "error"
+                );
+
+                return;
+            }
+
+            if (password !== confirmPassword) {
+                setMessage(
+                    passwordMessage,
+                    "Passwords do not match.",
+                    "error"
+                );
+
+                return;
+            }
+
+            passwordSaveButton.disabled = true;
+            passwordSaveButton.textContent = "UPDATING...";
+
+            const { error } =
+                await supabaseClient.auth.updateUser({
+                    password: password
+                });
+
+            if (error) {
+                setMessage(
+                    passwordMessage,
+                    error.message,
+                    "error"
+                );
+            } else {
+                newPassword.value = "";
+                confirmNewPassword.value = "";
+
+                setMessage(
+                    passwordMessage,
+                    "Password updated successfully.",
+                    "success"
+                );
+            }
+
+            passwordSaveButton.disabled = false;
+            passwordSaveButton.textContent = "UPDATE PASSWORD";
+        }
+    );
+
+
+    logoutButton.addEventListener(
+        "click",
+        async function() {
+            logoutButton.disabled = true;
+            logoutButton.textContent = "LOGGING OUT...";
+
+            await supabaseClient.auth.signOut();
+
+            window.location.href = "login.html";
+        }
+    );
+
+
+    loadAccount();
+</script>
+
+</body>
+</html>
