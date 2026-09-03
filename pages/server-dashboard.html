@@ -442,30 +442,12 @@
     const planBadge = document.getElementById("planBadge");
     const planStatus = document.getElementById("planStatus");
 
-    async function loadDashboard() {
-        try {
-            const {
-                data: { user },
-                error
-            } = await supabaseClient.auth.getUser();
-
-            if (error || !user) {
-                window.location.href = "login.html";
-                return;
-            }
-
-            // TEMPORARY TEST MODE
-            // While testing the website, any logged-in Motogrid account
-            // can open the server dashboard as a Race / Active subscriber.
-            planBadge.textContent = "Race";
-            planStatus.textContent = "Active";
-
-            loading.classList.add("hidden");
-
-        } catch (error) {
-            console.error(error);
-            window.location.href = "account.html";
-        }
+    function loadDashboard() {
+        // TEMPORARY FULL TEST MODE
+        // No login or subscription redirect checks are performed here.
+        planBadge.textContent = "Race";
+        planStatus.textContent = "Active";
+        loading.classList.add("hidden");
     }
 
     loadDashboard();
