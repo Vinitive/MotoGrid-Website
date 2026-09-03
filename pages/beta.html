@@ -502,6 +502,44 @@
 
         }
 
+
+        .beta-submit:disabled {
+            opacity: 0.65;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .beta-form-message {
+            display: none;
+            margin: 18px 0 0;
+            padding: 14px 16px;
+            border: 1px solid rgba(255,255,255,0.1);
+            background: #090b09;
+            color: #cfcfcf;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 0.8px;
+            line-height: 1.5;
+            text-align: center;
+        }
+
+        .beta-form-message.show {
+            display: block;
+        }
+
+        .beta-form-message.success {
+            border-color: #7cff00;
+            color: #7cff00;
+            background: rgba(124,255,0,0.05);
+        }
+
+        .beta-form-message.error {
+            border-color: #ff5a5a;
+            color: #ff8a8a;
+            background: rgba(255,90,90,0.05);
+        }
+
     </style>
 </head>
 
@@ -887,9 +925,16 @@
             <button
                 type="submit"
                 class="beta-submit"
+                id="betaSubmitButton"
             >
                 SUBMIT BETA APPLICATION →
             </button>
+
+            <div
+                class="beta-form-message"
+                id="betaFormMessage"
+                aria-live="polite"
+            ></div>
 
 
             <p class="application-note">
@@ -910,24 +955,139 @@
 
 
 <script>
+    const betaForm =
+        document.getElementById("betaApplicationForm");
+
+    const betaSubmitButton =
+        document.getElementById("betaSubmitButton");
+
+    const betaFormMessage =
+        document.getElementById("betaFormMessage");
+
     /*
-        Discord submission will be added next.
+        Replace YOUR_PROJECT_REF below with the project ref from
+        your Supabase project URL:
 
-        We intentionally DO NOT place the Discord webhook
-        directly in this HTML file because this site is public.
+        https://YOUR_PROJECT_REF.supabase.co
     */
+    const BETA_FUNCTION_URL =
+        "https://YOUR_PROJECT_REF.supabase.co/functions/v1/submit-beta-application";
 
-    const betaForm = document.getElementById("betaApplicationForm");
+    function showBetaMessage(type, message) {
+        betaFormMessage.className =
+            "beta-form-message show " + type;
 
-    betaForm.addEventListener("submit", function(event) {
+        betaFormMessage.textContent = message;
+    }
 
-        event.preventDefault();
+    betaForm.addEventListener(
+        "submit",
+        async function(event) {
 
-        alert(
-            "Application form is working. Discord submission will be connected next."
-        );
+            event.preventDefault();
 
-    });
+            if (!betaForm.checkValidity()) {
+                betaForm.reportValidity();
+                return;
+            }
+
+            const formData =
+                new FormData(betaForm);
+
+            const payload = {
+                discord:
+                    formData.get("discord")?.toString().trim(),
+
+                region:
+                    formData.get("region")?.toString(),
+
+                mxbHours:
+                    formData.get("mxbHours")?.toString(),
+
+                serverExperience:
+                    formData.get("serverExperience")?.toString(),
+
+                currentHosting:
+                    formData.get("currentHosting")?.toString(),
+
+                testingReason:
+                    formData.get("testingReason")?.toString().trim(),
+
+                hostingProblems:
+                    formData.get("hostingProblems")?.toString().trim(),
+
+                availability:
+                    formData.get("availability")?.toString(),
+
+                feedbackAgreement:
+                    formData.get("feedbackAgreement") === "on"
+            };
+
+            betaSubmitButton.disabled = true;
+            betaSubmitButton.textContent = "SENDING APPLICATION...";
+
+            betaFormMessage.className =
+                "beta-form-message";
+
+            betaFormMessage.textContent = "";
+
+            try {
+                const response = await fetch(
+                    BETA_FUNCTION_URL,
+                    {
+                        method: "POST",
+
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+
+                        body: JSON.stringify(payload)
+                    }
+                );
+
+                let result = {};
+
+                try {
+                    result = await response.json();
+                } catch {
+                    result = {};
+                }
+
+                if (!response.ok) {
+                    throw new Error(
+                        result.error ||
+                        "The application could not be submitted."
+                    );
+                }
+
+                showBetaMessage(
+                    "success",
+                    "APPLICATION SENT // Your beta application has been submitted successfully."
+                );
+
+                betaSubmitButton.textContent =
+                    "APPLICATION SENT ✓";
+
+                betaForm.reset();
+
+            } catch (error) {
+                console.error(
+                    "Beta application submission failed:",
+                    error
+                );
+
+                showBetaMessage(
+                    "error",
+                    error.message ||
+                    "Something went wrong. Please try again."
+                );
+
+                betaSubmitButton.disabled = false;
+                betaSubmitButton.textContent =
+                    "SUBMIT BETA APPLICATION →";
+            }
+        }
+    );
 </script>
 
 </body>
