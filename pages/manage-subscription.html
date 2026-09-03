@@ -278,6 +278,12 @@
             }
 
             const metadata = user.user_metadata || {};
+
+            // TEMPORARY TEST SUBSCRIPTION
+            // Remove these two lines when real billing/subscriptions are connected.
+            metadata.subscription_tier = "race";
+            metadata.subscription_status = "active";
+
             const tier =
                 (metadata.subscription_tier || "").toString().toLowerCase();
             const status =
