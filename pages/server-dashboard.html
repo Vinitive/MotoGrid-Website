@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Server Dashboard | Motogrid</title>
+
+    <style>
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: #050605;
+            color: #fff;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        .page {
+            min-height: 100vh;
+            background:
+                radial-gradient(circle at 50% 0%, rgba(124,255,0,.07), transparent 28%),
+                #050605;
+        }
+
+        .grid-bg {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            background-image:
+                linear-gradient(rgba(255,255,255,.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,.02) 1px, transparent 1px);
+            background-size: 55px 55px;
+        }
+
+        .topbar, .shell {
+            position: relative;
+            z-index: 2;
+            width: min(1400px, calc(100% - 40px));
+            margin: 0 auto;
+        }
+
+        .topbar {
+            min-height: 84px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            border-bottom: 1px solid rgba(255,255,255,.08);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #fff;
+            text-decoration: none;
+        }
+
+        .brand img {
+            height: 52px;
+            width: auto;
+        }
+
+        .brand strong {
+            font-size: 18px;
+            font-style: italic;
+            letter-spacing: 1px;
+        }
+
+        .brand strong span { color: #7cff00; }
+
+        .top-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .top-btn, .control-btn {
+            min-height: 42px;
+            padding: 0 16px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(255,255,255,.13);
+            background: #090b09;
+            color: #aaa;
+            text-decoration: none;
+            font-size: 9px;
+            font-weight: 1000;
+            letter-spacing: 1.4px;
+            text-transform: uppercase;
+        }
+
+        .top-btn:hover {
+            color: #7cff00;
+            border-color: #7cff00;
+        }
+
+        .shell { padding: 52px 0 70px; }
+
+        .eyebrow {
+            color: #7cff00;
+            font-size: 10px;
+            font-weight: 900;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
+
+        h1 {
+            margin: 8px 0 8px;
+            font-size: clamp(42px, 7vw, 76px);
+            line-height: .95;
+            letter-spacing: -3px;
+            font-style: italic;
+            text-transform: uppercase;
+        }
+
+        .intro {
+            margin: 0 0 34px;
+            color: #777;
+            font-size: 13px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 18px;
+        }
+
+        .panel {
+            position: relative;
+            padding: 28px;
+            background: linear-gradient(145deg, rgba(255,255,255,.035), rgba(255,255,255,.01)), #0a0c0a;
+            border: 1px solid rgba(255,255,255,.09);
+        }
+
+        .panel::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 72px;
+            height: 3px;
+            background: #7cff00;
+        }
+
+        .overview { grid-column: span 8; }
+        .plan { grid-column: span 4; }
+        .controls { grid-column: span 7; }
+        .connection { grid-column: span 5; }
+        .activity { grid-column: span 12; }
+
+        .kicker {
+            color: #666;
+            font-size: 9px;
+            font-weight: 900;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        h2 {
+            margin: 8px 0 22px;
+            font-size: 22px;
+            text-transform: uppercase;
+        }
+
+        .server-name {
+            font-size: 34px;
+            font-weight: 1000;
+            font-style: italic;
+            text-transform: uppercase;
+        }
+
+        .status-line {
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #777;
+            font-size: 11px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #777;
+        }
+
+        .stats {
+            margin-top: 28px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+
+        .stat {
+            padding: 15px;
+            background: #060706;
+            border: 1px solid rgba(255,255,255,.07);
+        }
+
+        .stat span {
+            display: block;
+            color: #555;
+            font-size: 8px;
+            font-weight: 900;
+            letter-spacing: 1.4px;
+            text-transform: uppercase;
+        }
+
+        .stat strong {
+            display: block;
+            margin-top: 7px;
+            font-size: 15px;
+        }
+
+        .plan-badge {
+            display: inline-flex;
+            min-height: 39px;
+            padding: 0 15px;
+            align-items: center;
+            border: 1px solid #7cff00;
+            color: #7cff00;
+            font-size: 10px;
+            font-weight: 1000;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+        }
+
+        .control-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+
+        .control-btn {
+            border-color: #7cff00;
+            color: #7cff00;
+            cursor: not-allowed;
+            opacity: .55;
+        }
+
+        .notice {
+            margin-top: 18px;
+            padding: 14px;
+            border-left: 3px solid #7cff00;
+            background: rgba(124,255,0,.035);
+            color: #777;
+            font-size: 11px;
+            line-height: 1.6;
+        }
+
+        .detail {
+            display: flex;
+            justify-content: space-between;
+            gap: 15px;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255,255,255,.06);
+            font-size: 11px;
+        }
+
+        .detail span {
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .detail strong {
+            text-align: right;
+            color: #ddd;
+        }
+
+        .activity-empty {
+            min-height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px dashed rgba(255,255,255,.08);
+            color: #555;
+            font-size: 10px;
+            font-weight: 900;
+            letter-spacing: 1.6px;
+            text-transform: uppercase;
+        }
+
+        .loading {
+            position: fixed;
+            inset: 0;
+            z-index: 999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #050605;
+            color: #7cff00;
+            font-size: 10px;
+            font-weight: 900;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
+
+        .loading.hidden { display: none; }
+
+        @media (max-width: 900px) {
+            .overview, .plan, .controls, .connection, .activity {
+                grid-column: span 12;
+            }
+        }
+
+        @media (max-width: 650px) {
+            .topbar, .shell { width: calc(100% - 24px); }
+            .brand strong { display: none; }
+            .brand img { height: 42px; }
+            .panel { padding: 22px 20px; }
+            .stats, .control-row { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="loading" id="loading">Loading Server Dashboard...</div>
+
+<div class="page">
+    <div class="grid-bg"></div>
+
+    <header class="topbar">
+        <a href="../index.html" class="brand">
+            <img src="../assets/logo/motogrid-logo.png" alt="Motogrid">
+            <strong>MOTO<span>GRID</span></strong>
+        </a>
+
+        <div class="top-actions">
+            <a href="account.html" class="top-btn">My Account</a>
+            <a href="manage-subscription.html" class="top-btn">Manage Plan</a>
+        </div>
+    </header>
+
+    <main class="shell">
+        <span class="eyebrow">Hosting Control Center</span>
+        <h1>Server Dashboard</h1>
+        <p class="intro">
+            Your Motogrid MX Bikes server management area.
+        </p>
+
+        <div class="grid">
+            <section class="panel overview">
+                <span class="kicker">Server</span>
+                <h2>Overview</h2>
+
+                <div class="server-name">Motogrid Server</div>
+
+                <div class="status-line">
+                    <span class="status-dot"></span>
+                    <span>Server not provisioned yet</span>
+                </div>
+
+                <div class="stats">
+                    <div class="stat">
+                        <span>Players</span>
+                        <strong>0 / —</strong>
+                    </div>
+
+                    <div class="stat">
+                        <span>Track</span>
+                        <strong>—</strong>
+                    </div>
+
+                    <div class="stat">
+                        <span>Uptime</span>
+                        <strong>—</strong>
+                    </div>
+                </div>
+            </section>
+
+            <section class="panel plan">
+                <span class="kicker">Subscription</span>
+                <h2>Hosting Plan</h2>
+
+                <div class="plan-badge" id="planBadge">—</div>
+
+                <div class="detail" style="margin-top:18px;">
+                    <span>Status</span>
+                    <strong id="planStatus">—</strong>
+                </div>
+            </section>
+
+            <section class="panel controls">
+                <span class="kicker">Controls</span>
+                <h2>Server Controls</h2>
+
+                <div class="control-row">
+                    <button class="control-btn" disabled>Start</button>
+                    <button class="control-btn" disabled>Restart</button>
+                    <button class="control-btn" disabled>Stop</button>
+                </div>
+
+                <div class="notice">
+                    The dashboard is now protected by your Motogrid subscription.
+                    Actual server Start / Restart / Stop controls will be connected
+                    when the Motogrid hosting backend/agent is online.
+                </div>
+            </section>
+
+            <section class="panel connection">
+                <span class="kicker">Connection</span>
+                <h2>Server Details</h2>
+
+                <div class="detail">
+                    <span>Address</span>
+                    <strong>Not provisioned</strong>
+                </div>
+
+                <div class="detail">
+                    <span>Port</span>
+                    <strong>—</strong>
+                </div>
+
+                <div class="detail">
+                    <span>Password</span>
+                    <strong>—</strong>
+                </div>
+            </section>
+
+            <section class="panel activity">
+                <span class="kicker">Activity</span>
+                <h2>Recent Activity</h2>
+
+                <div class="activity-empty">
+                    No server activity yet
+                </div>
+            </section>
+        </div>
+    </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../js/supabase.js"></script>
+
+<script>
+    const loading = document.getElementById("loading");
+    const planBadge = document.getElementById("planBadge");
+    const planStatus = document.getElementById("planStatus");
+
+    async function loadDashboard() {
+        try {
+            const {
+                data: { user },
+                error
+            } = await supabaseClient.auth.getUser();
+
+            if (error || !user) {
+                window.location.href = "login.html";
+                return;
+            }
+
+            const metadata = user.user_metadata || {};
+            const tier =
+                (metadata.subscription_tier || "").toString().toLowerCase();
+            const status =
+                (metadata.subscription_status || "").toString().toLowerCase();
+
+            const hasAccess =
+                status === "active" &&
+                (tier === "standard" || tier === "race");
+
+            if (!hasAccess) {
+                window.location.href = "account.html";
+                return;
+            }
+
+            planBadge.textContent =
+                tier === "race" ? "Race" : "Standard";
+
+            planStatus.textContent = "Active";
+
+            loading.classList.add("hidden");
+
+        } catch (error) {
+            console.error(error);
+            window.location.href = "account.html";
+        }
+    }
+
+    loadDashboard();
+</script>
+
+</body>
+</html>

@@ -372,6 +372,42 @@
             color: #ddd;
         }
 
+        .subscription-actions {
+            display: none;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 18px;
+        }
+
+        .subscription-actions.visible {
+            display: grid;
+        }
+
+        .subscription-action {
+            min-height: 43px;
+            padding: 0 14px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            border: 1px solid #7cff00;
+            background: #7cff00;
+            color: #050705;
+            font-size: 9px;
+            font-weight: 1000;
+            letter-spacing: 1.4px;
+            text-transform: uppercase;
+        }
+
+        .subscription-action.secondary {
+            background: transparent;
+            color: #7cff00;
+        }
+
+        .subscription-action:hover {
+            box-shadow: 0 9px 28px rgba(124,255,0,0.13);
+        }
+
         .form-stack {
             display: grid;
             gap: 13px;
@@ -732,6 +768,25 @@
                     <span>Status</span>
                     <strong id="subscriptionStatus">Inactive</strong>
                 </div>
+
+                <div
+                    class="subscription-actions"
+                    id="subscriptionActions"
+                >
+                    <a
+                        href="server-dashboard.html"
+                        class="subscription-action"
+                    >
+                        View Server
+                    </a>
+
+                    <a
+                        href="manage-subscription.html"
+                        class="subscription-action secondary"
+                    >
+                        Manage
+                    </a>
+                </div>
             </section>
 
             <section class="panel discord-panel">
@@ -916,6 +971,9 @@
     const subscriptionStatusText =
         document.getElementById("subscriptionStatusText");
 
+    const subscriptionActions =
+        document.getElementById("subscriptionActions");
+
     const discordForm = document.getElementById("discordForm");
     const discordInput = document.getElementById("discordInput");
     const discordMessage = document.getElementById("discordMessage");
@@ -1082,9 +1140,13 @@
         if (displayStatus === "Active") {
             subscriptionStatusText.textContent =
                 `Your ${displayTier} Motogrid server subscription is active.`;
+
+            subscriptionActions.classList.add("visible");
         } else {
             subscriptionStatusText.textContent =
                 "You do not currently have an active Motogrid server subscription.";
+
+            subscriptionActions.classList.remove("visible");
         }
     }
 
