@@ -454,30 +454,10 @@
                 return;
             }
 
-            const metadata = user.user_metadata || {};
-
-            // TEMPORARY TEST SUBSCRIPTION
-            // Remove these two lines when real billing/subscriptions are connected.
-            metadata.subscription_tier = "race";
-            metadata.subscription_status = "active";
-
-            const tier =
-                (metadata.subscription_tier || "").toString().toLowerCase();
-            const status =
-                (metadata.subscription_status || "").toString().toLowerCase();
-
-            const hasAccess =
-                status === "active" &&
-                (tier === "standard" || tier === "race");
-
-            if (!hasAccess) {
-                window.location.href = "account.html";
-                return;
-            }
-
-            planBadge.textContent =
-                tier === "race" ? "Race" : "Standard";
-
+            // TEMPORARY TEST MODE
+            // While testing the website, any logged-in Motogrid account
+            // can open the server dashboard as a Race / Active subscriber.
+            planBadge.textContent = "Race";
             planStatus.textContent = "Active";
 
             loading.classList.add("hidden");
