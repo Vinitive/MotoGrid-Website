@@ -1165,6 +1165,11 @@
 
             const metadata = user.user_metadata || {};
 
+            // TEMPORARY TEST SUBSCRIPTION
+            // Remove these two lines when real billing/subscriptions are connected.
+            metadata.subscription_tier = "race";
+            metadata.subscription_status = "active";
+
             const username =
                 metadata.username ||
                 user.email?.split("@")[0] ||
