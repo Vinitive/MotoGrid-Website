@@ -400,6 +400,7 @@
                 <a
                     href="pages/login.html"
                     class="account-login-btn"
+                    id="navLoginButton"
                     style="
                         display: inline-flex;
                         align-items: center;
@@ -423,6 +424,7 @@
                 <a
                     href="pages/register.html"
                     class="account-register-btn"
+                    id="navRegisterButton"
                     style="
                         display: inline-flex;
                         align-items: center;
@@ -441,6 +443,29 @@
                     "
                 >
                     CREATE ACCOUNT
+                </a>
+
+                <a
+                    href="pages/account.html"
+                    id="navAccountButton"
+                    style="
+                        display: none;
+                        align-items: center;
+                        justify-content: center;
+                        height: 42px;
+                        padding: 0 22px;
+                        border: 1px solid #7cff00;
+                        background: #7cff00;
+                        color: #050705;
+                        font-size: 10px;
+                        font-weight: 900;
+                        letter-spacing: 1.5px;
+                        text-transform: uppercase;
+                        text-decoration: none;
+                        cursor: pointer;
+                    "
+                >
+                    MY ACCOUNT
                 </a>
 
                 <button
@@ -989,6 +1014,69 @@
 
     </footer>
 
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase.js"></script>
+
+    <script>
+        const navLoginButton =
+            document.getElementById("navLoginButton");
+
+        const navRegisterButton =
+            document.getElementById("navRegisterButton");
+
+        const navAccountButton =
+            document.getElementById("navAccountButton");
+
+
+        function updateAccountNavigation(session) {
+            const isLoggedIn =
+                Boolean(session && session.user);
+
+            if (navLoginButton) {
+                navLoginButton.style.display =
+                    isLoggedIn ? "none" : "inline-flex";
+            }
+
+            if (navRegisterButton) {
+                navRegisterButton.style.display =
+                    isLoggedIn ? "none" : "inline-flex";
+            }
+
+            if (navAccountButton) {
+                navAccountButton.style.display =
+                    isLoggedIn ? "inline-flex" : "none";
+            }
+        }
+
+
+        async function loadAccountNavigation() {
+            try {
+                const {
+                    data: { session }
+                } = await supabaseClient.auth.getSession();
+
+                updateAccountNavigation(session);
+
+                supabaseClient.auth.onAuthStateChange(
+                    function(event, session) {
+                        updateAccountNavigation(session);
+                    }
+                );
+
+            } catch (error) {
+                console.error(
+                    "Unable to load Motogrid account session:",
+                    error
+                );
+
+                updateAccountNavigation(null);
+            }
+        }
+
+
+        loadAccountNavigation();
+    </script>
 
     <script src="js/main.js"></script>
 
