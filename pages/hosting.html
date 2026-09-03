@@ -594,6 +594,34 @@
                 margin-top: 35px;
             }
         }
+
+        .package-button:disabled {
+            opacity: 0.65;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .checkout-message {
+            display: none;
+            max-width: 950px;
+            margin: 24px auto 0;
+            padding: 14px 18px;
+            border: 1px solid rgba(255,255,255,0.1);
+            background: #090b09;
+            text-align: center;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 0.8px;
+            line-height: 1.5;
+        }
+
+        .checkout-message.show { display: block; }
+
+        .checkout-message.error {
+            border-color: #ff5a5a;
+            color: #ff8a8a;
+        }
+
     </style>
 </head>
 
@@ -808,6 +836,12 @@
 
         </section>
 
+        <div
+            class="checkout-message"
+            id="checkoutMessage"
+            aria-live="polite"
+        ></div>
+
 
         <!-- DEVELOPMENT NOTICE -->
 
@@ -835,6 +869,9 @@
 </div>
 
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../js/supabase.js"></script>
+
 <script>
     const standardPackage =
         document.getElementById("standardPackage");
@@ -842,22 +879,103 @@
     const racePackage =
         document.getElementById("racePackage");
 
+    const checkoutMessage =
+        document.getElementById("checkoutMessage");
+
+    const CHECKOUT_FUNCTION_URL =
+        "https://vsqczlaszguuahwhlfcg.supabase.co/functions/v1/create-checkout-session";
+
+    function showCheckoutError(message) {
+        checkoutMessage.className =
+            "checkout-message show error";
+        checkoutMessage.textContent = message;
+    }
+
+    function setCheckoutButtonsDisabled(disabled) {
+        standardPackage.disabled = disabled;
+        racePackage.disabled = disabled;
+    }
+
+    async function startCheckout(plan, button) {
+        checkoutMessage.className = "checkout-message";
+        checkoutMessage.textContent = "";
+
+        const originalText = button.textContent;
+
+        try {
+            setCheckoutButtonsDisabled(true);
+            button.textContent = "LOADING CHECKOUT...";
+
+            const {
+                data: { session },
+                error: sessionError
+            } = await supabaseClient.auth.getSession();
+
+            if (sessionError) throw sessionError;
+
+            if (!session || !session.user) {
+                window.location.href = "login.html";
+                return;
+            }
+
+            const response = await fetch(
+                CHECKOUT_FUNCTION_URL,
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization":
+                            "Bearer " + session.access_token
+                    },
+                    body: JSON.stringify({
+                        plan: plan,
+                        userId: session.user.id,
+                        email: session.user.email
+                    })
+                }
+            );
+
+            let result = {};
+            try {
+                result = await response.json();
+            } catch {
+                result = {};
+            }
+
+            if (!response.ok) {
+                throw new Error(
+                    result.error ||
+                    "Stripe Checkout could not be started."
+                );
+            }
+
+            if (!result.url) {
+                throw new Error(
+                    "Stripe did not return a checkout URL."
+                );
+            }
+
+            window.location.href = result.url;
+
+        } catch (error) {
+            console.error("Checkout error:", error);
+
+            showCheckoutError(
+                error.message ||
+                "Something went wrong while starting checkout."
+            );
+
+            setCheckoutButtonsDisabled(false);
+            button.textContent = originalText;
+        }
+    }
 
     standardPackage.addEventListener("click", function () {
-
-        alert(
-            "Standard Package selected. Purchasing will be available soon."
-        );
-
+        startCheckout("standard", standardPackage);
     });
 
-
     racePackage.addEventListener("click", function () {
-
-        alert(
-            "Race Package selected. Purchasing will be available soon."
-        );
-
+        startCheckout("race", racePackage);
     });
 </script>
 
