@@ -1109,12 +1109,12 @@
     }
 
 
-    function renderSubscription(metadata) {
+    function renderSubscription(subscription) {
         const rawTier =
-            (metadata.subscription_tier || "").toString().toLowerCase();
+            (subscription?.plan || "").toString().toLowerCase();
 
         const rawStatus =
-            (metadata.subscription_status || "").toString().toLowerCase();
+            (subscription?.status || "").toString().toLowerCase();
 
         let displayTier = "No Active Plan";
         let displayStatus = "Inactive";
@@ -1127,8 +1127,10 @@
             displayTier = "Race";
         }
 
+        const activeStatuses = ["active", "trialing"];
+
         if (
-            rawStatus === "active" &&
+            activeStatuses.includes(rawStatus) &&
             (rawTier === "standard" || rawTier === "race")
         ) {
             displayStatus = "Active";
@@ -1165,10 +1167,23 @@
 
             const metadata = user.user_metadata || {};
 
-            // TEMPORARY TEST SUBSCRIPTION
-            // Remove these two lines when real billing/subscriptions are connected.
-            metadata.subscription_tier = "race";
-            metadata.subscription_status = "active";
+            const {
+                data: subscription,
+                error: subscriptionError
+            } = await supabaseClient
+                .from("subscriptions")
+                .select(
+                    "plan, status, stripe_price_id, current_period_end, cancel_at_period_end"
+                )
+                .eq("user_id", user.id)
+                .maybeSingle();
+
+            if (subscriptionError) {
+                console.error(
+                    "Subscription lookup failed:",
+                    subscriptionError
+                );
+            }
 
             const username =
                 metadata.username ||
@@ -1197,7 +1212,7 @@
             guidInput.value = guid;
 
             renderTier(riderPoints);
-            renderSubscription(metadata);
+            renderSubscription(subscription);
 
             loadingScreen.classList.add("hidden");
 
