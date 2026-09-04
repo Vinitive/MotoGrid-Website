@@ -332,7 +332,7 @@
 
         <div class="top-actions">
             <a href="account.html" class="top-btn">My Account</a>
-            <a href="manage-subscription.html" class="top-btn">Manage Plan</a>
+            <a href="account.html" class="top-btn">Manage Plan</a>
         </div>
     </header>
 
@@ -442,12 +442,52 @@
     const planBadge = document.getElementById("planBadge");
     const planStatus = document.getElementById("planStatus");
 
-    function loadDashboard() {
-        // TEMPORARY FULL TEST MODE
-        // No login or subscription redirect checks are performed here.
-        planBadge.textContent = "Race";
-        planStatus.textContent = "Active";
-        loading.classList.add("hidden");
+    async function loadDashboard() {
+        try {
+            const {
+                data: { user },
+                error: userError
+            } = await supabaseClient.auth.getUser();
+
+            if (userError || !user) {
+                window.location.href = "login.html";
+                return;
+            }
+
+            const {
+                data: subscription,
+                error: subscriptionError
+            } = await supabaseClient
+                .from("subscriptions")
+                .select("plan, status")
+                .eq("user_id", user.id)
+                .maybeSingle();
+
+            if (subscriptionError) {
+                console.error("Subscription lookup failed:", subscriptionError);
+                window.location.href = "account.html";
+                return;
+            }
+
+            const plan = (subscription?.plan || "").toString().toLowerCase();
+            const status = (subscription?.status || "").toString().toLowerCase();
+
+            const validPlan = plan === "standard" || plan === "race";
+            const validStatus = status === "active" || status === "trialing";
+
+            if (!subscription || !validPlan || !validStatus) {
+                window.location.href = "account.html";
+                return;
+            }
+
+            planBadge.textContent = plan === "race" ? "Race" : "Standard";
+            planStatus.textContent = status === "trialing" ? "Trialing" : "Active";
+            loading.classList.add("hidden");
+
+        } catch (error) {
+            console.error("Dashboard authorization failed:", error);
+            window.location.href = "account.html";
+        }
     }
 
     loadDashboard();
