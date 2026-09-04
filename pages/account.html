@@ -799,35 +799,29 @@
                     Discord
                 </h2>
 
-                <form class="form-stack" id="discordForm">
-                    <label
-                        class="field-label"
-                        for="discordInput"
-                    >
-                        Discord Username
-                    </label>
+                <div class="form-stack">
+                    <div class="subscription-detail" style="margin-top:0;">
+                        <span>Status</span>
+                        <strong id="discordLinkStatus">Not linked</strong>
+                    </div>
 
-                    <input
-                        class="account-input"
-                        type="text"
-                        id="discordInput"
-                        placeholder="yourdiscordname"
-                        autocomplete="off"
-                    >
+                    <div class="subscription-detail">
+                        <span>Account</span>
+                        <strong id="discordLinkedAccount">—</strong>
+                    </div>
 
-                    <p class="small-note">
-                        This saves your Discord username to your Motogrid account.
-                        Full Discord OAuth linking can be added later.
+                    <p class="small-note" id="discordHelpText">
+                        Link your Discord account to Motogrid using Discord OAuth.
                     </p>
 
                     <button
                         class="panel-button"
-                        type="submit"
-                        id="discordSaveButton"
+                        type="button"
+                        id="discordLinkButton"
                     >
-                        Save Discord
+                        Link Discord
                     </button>
-                </form>
+                </div>
 
                 <div
                     class="account-message"
@@ -978,11 +972,18 @@
     const manageSubscriptionButton =
         document.getElementById("manageSubscriptionButton");
 
-    const discordForm = document.getElementById("discordForm");
-    const discordInput = document.getElementById("discordInput");
-    const discordMessage = document.getElementById("discordMessage");
-    const discordSaveButton =
-        document.getElementById("discordSaveButton");
+    const discordLinkStatus =
+        document.getElementById("discordLinkStatus");
+    const discordLinkedAccount =
+        document.getElementById("discordLinkedAccount");
+    const discordHelpText =
+        document.getElementById("discordHelpText");
+    const discordLinkButton =
+        document.getElementById("discordLinkButton");
+    const discordMessage =
+        document.getElementById("discordMessage");
+
+    let linkedDiscordIdentity = null;
 
     const guidForm = document.getElementById("guidForm");
     const guidInput = document.getElementById("guidInput");
@@ -1157,6 +1158,68 @@
     }
 
 
+    function getDiscordDisplayName(identity) {
+        const data = identity?.identity_data || {};
+
+        return (
+            data.global_name ||
+            data.full_name ||
+            data.name ||
+            data.username ||
+            data.user_name ||
+            data.preferred_username ||
+            data.email ||
+            "Discord account"
+        );
+    }
+
+
+    function renderDiscordIdentity(identity) {
+        linkedDiscordIdentity = identity || null;
+
+        if (identity) {
+            const displayName =
+                getDiscordDisplayName(identity);
+
+            profileDiscord.textContent =
+                displayName;
+
+            discordLinkStatus.textContent =
+                "Linked";
+
+            discordLinkedAccount.textContent =
+                displayName;
+
+            discordHelpText.textContent =
+                "Your Discord account is securely linked to your Motogrid account.";
+
+            discordLinkButton.textContent =
+                "Unlink Discord";
+
+            discordLinkButton.dataset.mode =
+                "unlink";
+        } else {
+            profileDiscord.textContent =
+                "Not linked";
+
+            discordLinkStatus.textContent =
+                "Not linked";
+
+            discordLinkedAccount.textContent =
+                "—";
+
+            discordHelpText.textContent =
+                "Link your Discord account to Motogrid using Discord OAuth.";
+
+            discordLinkButton.textContent =
+                "Link Discord";
+
+            discordLinkButton.dataset.mode =
+                "link";
+        }
+    }
+
+
     async function loadAccount() {
         try {
             const {
@@ -1189,13 +1252,28 @@
                 );
             }
 
+            const {
+                data: identitiesData,
+                error: identitiesError
+            } = await supabaseClient.auth.getUserIdentities();
+
+            if (identitiesError) {
+                console.error(
+                    "Identity lookup failed:",
+                    identitiesError
+                );
+            }
+
+            const discordIdentity =
+                identitiesData?.identities?.find(
+                    identity =>
+                        identity.provider === "discord"
+                ) || null;
+
             const username =
                 metadata.username ||
                 user.email?.split("@")[0] ||
                 "Rider";
-
-            const discord =
-                metadata.discord || "";
 
             const guid =
                 metadata.mxbikes_guid || "";
@@ -1206,17 +1284,34 @@
             profileUsername.textContent = username;
             profileEmail.textContent = user.email || "—";
 
-            profileDiscord.textContent =
-                discord || "Not linked";
-
             profileGuid.textContent =
                 guid || "Not set";
 
-            discordInput.value = discord;
             guidInput.value = guid;
 
+            renderDiscordIdentity(discordIdentity);
             renderTier(riderPoints);
             renderSubscription(subscription);
+
+            const params =
+                new URLSearchParams(window.location.search);
+
+            if (
+                params.get("discord") === "linked" &&
+                discordIdentity
+            ) {
+                setMessage(
+                    discordMessage,
+                    "Discord account linked successfully.",
+                    "success"
+                );
+
+                window.history.replaceState(
+                    {},
+                    document.title,
+                    window.location.pathname
+                );
+            }
 
             loadingScreen.classList.add("hidden");
 
@@ -1227,45 +1322,91 @@
     }
 
 
-    discordForm.addEventListener(
-        "submit",
-        async function(event) {
-            event.preventDefault();
-
-            const discord =
-                discordInput.value.trim();
-
-            discordSaveButton.disabled = true;
-            discordSaveButton.textContent = "SAVING...";
-
+    discordLinkButton.addEventListener(
+        "click",
+        async function() {
             setMessage(discordMessage, "");
 
-            const { data, error } =
-                await supabaseClient.auth.updateUser({
-                    data: {
-                        discord: discord
-                    }
-                });
+            const mode =
+                discordLinkButton.dataset.mode || "link";
 
-            if (error) {
+            discordLinkButton.disabled = true;
+
+            try {
+                if (mode === "unlink") {
+                    if (!linkedDiscordIdentity) {
+                        renderDiscordIdentity(null);
+                        return;
+                    }
+
+                    const { error } =
+                        await supabaseClient.auth.unlinkIdentity(
+                            linkedDiscordIdentity
+                        );
+
+                    if (error) {
+                        throw error;
+                    }
+
+                    renderDiscordIdentity(null);
+
+                    setMessage(
+                        discordMessage,
+                        "Discord account unlinked.",
+                        "success"
+                    );
+
+                    return;
+                }
+
+                discordLinkButton.textContent =
+                    "CONNECTING...";
+
+                const { data, error } =
+                    await supabaseClient.auth.linkIdentity({
+                        provider: "discord",
+                        options: {
+                            redirectTo:
+                                "https://vinitive.github.io/MotoGrid-Website/pages/account.html?discord=linked"
+                        }
+                    });
+
+                if (error) {
+                    throw error;
+                }
+
+                if (data?.url) {
+                    window.location.href =
+                        data.url;
+                }
+
+            } catch (error) {
+                console.error(
+                    "Discord identity error:",
+                    error
+                );
+
                 setMessage(
                     discordMessage,
-                    error.message,
+                    error.message ||
+                    "Could not update Discord connection.",
                     "error"
                 );
-            } else {
-                profileDiscord.textContent =
-                    discord || "Not linked";
 
-                setMessage(
-                    discordMessage,
-                    "Discord username saved.",
-                    "success"
-                );
+            } finally {
+                if (
+                    !window.location.href.includes(
+                        "discord.com"
+                    )
+                ) {
+                    discordLinkButton.disabled = false;
+
+                    discordLinkButton.textContent =
+                        linkedDiscordIdentity
+                            ? "Unlink Discord"
+                            : "Link Discord";
+                }
             }
-
-            discordSaveButton.disabled = false;
-            discordSaveButton.textContent = "SAVE DISCORD";
         }
     );
 
