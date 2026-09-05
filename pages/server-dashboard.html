@@ -558,7 +558,7 @@
         const { data: server, error } = await supabaseClient
             .from("game_servers")
             .select(`
-                id, server_code, server_name, bike_class, track_key, port, max_players, status, node_id,
+                id, server_code, server_name, bike_class, track_key, port, max_players, current_players, status, node_id,
                 nodes ( node_name, public_ip )
             `)
             .eq("user_id", userId)
@@ -586,7 +586,7 @@
         serverName.textContent = server.server_name || server.server_code;
         serverCode.textContent = server.server_code;
         serverPort.textContent = server.port || "—";
-        playerCount.textContent = `0 / ${server.max_players || "—"}`;
+        playerCount.textContent = `${server.current_players ?? 0} / ${server.max_players || "—"}`;
         serverAddress.textContent = server.nodes?.public_ip || "—";
         updateCurrentTrackDisplay(server.track_key);
         displayStatus(server.status);
