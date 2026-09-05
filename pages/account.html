@@ -499,6 +499,202 @@
             gap: 8px;
         }
 
+
+        /* Race Results upload */
+        .tier-header-row {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 18px;
+        }
+
+        .race-results-button {
+            min-height: 40px;
+            padding: 0 15px;
+            border: 1px solid #7cff00;
+            background: transparent;
+            color: #7cff00;
+            font-size: 8px;
+            font-weight: 1000;
+            letter-spacing: 1.3px;
+            text-transform: uppercase;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .race-results-button:hover {
+            background: #7cff00;
+            color: #050705;
+        }
+
+        .race-modal {
+            position: fixed;
+            inset: 0;
+            z-index: 10000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background: rgba(0,0,0,0.82);
+            backdrop-filter: blur(5px);
+        }
+
+        .race-modal.visible {
+            display: flex;
+        }
+
+        .race-modal-card {
+            position: relative;
+            width: min(720px, 100%);
+            max-height: min(820px, calc(100vh - 40px));
+            overflow-y: auto;
+            padding: 30px;
+            background: #0a0c0a;
+            border: 1px solid rgba(255,255,255,0.11);
+            box-shadow: 0 24px 80px rgba(0,0,0,0.55);
+        }
+
+        .race-modal-card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 92px;
+            height: 3px;
+            background: #7cff00;
+        }
+
+        .race-modal-head {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+
+        .race-modal-head h2 {
+            margin: 7px 0 0;
+            font-size: 25px;
+            text-transform: uppercase;
+        }
+
+        .race-modal-close {
+            width: 38px;
+            height: 38px;
+            border: 1px solid rgba(255,255,255,0.12);
+            background: #060706;
+            color: #aaa;
+            cursor: pointer;
+            font-size: 18px;
+        }
+
+        .race-modal-close:hover {
+            border-color: #7cff00;
+            color: #7cff00;
+        }
+
+        .race-file {
+            width: 100%;
+            min-height: 50px;
+            padding: 12px;
+            border: 1px dashed rgba(255,255,255,0.18);
+            background: #060706;
+            color: #888;
+        }
+
+        .race-file::file-selector-button {
+            margin-right: 12px;
+            padding: 9px 12px;
+            border: 1px solid #7cff00;
+            background: transparent;
+            color: #7cff00;
+            font-size: 9px;
+            font-weight: 900;
+            text-transform: uppercase;
+            cursor: pointer;
+        }
+
+        .race-summary {
+            display: none;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-top: 20px;
+        }
+
+        .race-summary.visible {
+            display: grid;
+        }
+
+        .race-stat {
+            padding: 14px;
+            border: 1px solid rgba(255,255,255,0.08);
+            background: #060706;
+        }
+
+        .race-stat span {
+            display: block;
+            color: #666;
+            font-size: 8px;
+            font-weight: 900;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .race-stat strong {
+            display: block;
+            margin-top: 5px;
+            font-size: 20px;
+        }
+
+        .race-riders {
+            display: grid;
+            gap: 7px;
+            margin-top: 16px;
+        }
+
+        .race-rider {
+            display: grid;
+            grid-template-columns: 54px 1fr auto;
+            gap: 12px;
+            align-items: center;
+            padding: 12px 14px;
+            border: 1px solid rgba(255,255,255,0.07);
+            background: #060706;
+        }
+
+        .race-position {
+            color: #7cff00;
+            font-size: 15px;
+            font-weight: 1000;
+        }
+
+        .race-rider-name {
+            font-size: 11px;
+            font-weight: 900;
+        }
+
+        .race-rider-detail {
+            margin-top: 3px;
+            color: #666;
+            font-size: 8px;
+            text-transform: uppercase;
+        }
+
+        .race-match {
+            font-size: 8px;
+            font-weight: 900;
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
+        }
+
+        .race-match.matched {
+            color: #7cff00;
+        }
+
+        .race-match.unmatched {
+            color: #777;
+        }
+
         .loading-screen {
             position: fixed;
             inset: 0;
@@ -600,6 +796,26 @@
                 grid-template-columns: repeat(2, 1fr);
             }
 
+            .tier-header-row {
+                flex-direction: column;
+            }
+
+            .race-results-button {
+                width: 100%;
+            }
+
+            .race-summary {
+                grid-template-columns: 1fr;
+            }
+
+            .race-rider {
+                grid-template-columns: 44px 1fr;
+            }
+
+            .race-match {
+                grid-column: 2;
+            }
+
             .password-grid {
                 grid-template-columns: 1fr;
             }
@@ -697,13 +913,25 @@
             </section>
 
             <section class="panel tier-panel">
-                <span class="panel-kicker">
-                    Rider Progression
-                </span>
+                <div class="tier-header-row">
+                    <div>
+                        <span class="panel-kicker">
+                            Rider Progression
+                        </span>
 
-                <h2>
-                    Rider Tier
-                </h2>
+                        <h2>
+                            Rider Tier
+                        </h2>
+                    </div>
+
+                    <button
+                        type="button"
+                        class="race-results-button"
+                        id="openRaceResultsButton"
+                    >
+                        Upload Race Results
+                    </button>
+                </div>
 
                 <div class="tier-current">
                     <div
@@ -943,6 +1171,99 @@
     </main>
 </div>
 
+
+<div
+    class="race-modal"
+    id="raceResultsModal"
+    aria-hidden="true"
+>
+    <div class="race-modal-card">
+        <div class="race-modal-head">
+            <div>
+                <span class="panel-kicker">
+                    Rider Progression
+                </span>
+                <h2>Upload Race Results</h2>
+            </div>
+
+            <button
+                type="button"
+                class="race-modal-close"
+                id="closeRaceResultsButton"
+                aria-label="Close race results upload"
+            >
+                ×
+            </button>
+        </div>
+
+        <form class="form-stack" id="raceResultsForm">
+            <label class="field-label" for="raceEventName">
+                Event Name
+            </label>
+
+            <input
+                class="account-input"
+                type="text"
+                id="raceEventName"
+                placeholder="Example: MotoGrid Friday Night Race"
+                required
+            >
+
+            <label class="field-label" for="raceResultsFile">
+                MX Bikes Results HTML
+            </label>
+
+            <input
+                class="race-file"
+                type="file"
+                id="raceResultsFile"
+                accept=".html,.htm,text/html"
+                required
+            >
+
+            <p class="small-note">
+                Upload the MX Bikes classification HTML. A minimum of 12 classified riders is required to qualify for MotoGrid points.
+            </p>
+
+            <button
+                class="panel-button"
+                type="submit"
+                id="raceResultsSubmitButton"
+            >
+                Validate Results
+            </button>
+        </form>
+
+        <div
+            class="account-message"
+            id="raceResultsMessage"
+        ></div>
+
+        <div
+            class="race-summary"
+            id="raceResultsSummary"
+        >
+            <div class="race-stat">
+                <span>Riders</span>
+                <strong id="raceRiderCount">0</strong>
+            </div>
+            <div class="race-stat">
+                <span>Matched</span>
+                <strong id="raceMatchedCount">0</strong>
+            </div>
+            <div class="race-stat">
+                <span>Unmatched</span>
+                <strong id="raceUnmatchedCount">0</strong>
+            </div>
+        </div>
+
+        <div
+            class="race-riders"
+            id="raceRiderList"
+        ></div>
+    </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="../js/supabase.js"></script>
 
@@ -1001,6 +1322,33 @@
         document.getElementById("passwordSaveButton");
 
     const logoutButton = document.getElementById("logoutButton");
+
+    const openRaceResultsButton =
+        document.getElementById("openRaceResultsButton");
+    const raceResultsModal =
+        document.getElementById("raceResultsModal");
+    const closeRaceResultsButton =
+        document.getElementById("closeRaceResultsButton");
+    const raceResultsForm =
+        document.getElementById("raceResultsForm");
+    const raceEventName =
+        document.getElementById("raceEventName");
+    const raceResultsFile =
+        document.getElementById("raceResultsFile");
+    const raceResultsSubmitButton =
+        document.getElementById("raceResultsSubmitButton");
+    const raceResultsMessage =
+        document.getElementById("raceResultsMessage");
+    const raceResultsSummary =
+        document.getElementById("raceResultsSummary");
+    const raceRiderCount =
+        document.getElementById("raceRiderCount");
+    const raceMatchedCount =
+        document.getElementById("raceMatchedCount");
+    const raceUnmatchedCount =
+        document.getElementById("raceUnmatchedCount");
+    const raceRiderList =
+        document.getElementById("raceRiderList");
 
     /*
         Rider tier thresholds.
@@ -1218,6 +1566,285 @@
                 "link";
         }
     }
+
+
+
+    function setRaceModalVisible(visible) {
+        raceResultsModal.classList.toggle("visible", visible);
+        raceResultsModal.setAttribute(
+            "aria-hidden",
+            visible ? "false" : "true"
+        );
+
+        document.body.style.overflow =
+            visible ? "hidden" : "";
+    }
+
+
+    function resetRaceResultsPreview() {
+        setMessage(raceResultsMessage, "");
+        raceResultsSummary.classList.remove("visible");
+        raceRiderList.innerHTML = "";
+        raceRiderCount.textContent = "0";
+        raceMatchedCount.textContent = "0";
+        raceUnmatchedCount.textContent = "0";
+    }
+
+
+    function renderRaceResults(data) {
+        const riders =
+            Array.isArray(data?.riders)
+                ? data.riders
+                : [];
+
+        const matched =
+            Number(
+                data?.matched_riders ??
+                riders.filter(rider => rider.matched).length
+            ) || 0;
+
+        const unmatched =
+            Number(
+                data?.unmatched_riders ??
+                (riders.length - matched)
+            ) || 0;
+
+        raceRiderCount.textContent =
+            String(data?.rider_count ?? riders.length);
+
+        raceMatchedCount.textContent =
+            String(matched);
+
+        raceUnmatchedCount.textContent =
+            String(unmatched);
+
+        raceResultsSummary.classList.add("visible");
+        raceRiderList.innerHTML = "";
+
+        riders.forEach(rider => {
+            const row =
+                document.createElement("div");
+
+            row.className =
+                "race-rider";
+
+            const position =
+                document.createElement("div");
+
+            position.className =
+                "race-position";
+
+            position.textContent =
+                `P${rider.position ?? "—"}`;
+
+            const info =
+                document.createElement("div");
+
+            const name =
+                document.createElement("div");
+
+            name.className =
+                "race-rider-name";
+
+            name.textContent =
+                `#${rider.race_number || "—"} ${rider.rider_name || "Unknown Rider"}`;
+
+            const detail =
+                document.createElement("div");
+
+            detail.className =
+                "race-rider-detail";
+
+            detail.textContent =
+                `${Number(rider.points || 0)} MotoGrid points`;
+
+            info.appendChild(name);
+            info.appendChild(detail);
+
+            const match =
+                document.createElement("div");
+
+            match.className =
+                `race-match ${rider.matched ? "matched" : "unmatched"}`;
+
+            match.textContent =
+                rider.matched
+                    ? "Account Matched"
+                    : "Not Matched";
+
+            row.appendChild(position);
+            row.appendChild(info);
+            row.appendChild(match);
+
+            raceRiderList.appendChild(row);
+        });
+    }
+
+
+    openRaceResultsButton.addEventListener(
+        "click",
+        function() {
+            resetRaceResultsPreview();
+            setRaceModalVisible(true);
+            setTimeout(() => raceEventName.focus(), 50);
+        }
+    );
+
+
+    closeRaceResultsButton.addEventListener(
+        "click",
+        function() {
+            setRaceModalVisible(false);
+        }
+    );
+
+
+    raceResultsModal.addEventListener(
+        "click",
+        function(event) {
+            if (event.target === raceResultsModal) {
+                setRaceModalVisible(false);
+            }
+        }
+    );
+
+
+    document.addEventListener(
+        "keydown",
+        function(event) {
+            if (
+                event.key === "Escape" &&
+                raceResultsModal.classList.contains("visible")
+            ) {
+                setRaceModalVisible(false);
+            }
+        }
+    );
+
+
+    raceResultsForm.addEventListener(
+        "submit",
+        async function(event) {
+            event.preventDefault();
+
+            resetRaceResultsPreview();
+
+            const eventName =
+                raceEventName.value.trim();
+
+            const file =
+                raceResultsFile.files?.[0];
+
+            if (!eventName) {
+                setMessage(
+                    raceResultsMessage,
+                    "Event name is required.",
+                    "error"
+                );
+                return;
+            }
+
+            if (!file) {
+                setMessage(
+                    raceResultsMessage,
+                    "Choose an MX Bikes HTML results file.",
+                    "error"
+                );
+                return;
+            }
+
+            raceResultsSubmitButton.disabled = true;
+            raceResultsSubmitButton.textContent = "VALIDATING...";
+
+            try {
+                const {
+                    data: { session },
+                    error: sessionError
+                } =
+                    await supabaseClient.auth.getSession();
+
+                if (sessionError || !session) {
+                    window.location.href = "login.html";
+                    return;
+                }
+
+                const formData =
+                    new FormData();
+
+                formData.append(
+                    "event_name",
+                    eventName
+                );
+
+                formData.append(
+                    "results_file",
+                    file
+                );
+
+                const response =
+                    await fetch(
+                        "https://vsqczlaszguuahwhlfcg.supabase.co/functions/v1/upload-race-results",
+                        {
+                            method: "POST",
+                            headers: {
+                                "Authorization":
+                                    `Bearer ${session.access_token}`
+                            },
+                            body:
+                                formData
+                        }
+                    );
+
+                let data = {};
+
+                try {
+                    data =
+                        await response.json();
+                } catch {
+                    throw new Error(
+                        "MotoGrid received an invalid response from the race results service."
+                    );
+                }
+
+                // Below-minimum responses intentionally include parsed riders,
+                // so render them before showing the validation error.
+                if (Array.isArray(data?.riders)) {
+                    renderRaceResults(data);
+                }
+
+                if (!response.ok || !data.success) {
+                    throw new Error(
+                        data.error ||
+                        "Could not validate race results."
+                    );
+                }
+
+                setMessage(
+                    raceResultsMessage,
+                    data.message ||
+                    "Race results validated successfully.",
+                    "success"
+                );
+
+            } catch (error) {
+                console.error(
+                    "Race results upload error:",
+                    error
+                );
+
+                setMessage(
+                    raceResultsMessage,
+                    error.message ||
+                    "Could not upload race results.",
+                    "error"
+                );
+
+            } finally {
+                raceResultsSubmitButton.disabled = false;
+                raceResultsSubmitButton.textContent = "VALIDATE RESULTS";
+            }
+        }
+    );
 
 
     async function loadAccount() {
