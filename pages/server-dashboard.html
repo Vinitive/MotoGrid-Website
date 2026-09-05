@@ -332,7 +332,8 @@
         }
     
 .server-settings-panel{margin-top:24px}.server-settings-form{display:grid;gap:12px;max-width:620px}
-.server-settings-form label{font-weight:700}.server-name-input,.bike-class-select{width:100%;box-sizing:border-box;padding:12px 14px;border:1px solid rgba(255,255,255,.18);border-radius:8px;background:rgba(0,0,0,.28);color:inherit;font:inherit}
+.server-settings-form label{font-weight:700}.server-name-input,.bike-class-select,.track-select{width:100%;box-sizing:border-box;padding:12px 14px;border:1px solid rgba(255,255,255,.18);border-radius:8px;background:rgba(0,0,0,.28);color:inherit;font:inherit}
+.track-download{display:none;width:max-content;color:#7cff00;text-decoration:none;font-size:.9rem;font-weight:700}.track-download:hover{text-decoration:underline}
 .settings-help{opacity:.72;font-size:.9rem}.settings-message{min-height:1.25em;font-size:.92rem}.settings-save-btn[disabled]{opacity:.55;cursor:not-allowed}
 </style>
 </head>
@@ -383,7 +384,7 @@
 
                     <div class="stat">
                         <span>Track</span>
-                        <strong>—</strong>
+                        <strong id="currentTrackName">—</strong>
                     </div>
 
                     <div class="stat">
@@ -489,6 +490,7 @@
     const restartBtn = document.getElementById("restartBtn");
     const stopBtn = document.getElementById("stopBtn");
     const controlNotice = document.getElementById("controlNotice");
+    const currentTrackName = document.getElementById("currentTrackName");
 
     let currentServer = null;
     let controlBusy = false;
@@ -548,7 +550,7 @@
         const { data: server, error } = await supabaseClient
             .from("game_servers")
             .select(`
-                id, server_code, server_name, bike_class, port, max_players, status, node_id,
+                id, server_code, server_name, bike_class, track_key, port, max_players, status, node_id,
                 nodes ( node_name, public_ip )
             `)
             .eq("user_id", userId)
@@ -565,6 +567,7 @@
             serverPort.textContent = "—";
             serverCode.textContent = "—";
             playerCount.textContent = "0 / —";
+            currentTrackName.textContent = "—";
             controlNotice.textContent = "Your hosting subscription is active, but no server has been provisioned yet.";
             updateButtons("offline");
             return;
@@ -577,6 +580,7 @@
         serverPort.textContent = server.port || "—";
         playerCount.textContent = `0 / ${server.max_players || "—"}`;
         serverAddress.textContent = server.nodes?.public_ip || "—";
+        updateCurrentTrackDisplay(server.track_key);
         displayStatus(server.status);
         controlNotice.textContent = "Your server is connected to the MotoGrid hosting network.";
     }
@@ -671,6 +675,7 @@
             planBadge.textContent = plan === "race" ? "Race" : "Standard";
             planStatus.textContent = status === "trialing" ? "Trialing" : "Active";
 
+            await loadTrackCatalog();
             await loadServer(user.id);
             loading.classList.add("hidden");
             setInterval(refreshServer, 5000);
@@ -685,10 +690,79 @@
 const SERVER_SETTINGS_URL="https://vsqczlaszguuahwhlfcg.supabase.co/functions/v1/server-settings";
 const serverNameInput=document.getElementById("serverNameInput");
 const bikeClassSelect=document.getElementById("bikeClassSelect");
+const trackSelect=document.getElementById("trackSelect");
+const trackDownloadLink=document.getElementById("trackDownloadLink");
 const saveServerSettingsBtn=document.getElementById("saveServerSettingsBtn");
 const serverSettingsMessage=document.getElementById("serverSettingsMessage");
+
+let trackCatalog=[];
+
+function getTrackByKey(trackKey){
+ return trackCatalog.find(track=>track.track_key===trackKey)||null;
+}
+
+function updateTrackDownloadLink(trackKey){
+ const track=getTrackByKey(trackKey);
+ const url=track?.player_download_url||"";
+ if(url){
+  trackDownloadLink.href=url;
+  trackDownloadLink.style.display="inline-block";
+ }else{
+  trackDownloadLink.removeAttribute("href");
+  trackDownloadLink.style.display="none";
+ }
+}
+
+function updateCurrentTrackDisplay(trackKey){
+ const track=getTrackByKey(trackKey);
+ currentTrackName.textContent=track?.display_name||trackKey||"—";
+}
+
+async function loadTrackCatalog(){
+ const {data:{session}}=await supabaseClient.auth.getSession();
+ if(!session){window.location.href="login.html";return;}
+
+ const response=await fetch(SERVER_SETTINGS_URL,{
+  method:"GET",
+  headers:{
+   "Authorization":`Bearer ${session.access_token}`
+  }
+ });
+
+ const result=await response.json().catch(()=>({}));
+ if(!response.ok)throw new Error(result.error||"Failed to load track catalog.");
+
+ trackCatalog=Array.isArray(result.tracks)?result.tracks:[];
+
+ trackSelect.innerHTML="";
+
+ if(trackCatalog.length===0){
+  const option=document.createElement("option");
+  option.value="";
+  option.textContent="No tracks available";
+  trackSelect.appendChild(option);
+  trackSelect.disabled=true;
+  return;
+ }
+
+ for(const track of trackCatalog){
+  const option=document.createElement("option");
+  option.value=track.track_key;
+  option.textContent=track.display_name;
+  trackSelect.appendChild(option);
+ }
+
+ trackSelect.disabled=false;
+
+ if(currentServer?.track_key){
+  trackSelect.value=currentServer.track_key;
+  updateTrackDownloadLink(currentServer.track_key);
+  updateCurrentTrackDisplay(currentServer.track_key);
+ }
+}
+
 function syncServerSettings(server){
- if(!serverNameInput||!bikeClassSelect||!server)return;
+ if(!serverNameInput||!bikeClassSelect||!trackSelect||!server)return;
 
  if(document.activeElement!==serverNameInput){
   serverNameInput.value=server.server_name||"";
@@ -697,30 +771,95 @@ function syncServerSettings(server){
  if(document.activeElement!==bikeClassSelect){
   bikeClassSelect.value=server.bike_class||"mx_open";
  }
+
+ if(document.activeElement!==trackSelect&&server.track_key){
+  trackSelect.value=server.track_key;
+ }
+
+ updateTrackDownloadLink(server.track_key||trackSelect.value);
+ updateCurrentTrackDisplay(server.track_key);
 }
+
+trackSelect?.addEventListener("change",()=>{
+ updateTrackDownloadLink(trackSelect.value);
+});
+
 async function saveServerSettings(){
  const newName=serverNameInput.value.trim().replace(/\s+/g," ");
  const bikeClass=bikeClassSelect.value;
+ const trackKey=trackSelect.value;
+
  serverSettingsMessage.textContent="";
- if(newName.length<3||newName.length>50){serverSettingsMessage.textContent="Server name must be between 3 and 50 characters.";return;}
+
+ if(newName.length<3||newName.length>50){
+  serverSettingsMessage.textContent="Server name must be between 3 and 50 characters.";
+  return;
+ }
+
+ if(!trackKey){
+  serverSettingsMessage.textContent="Select a track.";
+  return;
+ }
+
  const {data:{session}}=await supabaseClient.auth.getSession();
  if(!session){window.location.href="login.html";return;}
- saveServerSettingsBtn.disabled=true; serverNameInput.disabled=true; bikeClassSelect.disabled=true; saveServerSettingsBtn.textContent="Saving...";
+
+ saveServerSettingsBtn.disabled=true;
+ serverNameInput.disabled=true;
+ bikeClassSelect.disabled=true;
+ trackSelect.disabled=true;
+ saveServerSettingsBtn.textContent="Saving...";
  serverSettingsMessage.textContent="Saving server settings...";
+
  try{
-  const response=await fetch(SERVER_SETTINGS_URL,{method:"POST",headers:{"Content-Type":"application/json","Authorization":`Bearer ${session.access_token}`},body:JSON.stringify({serverName:newName,bikeClass:bikeClass})});
+  const response=await fetch(SERVER_SETTINGS_URL,{
+   method:"POST",
+   headers:{
+    "Content-Type":"application/json",
+    "Authorization":`Bearer ${session.access_token}`
+   },
+   body:JSON.stringify({
+    serverName:newName,
+    bikeClass:bikeClass,
+    trackKey:trackKey
+   })
+  });
+
   const result=await response.json().catch(()=>({}));
   if(!response.ok)throw new Error(result.error||"Failed to update server settings.");
+
   serverNameInput.value=result.serverName||newName;
-   bikeClassSelect.value=result.bikeClass||bikeClass;
-  serverSettingsMessage.textContent=result.restartQueued?`Settings saved. Server restart queued.`:`Settings saved. They will be used next time the server starts.`;
-  if(typeof loadServer==="function")setTimeout(()=>loadServer(),1200);
-  else if(typeof loadServerData==="function")setTimeout(()=>loadServerData(),1200);
- }catch(error){console.error("[SERVER SETTINGS]",error);serverSettingsMessage.textContent=error.message||"Failed to update server settings.";}
- finally{saveServerSettingsBtn.disabled=false;serverNameInput.disabled=false;bikeClassSelect.disabled=false;saveServerSettingsBtn.textContent="Save Changes";}
+  bikeClassSelect.value=result.bikeClass||bikeClass;
+  trackSelect.value=result.trackKey||trackKey;
+
+  updateTrackDownloadLink(result.trackKey||trackKey);
+  updateCurrentTrackDisplay(result.trackKey||trackKey);
+
+  serverSettingsMessage.textContent=result.restartQueued
+   ?"Settings saved. Server restart queued."
+   :"Settings saved. They will be used next time the server starts.";
+
+  setTimeout(refreshServer,1200);
+
+ }catch(error){
+  console.error("[SERVER SETTINGS]",error);
+  serverSettingsMessage.textContent=error.message||"Failed to update server settings.";
+ }finally{
+  saveServerSettingsBtn.disabled=false;
+  serverNameInput.disabled=false;
+  bikeClassSelect.disabled=false;
+  trackSelect.disabled=trackCatalog.length===0;
+  saveServerSettingsBtn.textContent="Save Changes";
+ }
 }
+
 saveServerSettingsBtn?.addEventListener("click",saveServerSettings);
-serverNameInput?.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();saveServerSettings();}});
+serverNameInput?.addEventListener("keydown",e=>{
+ if(e.key==="Enter"){
+  e.preventDefault();
+  saveServerSettings();
+ }
+});
 </script>
 
 </body>
