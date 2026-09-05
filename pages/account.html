@@ -1569,6 +1569,40 @@
 
 
 
+    async function refreshRiderPoints() {
+        const {
+            data: { user }
+        } =
+            await supabaseClient.auth.getUser();
+
+        if (!user) {
+            return;
+        }
+
+        const {
+            data,
+            error
+        } =
+            await supabaseClient
+                .from("rider_points")
+                .select("total_points")
+                .eq("user_id", user.id)
+                .maybeSingle();
+
+        if (error) {
+            console.error(
+                "Rider points refresh failed:",
+                error
+            );
+            return;
+        }
+
+        renderTier(
+            Number(data?.total_points || 0)
+        );
+    }
+
+
     function setRaceModalVisible(visible) {
         raceResultsModal.classList.toggle("visible", visible);
         raceResultsModal.setAttribute(
@@ -1819,12 +1853,20 @@
                     );
                 }
 
+                const awarded =
+                    Number(data.points_awarded || 0);
+
+                const scored =
+                    Number(data.riders_scored || 0);
+
                 setMessage(
                     raceResultsMessage,
                     data.message ||
-                    "Race results validated successfully.",
+                    `Race saved. ${awarded} total points awarded across ${scored} matched rider${scored === 1 ? "" : "s"}.`,
                     "success"
                 );
+
+                await refreshRiderPoints();
 
             } catch (error) {
                 console.error(
@@ -1905,8 +1947,24 @@
             const guid =
                 metadata.mxbikes_guid || "";
 
+            const {
+                data: riderPointsRow,
+                error: riderPointsError
+            } = await supabaseClient
+                .from("rider_points")
+                .select("total_points, races_scored")
+                .eq("user_id", user.id)
+                .maybeSingle();
+
+            if (riderPointsError) {
+                console.error(
+                    "Rider points lookup failed:",
+                    riderPointsError
+                );
+            }
+
             const riderPoints =
-                Number(metadata.rider_points || 0);
+                Number(riderPointsRow?.total_points || 0);
 
             profileUsername.textContent = username;
             profileEmail.textContent = user.email || "—";
