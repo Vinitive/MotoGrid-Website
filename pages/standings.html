@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Standings | MotoGrid</title>
+
+    <link rel="stylesheet" href="../css/style.css">
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: #050605;
+            color: #fff;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        .standings-page {
+            min-height: 100vh;
+            background:
+                radial-gradient(
+                    circle at 50% 0%,
+                    rgba(124,255,0,0.07),
+                    transparent 28%
+                ),
+                #050605;
+        }
+
+        .standings-grid-bg {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            background-image:
+                linear-gradient(
+                    rgba(255,255,255,0.02) 1px,
+                    transparent 1px
+                ),
+                linear-gradient(
+                    90deg,
+                    rgba(255,255,255,0.02) 1px,
+                    transparent 1px
+                );
+            background-size: 55px 55px;
+            z-index: 0;
+        }
+
+        .standings-topbar {
+            position: relative;
+            z-index: 3;
+            width: min(1400px, calc(100% - 40px));
+            margin: 0 auto;
+            min-height: 84px;
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            align-items: center;
+            gap: 24px;
+            border-bottom:
+                1px solid rgba(255,255,255,0.08);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #fff;
+            text-decoration: none;
+        }
+
+        .brand img {
+            height: 52px;
+            width: auto;
+            display: block;
+        }
+
+        .brand-name {
+            font-size: 18px;
+            font-weight: 1000;
+            font-style: italic;
+            letter-spacing: 1px;
+        }
+
+        .brand-name span {
+            color: #7cff00;
+        }
+
+        .standings-nav {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 24px;
+        }
+
+        .standings-nav a {
+            color: #777;
+            text-decoration: none;
+            font-size: 9px;
+            font-weight: 900;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+        }
+
+        .standings-nav a:hover,
+        .standings-nav a.active {
+            color: #7cff00;
+        }
+
+        .top-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .top-button {
+            min-height: 40px;
+            padding: 0 15px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(255,255,255,0.12);
+            background: #090b09;
+            color: #aaa;
+            text-decoration: none;
+            font-size: 9px;
+            font-weight: 900;
+            letter-spacing: 1.4px;
+            text-transform: uppercase;
+        }
+
+        .top-button.primary {
+            color: #7cff00;
+            border-color: #7cff00;
+        }
+
+        .top-button:hover {
+            color: #7cff00;
+            border-color: #7cff00;
+        }
+
+        .standings-shell {
+            position: relative;
+            z-index: 2;
+            width: min(1200px, calc(100% - 40px));
+            margin: 0 auto;
+            padding: 70px 0 90px;
+        }
+
+        .hero {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            gap: 28px;
+            margin-bottom: 38px;
+        }
+
+        .eyebrow {
+            color: #7cff00;
+            font-size: 10px;
+            font-weight: 900;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
+
+        .hero h1 {
+            margin: 10px 0 8px;
+            font-size: clamp(46px, 8vw, 82px);
+            line-height: 0.9;
+            letter-spacing: -4px;
+            font-style: italic;
+            text-transform: uppercase;
+        }
+
+        .hero p {
+            margin: 0;
+            color: #777;
+            max-width: 650px;
+            font-size: 13px;
+            line-height: 1.7;
+        }
+
+        .season-card {
+            min-width: 190px;
+            padding: 18px 20px;
+            background: #0a0c0a;
+            border: 1px solid rgba(255,255,255,0.09);
+            border-top: 3px solid #7cff00;
+        }
+
+        .season-card span {
+            display: block;
+            color: #666;
+            font-size: 8px;
+            font-weight: 900;
+            letter-spacing: 1.7px;
+            text-transform: uppercase;
+        }
+
+        .season-card strong {
+            display: block;
+            margin-top: 7px;
+            font-size: 19px;
+            text-transform: uppercase;
+        }
+
+        .podium {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+
+        .podium-card {
+            position: relative;
+            min-height: 170px;
+            padding: 23px;
+            overflow: hidden;
+            background:
+                linear-gradient(
+                    145deg,
+                    rgba(255,255,255,0.035),
+                    rgba(255,255,255,0.01)
+                ),
+                #0a0c0a;
+            border: 1px solid rgba(255,255,255,0.09);
+        }
+
+        .podium-card::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 70px;
+            height: 3px;
+            background: #7cff00;
+        }
+
+        .podium-rank {
+            color: #555;
+            font-size: 10px;
+            font-weight: 1000;
+            letter-spacing: 2px;
+        }
+
+        .podium-name {
+            margin-top: 22px;
+            font-size: 24px;
+            font-weight: 1000;
+            font-style: italic;
+            text-transform: uppercase;
+            overflow-wrap: anywhere;
+        }
+
+        .podium-points {
+            margin-top: 6px;
+            color: #7cff00;
+            font-size: 19px;
+            font-weight: 1000;
+        }
+
+        .podium-tier {
+            margin-top: 12px;
+            color: #666;
+            font-size: 8px;
+            font-weight: 900;
+            letter-spacing: 1.3px;
+            text-transform: uppercase;
+        }
+
+        .table-panel {
+            background: #0a0c0a;
+            border: 1px solid rgba(255,255,255,0.09);
+            overflow: hidden;
+        }
+
+        .table-head {
+            display: grid;
+            grid-template-columns: 76px 1fr 150px 130px 120px;
+            gap: 10px;
+            padding: 14px 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            background: #070807;
+            color: #555;
+            font-size: 8px;
+            font-weight: 900;
+            letter-spacing: 1.4px;
+            text-transform: uppercase;
+        }
+
+        .standings-row {
+            display: grid;
+            grid-template-columns: 76px 1fr 150px 130px 120px;
+            gap: 10px;
+            align-items: center;
+            min-height: 68px;
+            padding: 12px 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.055);
+        }
+
+        .standings-row:last-child {
+            border-bottom: 0;
+        }
+
+        .standings-row:hover {
+            background: rgba(124,255,0,0.025);
+        }
+
+        .rank {
+            color: #7cff00;
+            font-size: 15px;
+            font-weight: 1000;
+        }
+
+        .rider-name {
+            font-size: 12px;
+            font-weight: 1000;
+            text-transform: uppercase;
+        }
+
+        .points {
+            font-size: 13px;
+            font-weight: 1000;
+        }
+
+        .tier-badge {
+            display: inline-flex;
+            width: fit-content;
+            min-height: 28px;
+            padding: 0 10px;
+            align-items: center;
+            border: 1px solid rgba(255,255,255,0.12);
+            background: #070807;
+            color: #aaa;
+            font-size: 8px;
+            font-weight: 900;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .races {
+            color: #777;
+            font-size: 11px;
+            font-weight: 800;
+        }
+
+        .state-box {
+            padding: 54px 20px;
+            text-align: center;
+            color: #666;
+            font-size: 10px;
+            font-weight: 900;
+            letter-spacing: 1.4px;
+            text-transform: uppercase;
+        }
+
+        .state-box.error {
+            color: #ff6b6b;
+        }
+
+        .footer-note {
+            margin-top: 18px;
+            color: #4c4c4c;
+            font-size: 9px;
+            line-height: 1.6;
+            text-align: right;
+        }
+
+        @media (max-width: 900px) {
+            .standings-topbar {
+                grid-template-columns: auto auto;
+            }
+
+            .standings-nav {
+                display: none;
+            }
+
+            .top-actions {
+                justify-content: flex-end;
+            }
+
+            .hero {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .podium {
+                grid-template-columns: 1fr;
+            }
+
+            .table-head {
+                grid-template-columns: 58px 1fr 100px;
+            }
+
+            .table-head div:nth-child(4),
+            .table-head div:nth-child(5) {
+                display: none;
+            }
+
+            .standings-row {
+                grid-template-columns: 58px 1fr 100px;
+            }
+
+            .standings-row .tier-badge,
+            .standings-row .races {
+                display: none;
+            }
+        }
+
+        @media (max-width: 620px) {
+            .standings-topbar,
+            .standings-shell {
+                width: min(100% - 24px, 1200px);
+            }
+
+            .brand-name {
+                display: none;
+            }
+
+            .brand img {
+                height: 42px;
+            }
+
+            .top-button:first-child {
+                display: none;
+            }
+
+            .hero h1 {
+                letter-spacing: -2px;
+            }
+
+            .standings-shell {
+                padding-top: 45px;
+            }
+
+            .table-head,
+            .standings-row {
+                grid-template-columns: 48px 1fr 82px;
+                padding-left: 12px;
+                padding-right: 12px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+<div class="standings-page">
+    <div class="standings-grid-bg"></div>
+
+    <header class="standings-topbar">
+        <a href="../index.html" class="brand">
+            <img
+                src="../assets/logo/motogrid-logo.png"
+                alt="MotoGrid"
+            >
+            <span class="brand-name">
+                MOTO<span>GRID</span>
+            </span>
+        </a>
+
+        <nav class="standings-nav">
+            <a href="../index.html">Home</a>
+            <a href="hosting.html">Hosting</a>
+            <a href="servers.html">Servers</a>
+            <a href="events.html">Events</a>
+            <a href="standings.html" class="active">Standings</a>
+            <a href="guides.html">Guides</a>
+        </nav>
+
+        <div class="top-actions">
+            <a
+                href="https://discord.gg/JbyvJCdxUD"
+                class="top-button"
+                target="_blank"
+                rel="noopener noreferrer"
+            >
+                Discord
+            </a>
+
+            <a
+                href="login.html"
+                class="top-button primary"
+                id="accountButton"
+            >
+                Login
+            </a>
+        </div>
+    </header>
+
+    <main class="standings-shell">
+        <section class="hero">
+            <div>
+                <span class="eyebrow">
+                    MotoGrid Rider Progression
+                </span>
+
+                <h1>
+                    Standings
+                </h1>
+
+                <p>
+                    MotoGrid riders ranked by verified race-result points.
+                    Only points claimed by the rider who uploaded and matched
+                    their own result are counted.
+                </p>
+            </div>
+
+            <div class="season-card">
+                <span>Ranking System</span>
+                <strong>Overall Points</strong>
+            </div>
+        </section>
+
+        <section
+            class="podium"
+            id="podium"
+            hidden
+        ></section>
+
+        <section class="table-panel">
+            <div class="table-head">
+                <div>Rank</div>
+                <div>Rider</div>
+                <div>Points</div>
+                <div>Tier</div>
+                <div>Races</div>
+            </div>
+
+            <div id="standingsBody">
+                <div class="state-box">
+                    Loading MotoGrid standings...
+                </div>
+            </div>
+        </section>
+
+        <div class="footer-note">
+            Standings update automatically as verified MotoGrid race results are scored.
+        </div>
+    </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../js/supabase.js"></script>
+
+<script>
+    const STANDINGS_ENDPOINT =
+        "https://vsqczlaszguuahwhlfcg.supabase.co/functions/v1/public-standings";
+
+    const podium =
+        document.getElementById("podium");
+
+    const standingsBody =
+        document.getElementById("standingsBody");
+
+    const accountButton =
+        document.getElementById("accountButton");
+
+
+    function createTextElement(
+        tag,
+        className,
+        text
+    ) {
+        const element =
+            document.createElement(tag);
+
+        if (className) {
+            element.className =
+                className;
+        }
+
+        element.textContent =
+            text;
+
+        return element;
+    }
+
+
+    function renderPodium(standings) {
+        podium.innerHTML = "";
+
+        const topThree =
+            standings.slice(0, 3);
+
+        if (!topThree.length) {
+            podium.hidden = true;
+            return;
+        }
+
+        topThree.forEach(rider => {
+            const card =
+                document.createElement("article");
+
+            card.className =
+                "podium-card";
+
+            card.appendChild(
+                createTextElement(
+                    "div",
+                    "podium-rank",
+                    `RANK ${rider.rank}`
+                )
+            );
+
+            card.appendChild(
+                createTextElement(
+                    "div",
+                    "podium-name",
+                    rider.username
+                )
+            );
+
+            card.appendChild(
+                createTextElement(
+                    "div",
+                    "podium-points",
+                    `${Number(rider.total_points || 0).toLocaleString()} PTS`
+                )
+            );
+
+            card.appendChild(
+                createTextElement(
+                    "div",
+                    "podium-tier",
+                    `${rider.tier} • ${Number(rider.races_scored || 0)} races`
+                )
+            );
+
+            podium.appendChild(card);
+        });
+
+        podium.hidden = false;
+    }
+
+
+    function renderStandings(standings) {
+        standingsBody.innerHTML = "";
+
+        if (!standings.length) {
+            standingsBody.innerHTML =
+                '<div class="state-box">No scored riders yet.</div>';
+
+            renderPodium([]);
+            return;
+        }
+
+        renderPodium(standings);
+
+        standings.forEach(rider => {
+            const row =
+                document.createElement("div");
+
+            row.className =
+                "standings-row";
+
+            row.appendChild(
+                createTextElement(
+                    "div",
+                    "rank",
+                    `#${rider.rank}`
+                )
+            );
+
+            row.appendChild(
+                createTextElement(
+                    "div",
+                    "rider-name",
+                    rider.username
+                )
+            );
+
+            row.appendChild(
+                createTextElement(
+                    "div",
+                    "points",
+                    Number(
+                        rider.total_points || 0
+                    ).toLocaleString()
+                )
+            );
+
+            row.appendChild(
+                createTextElement(
+                    "div",
+                    "tier-badge",
+                    rider.tier
+                )
+            );
+
+            row.appendChild(
+                createTextElement(
+                    "div",
+                    "races",
+                    String(
+                        rider.races_scored || 0
+                    )
+                )
+            );
+
+            standingsBody.appendChild(row);
+        });
+    }
+
+
+    async function loadStandings() {
+        try {
+            const response =
+                await fetch(
+                    STANDINGS_ENDPOINT,
+                    {
+                        cache: "no-store"
+                    }
+                );
+
+            const data =
+                await response.json();
+
+            if (
+                !response.ok ||
+                !data.success
+            ) {
+                throw new Error(
+                    data.error ||
+                    "Could not load standings."
+                );
+            }
+
+            renderStandings(
+                Array.isArray(data.standings)
+                    ? data.standings
+                    : []
+            );
+
+        } catch (error) {
+            console.error(
+                "Standings error:",
+                error
+            );
+
+            standingsBody.innerHTML =
+                `<div class="state-box error">${
+                    error.message ||
+                    "Could not load MotoGrid standings."
+                }</div>`;
+        }
+    }
+
+
+    async function loadAccountNavigation() {
+        try {
+            const {
+                data: { session }
+            } =
+                await supabaseClient.auth.getSession();
+
+            if (session) {
+                accountButton.href =
+                    "account.html";
+
+                accountButton.textContent =
+                    "My Account";
+            }
+        } catch (error) {
+            console.error(
+                "Account nav error:",
+                error
+            );
+        }
+    }
+
+
+    loadAccountNavigation();
+    loadStandings();
+
+    setInterval(
+        loadStandings,
+        30000
+    );
+</script>
+</body>
+</html>
