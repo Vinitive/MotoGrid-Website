@@ -675,13 +675,33 @@
             planBadge.textContent = plan === "race" ? "Race" : "Standard";
             planStatus.textContent = status === "trialing" ? "Trialing" : "Active";
 
-            await loadTrackCatalog();
+            try {
+                await loadTrackCatalog();
+            } catch (trackError) {
+                console.error("Track catalog failed:", trackError);
+
+                if (trackSelect) {
+                    trackSelect.innerHTML = '<option value="">Track catalog unavailable</option>';
+                    trackSelect.disabled = true;
+                }
+
+                if (serverSettingsMessage) {
+                    serverSettingsMessage.textContent =
+                        `Track catalog error: ${trackError.message || "Failed to load tracks."}`;
+                }
+            }
+
             await loadServer(user.id);
             loading.classList.add("hidden");
             setInterval(refreshServer, 5000);
         } catch (error) {
             console.error("Dashboard failed:", error);
-            window.location.href = "account.html";
+            loading.classList.add("hidden");
+
+            if (controlNotice) {
+                controlNotice.textContent =
+                    error.message || "Failed to load server dashboard.";
+            }
         }
     }
 
