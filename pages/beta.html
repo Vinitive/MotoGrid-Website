@@ -954,6 +954,9 @@
 </div>
 
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../js/supabase.js"></script>
+
 <script>
     const betaForm =
         document.getElementById("betaApplicationForm");
@@ -964,26 +967,33 @@
     const betaFormMessage =
         document.getElementById("betaFormMessage");
 
-    /*
-        Replace YOUR_PROJECT_REF below with the project ref from
-        your Supabase project URL:
-
-        https://YOUR_PROJECT_REF.supabase.co
-    */
     const BETA_FUNCTION_URL =
         "https://vsqczlaszguuahwhlfcg.supabase.co/functions/v1/submit-beta-application";
 
     function showBetaMessage(type, message) {
         betaFormMessage.className =
             "beta-form-message show " + type;
-
         betaFormMessage.textContent = message;
+    }
+
+    async function requireMotoGridLogin() {
+        const {
+            data: { session },
+            error
+        } = await supabaseClient.auth.getSession();
+
+        if (error || !session) {
+            window.location.href =
+                "login.html?redirect=beta.html";
+            return null;
+        }
+
+        return session;
     }
 
     betaForm.addEventListener(
         "submit",
         async function(event) {
-
             event.preventDefault();
 
             if (!betaForm.checkValidity()) {
@@ -991,44 +1001,26 @@
                 return;
             }
 
-            const formData =
-                new FormData(betaForm);
+            const session = await requireMotoGridLogin();
+            if (!session) return;
+
+            const formData = new FormData(betaForm);
 
             const payload = {
-                discord:
-                    formData.get("discord")?.toString().trim(),
-
-                region:
-                    formData.get("region")?.toString(),
-
-                mxbHours:
-                    formData.get("mxbHours")?.toString(),
-
-                serverExperience:
-                    formData.get("serverExperience")?.toString(),
-
-                currentHosting:
-                    formData.get("currentHosting")?.toString(),
-
-                testingReason:
-                    formData.get("testingReason")?.toString().trim(),
-
-                hostingProblems:
-                    formData.get("hostingProblems")?.toString().trim(),
-
-                availability:
-                    formData.get("availability")?.toString(),
-
-                feedbackAgreement:
-                    formData.get("feedbackAgreement") === "on"
+                discord: formData.get("discord")?.toString().trim(),
+                region: formData.get("region")?.toString(),
+                mxbHours: formData.get("mxbHours")?.toString(),
+                serverExperience: formData.get("serverExperience")?.toString(),
+                currentHosting: formData.get("currentHosting")?.toString(),
+                testingReason: formData.get("testingReason")?.toString().trim(),
+                hostingProblems: formData.get("hostingProblems")?.toString().trim(),
+                availability: formData.get("availability")?.toString(),
+                feedbackAgreement: formData.get("feedbackAgreement") === "on"
             };
 
             betaSubmitButton.disabled = true;
             betaSubmitButton.textContent = "SENDING APPLICATION...";
-
-            betaFormMessage.className =
-                "beta-form-message";
-
+            betaFormMessage.className = "beta-form-message";
             betaFormMessage.textContent = "";
 
             try {
@@ -1036,17 +1028,15 @@
                     BETA_FUNCTION_URL,
                     {
                         method: "POST",
-
                         headers: {
-                            "Content-Type": "application/json"
+                            "Content-Type": "application/json",
+                            "Authorization": `Bearer ${session.access_token}`
                         },
-
                         body: JSON.stringify(payload)
                     }
                 );
 
                 let result = {};
-
                 try {
                     result = await response.json();
                 } catch {
@@ -1062,12 +1052,10 @@
 
                 showBetaMessage(
                     "success",
-                    "APPLICATION SENT // Your beta application has been submitted successfully."
+                    "APPLICATION SENT // Your MotoGrid Hosting Beta application has been submitted successfully."
                 );
 
-                betaSubmitButton.textContent =
-                    "APPLICATION SENT ✓";
-
+                betaSubmitButton.textContent = "APPLICATION SENT ✓";
                 betaForm.reset();
 
             } catch (error) {
@@ -1088,6 +1076,8 @@
             }
         }
     );
+
+    requireMotoGridLogin();
 </script>
 
 </body>
