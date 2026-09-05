@@ -332,7 +332,7 @@
         }
     
 .server-settings-panel{margin-top:24px}.server-settings-form{display:grid;gap:12px;max-width:620px}
-.server-settings-form label{font-weight:700}.server-name-input{width:100%;box-sizing:border-box;padding:12px 14px;border:1px solid rgba(255,255,255,.18);border-radius:8px;background:rgba(0,0,0,.28);color:inherit;font:inherit}
+.server-settings-form label{font-weight:700}.server-name-input,.bike-class-select{width:100%;box-sizing:border-box;padding:12px 14px;border:1px solid rgba(255,255,255,.18);border-radius:8px;background:rgba(0,0,0,.28);color:inherit;font:inherit}
 .settings-help{opacity:.72;font-size:.9rem}.settings-message{min-height:1.25em;font-size:.92rem}.settings-save-btn[disabled]{opacity:.55;cursor:not-allowed}
 </style>
 </head>
@@ -456,6 +456,14 @@
   <label for="serverNameInput">Server Name</label>
   <input id="serverNameInput" class="server-name-input" type="text" minlength="3" maxlength="50" autocomplete="off" placeholder="MotoGrid Server">
   <div class="settings-help">3–50 characters. This is the name players will see for your MX Bikes server.</div>
+   <label for="bikeClassSelect">Bike Class</label>
+   <select id="bikeClassSelect" class="bike-class-select">
+    <option value="mx1">MX1</option>
+    <option value="mx2">MX2</option>
+    <option value="mx2_2t">MX2 / 2T</option>
+    <option value="mx_open">MX Open</option>
+   </select>
+   <div class="settings-help">Controls which OEM bike class is allowed on this server.</div>
   <div id="serverSettingsMessage" class="settings-message" aria-live="polite"></div>
   <div><button id="saveServerSettingsBtn" class="control-btn settings-save-btn" type="button">Save Changes</button></div>
  </div>
@@ -540,7 +548,7 @@
         const { data: server, error } = await supabaseClient
             .from("game_servers")
             .select(`
-                id, server_code, server_name, port, max_players, status, node_id,
+                id, server_code, server_name, bike_class, port, max_players, status, node_id,
                 nodes ( node_name, public_ip )
             `)
             .eq("user_id", userId)
@@ -676,30 +684,40 @@
 
 const SERVER_SETTINGS_URL="https://vsqczlaszguuahwhlfcg.supabase.co/functions/v1/server-settings";
 const serverNameInput=document.getElementById("serverNameInput");
+const bikeClassSelect=document.getElementById("bikeClassSelect");
 const saveServerSettingsBtn=document.getElementById("saveServerSettingsBtn");
 const serverSettingsMessage=document.getElementById("serverSettingsMessage");
 function syncServerSettings(server){
- if(!serverNameInput||!server)return;
- if(document.activeElement!==serverNameInput) serverNameInput.value=server.server_name||"";
+ if(!serverNameInput||!bikeClassSelect||!server)return;
+
+ if(document.activeElement!==serverNameInput){
+  serverNameInput.value=server.server_name||"";
+ }
+
+ if(document.activeElement!==bikeClassSelect){
+  bikeClassSelect.value=server.bike_class||"mx_open";
+ }
 }
 async function saveServerSettings(){
  const newName=serverNameInput.value.trim().replace(/\s+/g," ");
+ const bikeClass=bikeClassSelect.value;
  serverSettingsMessage.textContent="";
  if(newName.length<3||newName.length>50){serverSettingsMessage.textContent="Server name must be between 3 and 50 characters.";return;}
  const {data:{session}}=await supabaseClient.auth.getSession();
  if(!session){window.location.href="login.html";return;}
- saveServerSettingsBtn.disabled=true; serverNameInput.disabled=true; saveServerSettingsBtn.textContent="Saving...";
+ saveServerSettingsBtn.disabled=true; serverNameInput.disabled=true; bikeClassSelect.disabled=true; saveServerSettingsBtn.textContent="Saving...";
  serverSettingsMessage.textContent="Saving server settings...";
  try{
-  const response=await fetch(SERVER_SETTINGS_URL,{method:"POST",headers:{"Content-Type":"application/json","Authorization":`Bearer ${session.access_token}`},body:JSON.stringify({serverName:newName})});
+  const response=await fetch(SERVER_SETTINGS_URL,{method:"POST",headers:{"Content-Type":"application/json","Authorization":`Bearer ${session.access_token}`},body:JSON.stringify({serverName:newName,bikeClass:bikeClass})});
   const result=await response.json().catch(()=>({}));
   if(!response.ok)throw new Error(result.error||"Failed to update server settings.");
   serverNameInput.value=result.serverName||newName;
-  serverSettingsMessage.textContent=result.restartQueued?`Saved as "${serverNameInput.value}". Server restart queued.`:`Saved as "${serverNameInput.value}". It will be used next time the server starts.`;
+   bikeClassSelect.value=result.bikeClass||bikeClass;
+  serverSettingsMessage.textContent=result.restartQueued?`Settings saved. Server restart queued.`:`Settings saved. They will be used next time the server starts.`;
   if(typeof loadServer==="function")setTimeout(()=>loadServer(),1200);
   else if(typeof loadServerData==="function")setTimeout(()=>loadServerData(),1200);
  }catch(error){console.error("[SERVER SETTINGS]",error);serverSettingsMessage.textContent=error.message||"Failed to update server settings.";}
- finally{saveServerSettingsBtn.disabled=false;serverNameInput.disabled=false;saveServerSettingsBtn.textContent="Save Changes";}
+ finally{saveServerSettingsBtn.disabled=false;serverNameInput.disabled=false;bikeClassSelect.disabled=false;saveServerSettingsBtn.textContent="Save Changes";}
 }
 saveServerSettingsBtn?.addEventListener("click",saveServerSettings);
 serverNameInput?.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();saveServerSettings();}});
