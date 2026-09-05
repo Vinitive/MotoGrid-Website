@@ -442,7 +442,7 @@
 
                     <div class="stat">
                         <span>Uptime</span>
-                        <strong>—</strong>
+                        <strong id="serverUptime">—</strong>
                     </div>
                 </div>
             </section>
@@ -555,9 +555,70 @@
     const controlNotice = document.getElementById("controlNotice");
     const currentTrackName = document.getElementById("currentTrackName");
     const activityList = document.getElementById("activityList");
+    const serverUptime = document.getElementById("serverUptime");
 
     let currentServer = null;
     let controlBusy = false;
+    let uptimeTimer = null;
+
+    function formatUptime(startedAt) {
+        if (!startedAt) return "—";
+
+        const started = new Date(startedAt).getTime();
+        if (!Number.isFinite(started)) return "—";
+
+        const totalSeconds = Math.max(
+            0,
+            Math.floor((Date.now() - started) / 1000)
+        );
+
+        const days = Math.floor(totalSeconds / 86400);
+        const hours = Math.floor((totalSeconds % 86400) / 3600);
+        const minutes = Math.floor((totalSeconds % 3600) / 60);
+        const seconds = totalSeconds % 60;
+
+        if (days > 0) {
+            return `${days}d ${hours}h ${minutes}m ${seconds}s`;
+        }
+
+        if (hours > 0) {
+            return `${hours}h ${minutes}m ${seconds}s`;
+        }
+
+        if (minutes > 0) {
+            return `${minutes}m ${seconds}s`;
+        }
+
+        return `${seconds}s`;
+    }
+
+    function updateUptimeDisplay() {
+        if (
+            !currentServer ||
+            String(currentServer.status || "").toLowerCase() !== "online" ||
+            !currentServer.started_at
+        ) {
+            serverUptime.textContent =
+                currentServer &&
+                String(currentServer.status || "").toLowerCase() === "offline"
+                    ? "Offline"
+                    : "—";
+            return;
+        }
+
+        serverUptime.textContent = formatUptime(currentServer.started_at);
+    }
+
+    function startUptimeClock() {
+        if (uptimeTimer) clearInterval(uptimeTimer);
+
+        updateUptimeDisplay();
+
+        uptimeTimer = setInterval(
+            updateUptimeDisplay,
+            1000
+        );
+    }
 
     function displayStatus(status) {
         const normalized = String(status || "offline").toLowerCase();
@@ -707,7 +768,7 @@
         const { data: server, error } = await supabaseClient
             .from("game_servers")
             .select(`
-                id, server_code, server_name, bike_class, track_key, port, max_players, current_players, status, node_id,
+                id, server_code, server_name, bike_class, track_key, port, max_players, current_players, status, started_at, node_id,
                 nodes ( node_name, public_ip )
             `)
             .eq("user_id", userId)
@@ -725,6 +786,7 @@
             serverCode.textContent = "—";
             playerCount.textContent = "0 / —";
             currentTrackName.textContent = "—";
+            serverUptime.textContent = "—";
             renderServerActivity([]);
             controlNotice.textContent = "Your hosting subscription is active, but no server has been provisioned yet.";
             updateButtons("offline");
@@ -740,6 +802,7 @@
         serverAddress.textContent = server.nodes?.public_ip || "—";
         updateCurrentTrackDisplay(server.track_key);
         displayStatus(server.status);
+        updateUptimeDisplay();
         controlNotice.textContent = "Your server is connected to the MotoGrid hosting network.";
 
         await loadServerActivity(server.id);
@@ -863,6 +926,7 @@
             }
 
             await loadServer(user.id);
+            startUptimeClock();
             loading.classList.add("hidden");
             setInterval(refreshServer, 5000);
         } catch (error) {
