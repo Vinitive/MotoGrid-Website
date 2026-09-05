@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Admin | MotoGrid</title>
+<style>
+*{box-sizing:border-box}body{margin:0;min-height:100vh;background:#050605;color:#fff;font-family:Arial,Helvetica,sans-serif}
+button{font:inherit}.page{min-height:100vh;background:radial-gradient(circle at 50% 0%,rgba(124,255,0,.07),transparent 28%),#050605}
+.bg{position:fixed;inset:0;pointer-events:none;background-image:linear-gradient(rgba(255,255,255,.02) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.02) 1px,transparent 1px);background-size:55px 55px}
+.top,.shell{position:relative;z-index:2;width:min(1400px,calc(100% - 40px));margin:auto}.top{min-height:84px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,.08)}
+.logo{height:52px}.back{padding:13px 16px;border:1px solid rgba(255,255,255,.12);background:#090b09;color:#aaa;text-decoration:none;font-size:9px;font-weight:900;letter-spacing:1.5px;text-transform:uppercase}.back:hover{color:#7cff00;border-color:#7cff00}
+.shell{padding:52px 0 80px}.eyebrow{color:#7cff00;font-size:10px;font-weight:900;letter-spacing:3px;text-transform:uppercase}h1{margin:8px 0;font-size:clamp(42px,7vw,76px);line-height:.95;letter-spacing:-3px;font-style:italic;text-transform:uppercase}.sub{color:#777;font-size:13px;margin:0 0 32px}
+.toolbar{display:flex;justify-content:space-between;align-items:center;gap:14px;padding:18px;margin-bottom:16px;border:1px solid rgba(255,255,255,.09);background:#0a0c0a}.filters{display:flex;gap:8px;flex-wrap:wrap}
+.filter,.refresh{min-height:38px;padding:0 13px;border:1px solid rgba(255,255,255,.12);background:#070807;color:#777;cursor:pointer;font-size:8px;font-weight:1000;letter-spacing:1.2px;text-transform:uppercase}.filter.active,.filter:hover,.refresh:hover{border-color:#7cff00;color:#7cff00}.stats{color:#777;font-size:9px;font-weight:900;text-transform:uppercase}
+.list{display:grid;gap:14px}.card{position:relative;padding:25px;border:1px solid rgba(255,255,255,.09);background:#0a0c0a}.card:before{content:"";position:absolute;top:0;left:0;width:72px;height:3px;background:#7cff00}.head{display:flex;justify-content:space-between;gap:20px}.name{margin:0;font-size:22px;font-weight:1000;text-transform:uppercase}.date{margin-top:6px;color:#555;font-size:9px;text-transform:uppercase}
+.status{padding:8px 11px;border:1px solid #aaa;color:#aaa;font-size:8px;font-weight:1000;text-transform:uppercase}.status.pending{color:#ffd166;border-color:#ffd166}.status.accepted{color:#7cff00;border-color:#7cff00}.status.denied{color:#ff6b6b;border-color:#ff6b6b}
+.meta{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:20px}.box,.answer{padding:13px;border:1px solid rgba(255,255,255,.07);background:#060706}.box span,.answer span{display:block;color:#555;font-size:8px;font-weight:900;letter-spacing:1px;text-transform:uppercase}.box strong{display:block;margin-top:5px;color:#ddd;font-size:11px}.answers{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}.answer p{margin:8px 0 0;color:#aaa;font-size:11px;line-height:1.6;white-space:pre-wrap}
+.actions{display:flex;justify-content:flex-end;gap:9px;margin-top:18px}.action{min-height:40px;padding:0 16px;cursor:pointer;font-size:8px;font-weight:1000;letter-spacing:1.3px;text-transform:uppercase}.accept{border:1px solid #7cff00;background:#7cff00;color:#050705}.deny{border:1px solid #ff6b6b;background:transparent;color:#ff6b6b}.action:disabled{opacity:.5;cursor:not-allowed}
+.message{padding:40px 25px;text-align:center;border:1px solid rgba(255,255,255,.09);background:#0a0c0a;color:#666;font-size:11px;font-weight:900;text-transform:uppercase}.error{color:#ff6b6b}
+.loading{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:#050605;color:#7cff00;font-size:11px;font-weight:900;letter-spacing:3px;text-transform:uppercase}.loading.hidden{display:none}
+@media(max-width:900px){.meta{grid-template-columns:1fr 1fr}.answers{grid-template-columns:1fr}}@media(max-width:650px){.top,.shell{width:min(100% - 24px,1400px)}.logo{height:42px}.toolbar,.head{flex-direction:column;align-items:stretch}.meta{grid-template-columns:1fr}.actions{display:grid;grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+<div class="loading" id="loading">Checking Administrator Access...</div>
+<div class="page"><div class="bg"></div>
+<header class="top"><a href="../index.html"><img class="logo" src="../assets/logo/motogrid-logo.png" alt="MotoGrid"></a><a class="back" href="account.html">← Back to Account</a></header>
+<main class="shell">
+<span class="eyebrow">MotoGrid Administration</span><h1>Beta Applications</h1><p class="sub">Review access requests for the MotoGrid Hosting Beta.</p>
+<div class="toolbar"><div class="filters"><button class="filter active" data-filter="all">All</button><button class="filter" data-filter="pending">Pending</button><button class="filter" data-filter="accepted">Accepted</button><button class="filter" data-filter="denied">Denied</button></div><div><span class="stats" id="stats">0 Applications</span> <button class="refresh" id="refresh">Refresh</button></div></div>
+<div class="list" id="list"></div>
+</main></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../js/supabase.js"></script>
+<script>
+const URL="https://vsqczlaszguuahwhlfcg.supabase.co/functions/v1/manage-beta-applications";
+const loading=document.getElementById("loading"),list=document.getElementById("list"),stats=document.getElementById("stats");
+let apps=[],filter="all";
+function el(tag,cls,text){const x=document.createElement(tag);if(cls)x.className=cls;if(text!==undefined)x.textContent=text;return x}
+function date(v){return v?new Date(v).toLocaleString():"—"}
+async function session(){const{data:{session},error}=await supabaseClient.auth.getSession();if(error||!session){location.href="login.html";return null}return session}
+function box(parent,label,value){const x=el("div","box");x.append(el("span","",label),el("strong","",value||"—"));parent.append(x)}
+function answer(parent,label,value){const x=el("div","answer");x.append(el("span","",label),el("p","",value||"—"));parent.append(x)}
+function render(){list.innerHTML="";const shown=apps.filter(a=>filter==="all"||a.status===filter);stats.textContent=shown.length+" Application"+(shown.length===1?"":"s");if(!shown.length){list.append(el("div","message","No beta applications found."));return}shown.forEach(a=>{const c=el("article","card"),h=el("div","head"),t=el("div");t.append(el("h2","name",a.discord||"Unknown Applicant"),el("div","date","Submitted "+date(a.created_at)));h.append(t,el("div","status "+(a.status||"pending"),a.status||"pending"));c.append(h);const m=el("div","meta");box(m,"Region",a.region);box(m,"MX Bikes Experience",a.mxb_hours);box(m,"Hosting Experience",a.server_experience);box(m,"Availability",a.availability);box(m,"Current Hosting",a.current_hosting||"Not specified");box(m,"Feedback Agreement",a.feedback_agreement?"Accepted":"No");box(m,"User ID",a.user_id);box(m,"Reviewed",a.reviewed_at?date(a.reviewed_at):"Not reviewed");c.append(m);const an=el("div","answers");answer(an,"Why They Want To Beta Test",a.testing_reason);answer(an,"What Would Make Hosting Easier",a.hosting_problems);c.append(an);const ac=el("div","actions"),d=el("button","action deny",a.status==="denied"?"Denied":"Deny"),ok=el("button","action accept",a.status==="accepted"?"Accepted":"Accept");d.disabled=a.status==="denied";ok.disabled=a.status==="accepted";d.onclick=()=>review(a.id,"deny");ok.onclick=()=>review(a.id,"accept");ac.append(d,ok);c.append(ac);list.append(c)})}
+async function load(){const s=await session();if(!s)return;try{const r=await fetch(URL,{headers:{Authorization:`Bearer ${s.access_token}`}}),d=await r.json().catch(()=>({}));if(r.status===403){location.href="account.html";return}if(!r.ok||!d.success)throw Error(d.error||"Could not load beta applications.");apps=Array.isArray(d.applications)?d.applications:[];render();loading.classList.add("hidden")}catch(e){loading.classList.add("hidden");list.innerHTML="";list.append(el("div","message error",e.message))}}
+async function review(id,action){const s=await session();if(!s)return;try{const r=await fetch(URL,{method:"POST",headers:{Authorization:`Bearer ${s.access_token}`,"Content-Type":"application/json"},body:JSON.stringify({application_id:id,action})}),d=await r.json().catch(()=>({}));if(!r.ok||!d.success)throw Error(d.error||"Could not update application.");const i=apps.findIndex(a=>a.id===id);if(i>=0)apps[i]={...apps[i],status:d.application.status,reviewed_at:d.application.reviewed_at};render()}catch(e){alert(e.message)}}
+document.querySelectorAll(".filter").forEach(b=>b.onclick=()=>{document.querySelectorAll(".filter").forEach(x=>x.classList.remove("active"));b.classList.add("active");filter=b.dataset.filter;render()});
+document.getElementById("refresh").onclick=load;load();
+</script>
+</body></html>

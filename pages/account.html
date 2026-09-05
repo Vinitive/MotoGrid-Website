@@ -223,6 +223,36 @@
             font-style: italic;
         }
 
+        .profile-identity-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            margin: 8px 0 4px;
+        }
+
+        .profile-identity-row .profile-name { margin: 0; }
+
+        .admin-button {
+            display: none;
+            min-height: 36px;
+            padding: 0 14px;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #7cff00;
+            background: transparent;
+            color: #7cff00;
+            text-decoration: none;
+            font-size: 8px;
+            font-weight: 1000;
+            letter-spacing: 1.4px;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        .admin-button.visible { display: inline-flex; }
+        .admin-button:hover { background: #7cff00; color: #050705; }
+
         .profile-email {
             color: #777;
             font-size: 12px;
@@ -891,8 +921,14 @@
                     Rider
                 </h2>
 
-                <div class="profile-name" id="profileUsername">
-                    Rider
+                <div class="profile-identity-row">
+                    <div class="profile-name" id="profileUsername">
+                        Rider
+                    </div>
+
+                    <a href="admin.html" class="admin-button" id="adminButton">
+                        Admin
+                    </a>
                 </div>
 
                 <div class="profile-email" id="profileEmail">
@@ -1274,6 +1310,7 @@
     const profileEmail = document.getElementById("profileEmail");
     const profileDiscord = document.getElementById("profileDiscord");
     const profileGuid = document.getElementById("profileGuid");
+    const adminButton = document.getElementById("adminButton");
 
     const tierName = document.getElementById("tierName");
     const tierPointsText = document.getElementById("tierPointsText");
@@ -1902,6 +1939,23 @@
             }
 
             const metadata = user.user_metadata || {};
+
+            const {
+                data: adminRecord,
+                error: adminLookupError
+            } = await supabaseClient
+                .from("admins")
+                .select("user_id")
+                .eq("user_id", user.id)
+                .maybeSingle();
+
+            if (adminLookupError) {
+                console.error("Admin status lookup failed:", adminLookupError);
+            }
+
+            if (adminRecord) {
+                adminButton.classList.add("visible");
+            }
 
             const {
                 data: subscription,
