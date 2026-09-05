@@ -622,10 +622,119 @@
             color: #ff8a8a;
         }
 
+        /* BETA ACCESS GATE */
+        .beta-access-gate {
+            position: fixed;
+            inset: 0;
+            z-index: 20000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            background:
+                radial-gradient(circle at 50% 30%, rgba(124,255,0,0.08), transparent 32%),
+                rgba(5,6,5,0.98);
+        }
+
+        .beta-access-gate.hidden {
+            display: none;
+        }
+
+        .beta-access-card {
+            position: relative;
+            width: min(620px, 100%);
+            padding: 42px;
+            border: 1px solid rgba(255,255,255,0.1);
+            background: #0a0c0a;
+            text-align: center;
+            box-shadow: 0 30px 90px rgba(0,0,0,0.55);
+        }
+
+        .beta-access-card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100px;
+            height: 3px;
+            background: #7cff00;
+        }
+
+        .beta-access-kicker {
+            color: #7cff00;
+            font-size: 9px;
+            font-weight: 1000;
+            letter-spacing: 2.5px;
+            text-transform: uppercase;
+        }
+
+        .beta-access-card h2 {
+            margin: 10px 0 14px;
+            font-size: clamp(30px, 6vw, 48px);
+            line-height: 1;
+            text-transform: uppercase;
+            font-style: italic;
+        }
+
+        .beta-access-card p {
+            margin: 0 auto;
+            max-width: 500px;
+            color: #888;
+            font-size: 13px;
+            line-height: 1.7;
+        }
+
+        .beta-access-actions {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 26px;
+            flex-wrap: wrap;
+        }
+
+        .beta-access-button {
+            min-height: 44px;
+            padding: 0 18px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #7cff00;
+            background: #7cff00;
+            color: #050705;
+            text-decoration: none;
+            font-size: 9px;
+            font-weight: 1000;
+            letter-spacing: 1.4px;
+            text-transform: uppercase;
+        }
+
+        .beta-access-button.secondary {
+            background: transparent;
+            color: #7cff00;
+        }
+
     </style>
 </head>
 
 <body>
+
+<div class="beta-access-gate" id="betaAccessGate">
+    <div class="beta-access-card">
+        <div class="beta-access-kicker" id="betaAccessKicker">
+            MotoGrid Hosting Beta
+        </div>
+
+        <h2 id="betaAccessTitle">
+            Checking Beta Access...
+        </h2>
+
+        <p id="betaAccessMessage">
+            Verifying your MotoGrid account.
+        </p>
+
+        <div class="beta-access-actions" id="betaAccessActions"></div>
+    </div>
+</div>
 
 <div class="hosting-page">
 
@@ -873,6 +982,18 @@
 <script src="../js/supabase.js"></script>
 
 <script>
+    const betaAccessGate =
+        document.getElementById("betaAccessGate");
+
+    const betaAccessTitle =
+        document.getElementById("betaAccessTitle");
+
+    const betaAccessMessage =
+        document.getElementById("betaAccessMessage");
+
+    const betaAccessActions =
+        document.getElementById("betaAccessActions");
+
     const standardPackage =
         document.getElementById("standardPackage");
 
@@ -896,6 +1017,129 @@
         racePackage.disabled = disabled;
     }
 
+    function setBetaGate(title, message, actions = []) {
+        betaAccessTitle.textContent = title;
+        betaAccessMessage.textContent = message;
+        betaAccessActions.innerHTML = "";
+
+        actions.forEach(action => {
+            const link = document.createElement("a");
+            link.href = action.href;
+            link.className =
+                "beta-access-button" +
+                (action.secondary ? " secondary" : "");
+            link.textContent = action.label;
+            betaAccessActions.appendChild(link);
+        });
+
+        betaAccessGate.classList.remove("hidden");
+    }
+
+    async function checkBetaAccess() {
+        const {
+            data: { session },
+            error: sessionError
+        } = await supabaseClient.auth.getSession();
+
+        if (sessionError || !session?.user) {
+            setBetaGate(
+                "Login Required",
+                "You must be logged into MotoGrid to access Hosting Beta packages.",
+                [
+                    {
+                        label: "Login",
+                        href: "login.html?redirect=hosting.html"
+                    },
+                    {
+                        label: "Back to MotoGrid",
+                        href: "../index.html",
+                        secondary: true
+                    }
+                ]
+            );
+            return false;
+        }
+
+        const {
+            data: application,
+            error: applicationError
+        } = await supabaseClient
+            .from("beta_applications")
+            .select("status")
+            .eq("user_id", session.user.id)
+            .maybeSingle();
+
+        if (applicationError) {
+            console.error("Beta access lookup failed:", applicationError);
+
+            setBetaGate(
+                "Access Check Failed",
+                "MotoGrid could not verify your Hosting Beta access. Please try again shortly.",
+                [
+                    {
+                        label: "Back to Account",
+                        href: "account.html"
+                    }
+                ]
+            );
+            return false;
+        }
+
+        const status =
+            (application?.status || "").toLowerCase();
+
+        if (status === "accepted") {
+            betaAccessGate.classList.add("hidden");
+            return true;
+        }
+
+        if (status === "pending") {
+            setBetaGate(
+                "Application Under Review",
+                "Your MotoGrid Hosting Beta application is still pending review.",
+                [
+                    {
+                        label: "Back to Account",
+                        href: "account.html"
+                    }
+                ]
+            );
+            return false;
+        }
+
+        if (status === "denied") {
+            setBetaGate(
+                "Beta Access Not Approved",
+                "You have not been accepted to the MotoGrid Hosting Beta.",
+                [
+                    {
+                        label: "Back to Account",
+                        href: "account.html"
+                    }
+                ]
+            );
+            return false;
+        }
+
+        setBetaGate(
+            "Beta Access Required",
+            "You have not been accepted to the MotoGrid Hosting Beta.",
+            [
+                {
+                    label: "Apply for Beta",
+                    href: "beta.html"
+                },
+                {
+                    label: "Back to Account",
+                    href: "account.html",
+                    secondary: true
+                }
+            ]
+        );
+
+        return false;
+    }
+
     async function startCheckout(plan, button) {
         checkoutMessage.className = "checkout-message";
         checkoutMessage.textContent = "";
@@ -903,6 +1147,13 @@
         const originalText = button.textContent;
 
         try {
+            const hasBetaAccess =
+                await checkBetaAccess();
+
+            if (!hasBetaAccess) {
+                return;
+            }
+
             setCheckoutButtonsDisabled(true);
             button.textContent = "LOADING CHECKOUT...";
 
@@ -977,6 +1228,8 @@
     racePackage.addEventListener("click", function () {
         startCheckout("race", racePackage);
     });
+
+    checkBetaAccess();
 </script>
 
 </body>
