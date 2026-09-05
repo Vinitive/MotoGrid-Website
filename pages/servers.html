@@ -1,0 +1,1086 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Motogrid | Servers</title>
+
+    <meta
+        name="description"
+        content="Browse live MotoGrid MX Bikes servers, player counts, tracks, classes, and track downloads."
+    >
+
+    <link rel="stylesheet" href="../css/style.css">
+
+    <style>
+        :root {
+            --mg-green: #7cff00;
+            --mg-bg: #050705;
+            --mg-panel: #0b0e0b;
+            --mg-panel-2: #101410;
+            --mg-border: rgba(255,255,255,.10);
+            --mg-text: #f5f5f5;
+            --mg-muted: #8f968f;
+            --mg-danger: #ff5151;
+        }
+
+        body {
+            background:
+                radial-gradient(circle at 70% 0%, rgba(124,255,0,.06), transparent 34%),
+                #050705;
+        }
+
+        .servers-page {
+            min-height: 100vh;
+            padding-top: 84px;
+        }
+
+        .servers-hero {
+            position: relative;
+            overflow: hidden;
+            border-bottom: 1px solid var(--mg-border);
+            background:
+                linear-gradient(180deg, rgba(124,255,0,.035), transparent),
+                #070907;
+        }
+
+        .servers-hero::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            background-image:
+                linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,.025) 1px, transparent 1px);
+            background-size: 55px 55px;
+        }
+
+        .servers-hero-inner {
+            position: relative;
+            z-index: 1;
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 80px 24px 64px;
+        }
+
+        .servers-eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 16px;
+            color: var(--mg-green);
+            font-size: 11px;
+            font-weight: 900;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
+
+        .servers-eyebrow::before {
+            content: "";
+            width: 34px;
+            height: 2px;
+            background: var(--mg-green);
+            transform: skewX(-20deg);
+        }
+
+        .servers-title {
+            margin: 0;
+            max-width: 900px;
+            color: #fff;
+            font-size: clamp(50px, 8vw, 92px);
+            font-weight: 1000;
+            line-height: .9;
+            letter-spacing: -3px;
+            text-transform: uppercase;
+            font-style: italic;
+        }
+
+        .servers-title span {
+            color: var(--mg-green);
+        }
+
+        .servers-description {
+            max-width: 760px;
+            margin: 24px 0 0;
+            color: #a8aea8;
+            font-size: 17px;
+            line-height: 1.7;
+        }
+
+        .servers-main {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 42px 24px 90px;
+        }
+
+        .servers-toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            margin-bottom: 24px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--mg-border);
+        }
+
+        .servers-summary {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #fff;
+            font-size: 13px;
+            font-weight: 900;
+            letter-spacing: 1.2px;
+            text-transform: uppercase;
+        }
+
+        .servers-summary-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--mg-green);
+            box-shadow: 0 0 14px rgba(124,255,0,.7);
+        }
+
+        .servers-refresh-note {
+            color: #6f756f;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .servers-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 20px;
+        }
+
+        .server-card-live {
+            position: relative;
+            overflow: hidden;
+            min-height: 340px;
+            border: 1px solid var(--mg-border);
+            background:
+                linear-gradient(180deg, rgba(255,255,255,.02), transparent 35%),
+                var(--mg-panel);
+            transition:
+                transform .2s ease,
+                border-color .2s ease,
+                box-shadow .2s ease;
+        }
+
+        .server-card-live:hover {
+            transform: translateY(-3px);
+            border-color: rgba(124,255,0,.35);
+            box-shadow: 0 18px 45px rgba(0,0,0,.28);
+        }
+
+        .server-card-live::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: #2b302b;
+        }
+
+        .server-card-live.is-online::before {
+            background: var(--mg-green);
+            box-shadow: 0 0 16px rgba(124,255,0,.45);
+        }
+
+        .server-card-inner {
+            display: flex;
+            flex-direction: column;
+            min-height: 340px;
+            padding: 24px;
+        }
+
+        .server-card-top {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 22px;
+        }
+
+        .server-code {
+            display: block;
+            margin-bottom: 7px;
+            color: #646a64;
+            font-size: 10px;
+            font-weight: 900;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .server-name {
+            margin: 0;
+            color: #fff;
+            font-size: 23px;
+            font-weight: 950;
+            line-height: 1.1;
+            text-transform: uppercase;
+        }
+
+        .status-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            flex-shrink: 0;
+            padding: 8px 10px;
+            border: 1px solid rgba(255,255,255,.12);
+            color: #8c928c;
+            background: rgba(255,255,255,.025);
+            font-size: 9px;
+            font-weight: 950;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+        }
+
+        .status-pill::before {
+            content: "";
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #666;
+        }
+
+        .status-pill.online {
+            color: var(--mg-green);
+            border-color: rgba(124,255,0,.3);
+            background: rgba(124,255,0,.05);
+        }
+
+        .status-pill.online::before {
+            background: var(--mg-green);
+            box-shadow: 0 0 12px rgba(124,255,0,.7);
+        }
+
+        .server-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            border-top: 1px solid var(--mg-border);
+            border-left: 1px solid var(--mg-border);
+            margin-bottom: 22px;
+        }
+
+        .server-stat {
+            min-height: 78px;
+            padding: 15px;
+            border-right: 1px solid var(--mg-border);
+            border-bottom: 1px solid var(--mg-border);
+        }
+
+        .server-stat-label {
+            display: block;
+            margin-bottom: 7px;
+            color: #676d67;
+            font-size: 9px;
+            font-weight: 900;
+            letter-spacing: 1.6px;
+            text-transform: uppercase;
+        }
+
+        .server-stat-value {
+            display: block;
+            color: #f4f4f4;
+            font-size: 14px;
+            font-weight: 900;
+            line-height: 1.25;
+            word-break: break-word;
+        }
+
+        .server-actions {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+            margin-top: auto;
+        }
+
+        .track-download-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 45px;
+            padding: 0 16px;
+            border: 1px solid var(--mg-green);
+            background: var(--mg-green);
+            color: #070907 !important;
+            font-size: 10px;
+            font-weight: 1000;
+            letter-spacing: 1.4px;
+            text-decoration: none !important;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition:
+                transform .2s ease,
+                box-shadow .2s ease;
+        }
+
+        .track-download-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 10px 28px rgba(124,255,0,.16);
+        }
+
+        .track-download-btn.disabled {
+            pointer-events: none;
+            border-color: rgba(255,255,255,.12);
+            background: rgba(255,255,255,.035);
+            color: #5f655f !important;
+        }
+
+        .servers-state {
+            grid-column: 1 / -1;
+            min-height: 220px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 30px;
+            border: 1px solid var(--mg-border);
+            background: var(--mg-panel);
+            text-align: center;
+        }
+
+        .servers-state strong {
+            display: block;
+            margin-bottom: 8px;
+            color: #fff;
+            font-size: 16px;
+            text-transform: uppercase;
+        }
+
+        .servers-state span {
+            color: #747a74;
+            font-size: 13px;
+        }
+
+        .loading-bars {
+            display: inline-flex;
+            gap: 5px;
+            margin-bottom: 16px;
+        }
+
+        .loading-bars i {
+            display: block;
+            width: 6px;
+            height: 24px;
+            background: var(--mg-green);
+            animation: mgLoad 1s ease-in-out infinite;
+        }
+
+        .loading-bars i:nth-child(2) { animation-delay: .12s; }
+        .loading-bars i:nth-child(3) { animation-delay: .24s; }
+
+        @keyframes mgLoad {
+            0%, 100% { transform: scaleY(.45); opacity: .35; }
+            50% { transform: scaleY(1); opacity: 1; }
+        }
+
+        @media (max-width: 1050px) {
+            .servers-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 720px) {
+            .servers-page {
+                padding-top: 72px;
+            }
+
+            .servers-hero-inner {
+                padding: 58px 20px 46px;
+            }
+
+            .servers-title {
+                letter-spacing: -2px;
+            }
+
+            .servers-main {
+                padding: 30px 18px 70px;
+            }
+
+            .servers-toolbar {
+                align-items: flex-start;
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            .servers-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .server-card-top {
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header class="site-header">
+    <div class="nav-container">
+
+        <div
+            class="nav-left-group"
+            style="
+                display: flex;
+                align-items: center;
+                gap: 18px;
+                flex-shrink: 0;
+            "
+        >
+            <a
+                href="https://discord.gg/JbyvJCdxUD"
+                class="discord-button"
+                target="_blank"
+                rel="noopener noreferrer"
+                style="
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                    flex-shrink: 0;
+                "
+            >
+                Join Discord
+            </a>
+
+            <a href="../index.html" class="brand">
+                <img
+                    src="../assets/logo/motogrid-logo.png"
+                    alt="Motogrid Logo"
+                    class="brand-logo"
+                >
+
+                <span class="brand-name">
+                    MOTO<span>GRID</span>
+                </span>
+            </a>
+        </div>
+
+        <nav class="main-nav" id="mainNav">
+            <a href="../index.html" class="nav-link">Home</a>
+            <a href="hosting.html" class="nav-link">Hosting</a>
+            <a href="servers.html" class="nav-link active">Servers</a>
+            <a href="events.html" class="nav-link">Events</a>
+            <a href="standings.html" class="nav-link">Standings</a>
+            <a href="guides.html" class="nav-link">Guides</a>
+        </nav>
+
+        <div class="nav-actions">
+
+            <a
+                href="login.html"
+                class="account-login-btn"
+                id="navLoginButton"
+                style="
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                    height: 42px;
+                    padding: 0 20px;
+                    border: 1px solid #7cff00;
+                    background: #0a0c0a;
+                    color: #7cff00;
+                    font-size: 10px;
+                    font-weight: 900;
+                    letter-spacing: 1.5px;
+                    text-transform: uppercase;
+                    text-decoration: none;
+                    cursor: pointer;
+                "
+            >
+                LOGIN
+            </a>
+
+            <a
+                href="register.html"
+                class="account-register-btn"
+                id="navRegisterButton"
+                style="
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                    height: 42px;
+                    padding: 0 22px;
+                    border: 1px solid #7cff00;
+                    background: #7cff00;
+                    color: #050705;
+                    font-size: 10px;
+                    font-weight: 900;
+                    letter-spacing: 1.5px;
+                    text-transform: uppercase;
+                    text-decoration: none;
+                    cursor: pointer;
+                "
+            >
+                CREATE ACCOUNT
+            </a>
+
+            <a
+                href="account.html"
+                id="navAccountButton"
+                style="
+                    display: none;
+                    align-items: center;
+                    justify-content: center;
+                    height: 42px;
+                    padding: 0 22px;
+                    border: 1px solid #7cff00;
+                    background: #7cff00;
+                    color: #050705;
+                    font-size: 10px;
+                    font-weight: 900;
+                    letter-spacing: 1.5px;
+                    text-transform: uppercase;
+                    text-decoration: none;
+                    cursor: pointer;
+                "
+            >
+                MY ACCOUNT
+            </a>
+
+            <button
+                class="mobile-menu-button"
+                id="mobileMenuButton"
+                aria-label="Open navigation menu"
+            >
+                ☰
+            </button>
+        </div>
+    </div>
+</header>
+
+<main class="servers-page">
+
+    <section class="servers-hero">
+        <div class="servers-hero-inner">
+            <span class="servers-eyebrow">Live MotoGrid Network</span>
+
+            <h1 class="servers-title">
+                Find Your
+                <span>Server.</span>
+            </h1>
+
+            <p class="servers-description">
+                Browse current MotoGrid MX Bikes servers, see live player counts,
+                check the active track and bike class, and download any required
+                track before you join.
+            </p>
+        </div>
+    </section>
+
+    <section class="servers-main">
+
+        <div class="servers-toolbar">
+            <div class="servers-summary">
+                <span class="servers-summary-dot"></span>
+                <span id="serverSummary">Loading MotoGrid servers...</span>
+            </div>
+
+            <div class="servers-refresh-note">
+                Live data refreshes every 10 seconds
+            </div>
+        </div>
+
+        <div class="servers-grid" id="serversGrid">
+            <div class="servers-state">
+                <div>
+                    <div class="loading-bars" aria-hidden="true">
+                        <i></i><i></i><i></i>
+                    </div>
+                    <strong>Loading Servers</strong>
+                    <span>Connecting to the MotoGrid network...</span>
+                </div>
+            </div>
+        </div>
+
+    </section>
+
+</main>
+
+<footer class="site-footer">
+
+    <div class="section-container footer-grid">
+
+        <div class="footer-brand">
+            <img
+                src="../assets/logo/motogrid-logo.png"
+                alt="Motogrid"
+                class="footer-logo"
+            >
+
+            <p>
+                An MX Bikes community focused on racing,
+                competition, servers, and bringing riders together.
+            </p>
+        </div>
+
+        <div class="footer-links">
+
+            <div class="footer-column">
+                <h4>Motogrid</h4>
+                <a href="../index.html">Home</a>
+                <a href="hosting.html">Hosting</a>
+                <a href="servers.html">Servers</a>
+                <a href="events.html">Events</a>
+                <a href="standings.html">Standings</a>
+            </div>
+
+            <div class="footer-column">
+                <h4>Community</h4>
+                <a href="guides.html">Guides</a>
+                <a href="https://discord.gg/JbyvJCdxUD">Discord</a>
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="footer-bottom">
+        <div class="section-container footer-bottom-inner">
+
+            <p>
+                © <span id="currentYear"></span> Motogrid.
+                All rights reserved.
+            </p>
+
+            <p class="footer-disclaimer">
+                Motogrid is a community website and is not affiliated
+                with PiBoSo.
+            </p>
+
+        </div>
+    </div>
+
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../js/supabase.js"></script>
+
+<script>
+    const PUBLIC_SERVER_ENDPOINT =
+        "https://vsqczlaszguuahwhlfcg.supabase.co/functions/v1/public-server-list";
+
+    const serversGrid =
+        document.getElementById("serversGrid");
+
+    const serverSummary =
+        document.getElementById("serverSummary");
+
+    const navLoginButton =
+        document.getElementById("navLoginButton");
+
+    const navRegisterButton =
+        document.getElementById("navRegisterButton");
+
+    const navAccountButton =
+        document.getElementById("navAccountButton");
+
+    const currentYear =
+        document.getElementById("currentYear");
+
+    if (currentYear) {
+        currentYear.textContent =
+            new Date().getFullYear();
+    }
+
+
+    function formatBikeClass(value) {
+        const classes = {
+            mx1: "MX1 OEM",
+            mx2: "MX2 OEM",
+            mx2_2t: "MX2 / MX2-2T OEM",
+            mx_open: "Open"
+        };
+
+        return classes[value] || value || "Open";
+    }
+
+
+    function safeText(value, fallback = "—") {
+        const text =
+            String(value ?? "").trim();
+
+        return text || fallback;
+    }
+
+
+    function buildServerCard(server) {
+        const online =
+            server.status === "online";
+
+        const card =
+            document.createElement("article");
+
+        card.className =
+            "server-card-live" +
+            (online ? " is-online" : "");
+
+        const inner =
+            document.createElement("div");
+
+        inner.className = "server-card-inner";
+
+
+        const top =
+            document.createElement("div");
+
+        top.className = "server-card-top";
+
+
+        const titleWrap =
+            document.createElement("div");
+
+        const code =
+            document.createElement("span");
+
+        code.className = "server-code";
+        code.textContent =
+            safeText(server.server_code, "MOTOGRID SERVER");
+
+        const name =
+            document.createElement("h2");
+
+        name.className = "server-name";
+        name.textContent =
+            safeText(server.server_name, "MotoGrid Server");
+
+        titleWrap.append(code, name);
+
+
+        const status =
+            document.createElement("span");
+
+        status.className =
+            "status-pill" + (online ? " online" : "");
+
+        status.textContent =
+            online ? "Online" : "Offline";
+
+        top.append(titleWrap, status);
+
+
+        const stats =
+            document.createElement("div");
+
+        stats.className = "server-stats";
+
+
+        function addStat(label, value) {
+            const item =
+                document.createElement("div");
+
+            item.className = "server-stat";
+
+            const labelEl =
+                document.createElement("span");
+
+            labelEl.className = "server-stat-label";
+            labelEl.textContent = label;
+
+            const valueEl =
+                document.createElement("strong");
+
+            valueEl.className = "server-stat-value";
+            valueEl.textContent = value;
+
+            item.append(labelEl, valueEl);
+            stats.appendChild(item);
+        }
+
+
+        addStat(
+            "Players",
+            online
+                ? `${Number(server.current_players) || 0} / ${Number(server.max_players) || 0}`
+                : "Offline"
+        );
+
+        addStat(
+            "Track",
+            safeText(server.track_name, "Default / Open")
+        );
+
+        addStat(
+            "Bike Class",
+            formatBikeClass(server.bike_class)
+        );
+
+        addStat(
+            "Server",
+            safeText(server.server_code, "—")
+        );
+
+
+        const actions =
+            document.createElement("div");
+
+        actions.className = "server-actions";
+
+
+        const downloadButton =
+            document.createElement("a");
+
+        downloadButton.className =
+            "track-download-btn";
+
+        if (server.track_download_url) {
+            downloadButton.href =
+                server.track_download_url;
+
+            downloadButton.target = "_blank";
+            downloadButton.rel =
+                "noopener noreferrer";
+
+            downloadButton.textContent =
+                "Download Track";
+        } else {
+            downloadButton.href = "#";
+            downloadButton.classList.add("disabled");
+            downloadButton.setAttribute(
+                "aria-disabled",
+                "true"
+            );
+
+            downloadButton.textContent =
+                "Track Download Unavailable";
+        }
+
+        actions.appendChild(downloadButton);
+
+
+        inner.append(
+            top,
+            stats,
+            actions
+        );
+
+        card.appendChild(inner);
+
+        return card;
+    }
+
+
+    function renderServers(servers) {
+        serversGrid.replaceChildren();
+
+        if (!servers.length) {
+            const state =
+                document.createElement("div");
+
+            state.className = "servers-state";
+
+            const wrap =
+                document.createElement("div");
+
+            const title =
+                document.createElement("strong");
+
+            title.textContent =
+                "No Servers Found";
+
+            const note =
+                document.createElement("span");
+
+            note.textContent =
+                "There are no MotoGrid servers available right now.";
+
+            wrap.append(title, note);
+            state.appendChild(wrap);
+            serversGrid.appendChild(state);
+
+            serverSummary.textContent =
+                "0 servers available";
+
+            return;
+        }
+
+
+        const sorted =
+            [...servers].sort((a, b) => {
+                const aOnline =
+                    a.status === "online";
+
+                const bOnline =
+                    b.status === "online";
+
+                if (aOnline !== bOnline) {
+                    return aOnline ? -1 : 1;
+                }
+
+                return String(
+                    a.server_code || ""
+                ).localeCompare(
+                    String(b.server_code || "")
+                );
+            });
+
+
+        const onlineCount =
+            sorted.filter(
+                server =>
+                    server.status === "online"
+            ).length;
+
+        const totalPlayers =
+            sorted.reduce(
+                (total, server) =>
+                    total +
+                    (
+                        server.status === "online"
+                            ? Number(server.current_players) || 0
+                            : 0
+                    ),
+                0
+            );
+
+
+        serverSummary.textContent =
+            `${onlineCount} online • ${sorted.length} total • ${totalPlayers} riders connected`;
+
+
+        sorted.forEach(server => {
+            serversGrid.appendChild(
+                buildServerCard(server)
+            );
+        });
+    }
+
+
+    async function loadServers() {
+        try {
+            const response =
+                await fetch(
+                    PUBLIC_SERVER_ENDPOINT,
+                    {
+                        method: "GET",
+                        cache: "no-store"
+                    }
+                );
+
+            if (!response.ok) {
+                throw new Error(
+                    `Server list returned ${response.status}`
+                );
+            }
+
+            const servers =
+                await response.json();
+
+            if (!Array.isArray(servers)) {
+                throw new Error(
+                    "Unexpected server list response"
+                );
+            }
+
+            renderServers(servers);
+
+        } catch (error) {
+            console.error(
+                "Unable to load MotoGrid servers:",
+                error
+            );
+
+            serversGrid.replaceChildren();
+
+            const state =
+                document.createElement("div");
+
+            state.className = "servers-state";
+
+            const wrap =
+                document.createElement("div");
+
+            const title =
+                document.createElement("strong");
+
+            title.textContent =
+                "Unable To Load Servers";
+
+            const note =
+                document.createElement("span");
+
+            note.textContent =
+                "MotoGrid server status is temporarily unavailable. Please try again shortly.";
+
+            wrap.append(title, note);
+            state.appendChild(wrap);
+            serversGrid.appendChild(state);
+
+            serverSummary.textContent =
+                "Server status unavailable";
+        }
+    }
+
+
+    function updateAccountNavigation(session) {
+        const isLoggedIn =
+            Boolean(session && session.user);
+
+        if (navLoginButton) {
+            navLoginButton.style.display =
+                isLoggedIn
+                    ? "none"
+                    : "inline-flex";
+        }
+
+        if (navRegisterButton) {
+            navRegisterButton.style.display =
+                isLoggedIn
+                    ? "none"
+                    : "inline-flex";
+        }
+
+        if (navAccountButton) {
+            navAccountButton.style.display =
+                isLoggedIn
+                    ? "inline-flex"
+                    : "none";
+        }
+    }
+
+
+    async function loadAccountNavigation() {
+        try {
+            const {
+                data: { session }
+            } =
+                await supabaseClient.auth.getSession();
+
+            updateAccountNavigation(session);
+
+            supabaseClient.auth.onAuthStateChange(
+                function(event, session) {
+                    updateAccountNavigation(session);
+                }
+            );
+
+        } catch (error) {
+            console.error(
+                "Unable to load Motogrid account session:",
+                error
+            );
+
+            updateAccountNavigation(null);
+        }
+    }
+
+
+    loadServers();
+    loadAccountNavigation();
+
+    setInterval(
+        loadServers,
+        10000
+    );
+</script>
+
+<script src="../js/main.js"></script>
+
+</body>
+</html>
