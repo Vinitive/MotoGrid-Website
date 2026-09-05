@@ -300,6 +300,57 @@
             text-transform: uppercase;
         }
 
+        .activity-list {
+            display: grid;
+            gap: 8px;
+        }
+
+        .activity-item {
+            min-height: 58px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 18px;
+            padding: 12px 14px;
+            background: #060706;
+            border: 1px solid rgba(255,255,255,.07);
+        }
+
+        .activity-main {
+            min-width: 0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .activity-dot {
+            width: 8px;
+            height: 8px;
+            flex: 0 0 8px;
+            border-radius: 50%;
+            background: #777;
+        }
+
+        .activity-item.join .activity-dot { background: #7cff00; }
+        .activity-item.leave .activity-dot { background: #777; }
+
+        .activity-text {
+            min-width: 0;
+            color: #aaa;
+            font-size: 11px;
+        }
+
+        .activity-text strong { color: #fff; }
+
+        .activity-time {
+            flex: 0 0 auto;
+            color: #555;
+            font-size: 9px;
+            font-weight: 900;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
         .loading {
             position: fixed;
             inset: 0;
@@ -329,6 +380,8 @@
             .brand img { height: 42px; }
             .panel { padding: 22px 20px; }
             .stats, .control-row { grid-template-columns: 1fr; }
+            .activity-item { align-items: flex-start; flex-direction: column; gap: 7px; }
+            .activity-time { padding-left: 20px; }
         }
     
 .server-settings-panel{margin-top:24px}.server-settings-form{display:grid;gap:12px;max-width:620px}
@@ -445,8 +498,10 @@
                 <span class="kicker">Activity</span>
                 <h2>Recent Activity</h2>
 
-                <div class="activity-empty">
-                    No server activity yet
+                <div id="activityList" class="activity-list">
+                    <div class="activity-empty">
+                        No server activity yet
+                    </div>
                 </div>
             </section>
         </div>
@@ -499,6 +554,7 @@
     const stopBtn = document.getElementById("stopBtn");
     const controlNotice = document.getElementById("controlNotice");
     const currentTrackName = document.getElementById("currentTrackName");
+    const activityList = document.getElementById("activityList");
 
     let currentServer = null;
     let controlBusy = false;
@@ -554,6 +610,99 @@
         stopBtn.disabled = true;
     }
 
+    function formatActivityTime(createdAt) {
+        const date = new Date(createdAt);
+        const seconds = Math.max(0, Math.floor((Date.now() - date.getTime()) / 1000));
+
+        if (!Number.isFinite(seconds)) return "";
+        if (seconds < 10) return "Just now";
+        if (seconds < 60) return `${seconds}s ago`;
+
+        const minutes = Math.floor(seconds / 60);
+        if (minutes < 60) return `${minutes}m ago`;
+
+        const hours = Math.floor(minutes / 60);
+        if (hours < 24) return `${hours}h ago`;
+
+        const days = Math.floor(hours / 24);
+        if (days < 7) return `${days}d ago`;
+
+        return date.toLocaleDateString();
+    }
+
+    function renderServerActivity(items) {
+        activityList.replaceChildren();
+
+        if (!Array.isArray(items) || items.length === 0) {
+            const empty = document.createElement("div");
+            empty.className = "activity-empty";
+            empty.textContent = "No server activity yet";
+            activityList.appendChild(empty);
+            return;
+        }
+
+        for (const item of items) {
+            const isJoin = item.event_type === "player_join";
+
+            const row = document.createElement("div");
+            row.className = `activity-item ${isJoin ? "join" : "leave"}`;
+
+            const main = document.createElement("div");
+            main.className = "activity-main";
+
+            const dot = document.createElement("span");
+            dot.className = "activity-dot";
+
+            const message = document.createElement("div");
+            message.className = "activity-text";
+
+            const player = document.createElement("strong");
+            player.textContent = item.player_name || "Unknown rider";
+
+            message.appendChild(player);
+            message.appendChild(document.createTextNode(
+                isJoin ? " joined the server" : " left the server"
+            ));
+
+            const time = document.createElement("div");
+            time.className = "activity-time";
+            time.textContent = formatActivityTime(item.created_at);
+
+            main.appendChild(dot);
+            main.appendChild(message);
+            row.appendChild(main);
+            row.appendChild(time);
+            activityList.appendChild(row);
+        }
+    }
+
+    async function loadServerActivity(gameServerId) {
+        if (!gameServerId) {
+            renderServerActivity([]);
+            return;
+        }
+
+        const { data, error } = await supabaseClient
+            .from("server_activity")
+            .select("id, event_type, player_name, created_at")
+            .eq("game_server_id", gameServerId)
+            .order("created_at", { ascending: false })
+            .limit(10);
+
+        if (error) {
+            console.error("Server activity lookup failed:", error);
+
+            activityList.replaceChildren();
+            const empty = document.createElement("div");
+            empty.className = "activity-empty";
+            empty.textContent = "Unable to load server activity";
+            activityList.appendChild(empty);
+            return;
+        }
+
+        renderServerActivity(data || []);
+    }
+
     async function loadServer(userId) {
         const { data: server, error } = await supabaseClient
             .from("game_servers")
@@ -576,6 +725,7 @@
             serverCode.textContent = "—";
             playerCount.textContent = "0 / —";
             currentTrackName.textContent = "—";
+            renderServerActivity([]);
             controlNotice.textContent = "Your hosting subscription is active, but no server has been provisioned yet.";
             updateButtons("offline");
             return;
@@ -591,6 +741,8 @@
         updateCurrentTrackDisplay(server.track_key);
         displayStatus(server.status);
         controlNotice.textContent = "Your server is connected to the MotoGrid hosting network.";
+
+        await loadServerActivity(server.id);
     }
 
     async function sendServerAction(action) {
