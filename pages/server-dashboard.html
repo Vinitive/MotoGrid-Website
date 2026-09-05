@@ -465,6 +465,14 @@
     <option value="mx_open">MX Open</option>
    </select>
    <div class="settings-help">Controls which OEM bike class is allowed on this server.</div>
+
+  <label for="trackSelect">Track</label>
+  <select id="trackSelect" class="track-select">
+   <option value="">Loading tracks...</option>
+  </select>
+  <div class="settings-help">Choose the track this server will run.</div>
+  <a id="trackDownloadLink" class="track-download" href="#" target="_blank" rel="noopener noreferrer">Download Track for MX Bikes</a>
+
   <div id="serverSettingsMessage" class="settings-message" aria-live="polite"></div>
   <div><button id="saveServerSettingsBtn" class="control-btn settings-save-btn" type="button">Save Changes</button></div>
  </div>
@@ -650,15 +658,24 @@
                 return;
             }
 
-            const { data: subscription, error: subscriptionError } = await supabaseClient
+            const { data: subscriptions, error: subscriptionError } = await supabaseClient
                 .from("subscriptions")
-                .select("plan, status")
+                .select("plan, status, updated_at, created_at")
                 .eq("user_id", user.id)
-                .maybeSingle();
+                .in("status", ["active", "trialing"])
+                .order("updated_at", { ascending: false, nullsFirst: false })
+                .order("created_at", { ascending: false })
+                .limit(1);
+
+            const subscription = subscriptions?.[0] || null;
 
             if (subscriptionError) {
                 console.error("Subscription lookup failed:", subscriptionError);
-                window.location.href = "account.html";
+                loading.classList.add("hidden");
+                planBadge.textContent = "Error";
+                planStatus.textContent = "Lookup Failed";
+                controlNotice.textContent =
+                    `Subscription lookup failed: ${subscriptionError.message || "Unknown database error"}`;
                 return;
             }
 
@@ -668,7 +685,11 @@
             const validStatus = status === "active" || status === "trialing";
 
             if (!subscription || !validPlan || !validStatus) {
-                window.location.href = "account.html";
+                loading.classList.add("hidden");
+                planBadge.textContent = "No Active Plan";
+                planStatus.textContent = "Inactive";
+                controlNotice.textContent =
+                    "No active Standard or Race hosting subscription was found for this account.";
                 return;
             }
 
