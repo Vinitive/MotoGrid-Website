@@ -259,7 +259,7 @@
             overflow-wrap: anywhere;
         }
 
-        .podium-points {
+        .podium-mmr {
             margin-top: 6px;
             color: #7cff00;
             font-size: 19px;
@@ -325,7 +325,7 @@
             text-transform: uppercase;
         }
 
-        .points {
+        .mmr {
             font-size: 13px;
             font-weight: 1000;
         }
@@ -506,15 +506,15 @@
                 </h1>
 
                 <p>
-                    MotoGrid riders ranked by verified race-result points.
-                    Only points claimed by the rider who uploaded and matched
-                    their own result are counted.
+                    MotoGrid riders ranked by verified race-result MMR.
+                    Only MMR claimed by the rider who uploaded and matched
+                    their own result is counted.
                 </p>
             </div>
 
             <div class="season-card">
                 <span>Ranking System</span>
-                <strong>Overall Points</strong>
+                <strong>Overall MMR</strong>
             </div>
         </section>
 
@@ -528,7 +528,7 @@
             <div class="table-head">
                 <div>Rank</div>
                 <div>Rider</div>
-                <div>Points</div>
+                <div>MMR</div>
                 <div>Tier</div>
                 <div>Races</div>
             </div>
@@ -541,7 +541,7 @@
         </section>
 
         <div class="footer-note">
-            Standings update automatically as verified MotoGrid race results are scored.
+            Standings update automatically as verified MotoGrid race results award MMR.
         </div>
     </main>
 </div>
@@ -561,6 +561,65 @@
 
     const accountButton =
         document.getElementById("accountButton");
+
+
+    const RIDER_TIERS = [
+        { name: "Copper I", minimum: 0 },
+        { name: "Copper II", minimum: 1000 },
+        { name: "Copper III", minimum: 2000 },
+
+        { name: "Bronze I", minimum: 3000 },
+        { name: "Bronze II", minimum: 4000 },
+        { name: "Bronze III", minimum: 5000 },
+
+        { name: "Silver I", minimum: 6000 },
+        { name: "Silver II", minimum: 7000 },
+        { name: "Silver III", minimum: 8000 },
+
+        { name: "Gold I", minimum: 9000 },
+        { name: "Gold II", minimum: 10000 },
+        { name: "Gold III", minimum: 11000 },
+
+        { name: "Platinum I", minimum: 12000 },
+        { name: "Platinum II", minimum: 13000 },
+        { name: "Platinum III", minimum: 14000 },
+
+        { name: "Diamond I", minimum: 15000 },
+        { name: "Diamond II", minimum: 16000 },
+        { name: "Diamond III", minimum: 17000 },
+
+        { name: "Emerald I", minimum: 18000 },
+        { name: "Emerald II", minimum: 19000 },
+        { name: "Emerald III", minimum: 20000 },
+
+        { name: "Magenta I", minimum: 21000 },
+        { name: "Magenta II", minimum: 22000 },
+        { name: "Magenta III", minimum: 23000 }
+    ];
+
+
+    function getRiderMmr(rider) {
+        return Number(
+            rider?.total_mmr ??
+            rider?.total_points ??
+            0
+        ) || 0;
+    }
+
+
+    function getRiderTier(mmr) {
+        let current = RIDER_TIERS[0];
+
+        for (const tier of RIDER_TIERS) {
+            if (mmr >= tier.minimum) {
+                current = tier;
+            } else {
+                break;
+            }
+        }
+
+        return current.name;
+    }
 
 
     function createTextElement(
@@ -620,8 +679,8 @@
             card.appendChild(
                 createTextElement(
                     "div",
-                    "podium-points",
-                    `${Number(rider.total_points || 0).toLocaleString()} PTS`
+                    "podium-mmr",
+                    `${getRiderMmr(rider).toLocaleString()} MMR`
                 )
             );
 
@@ -629,7 +688,7 @@
                 createTextElement(
                     "div",
                     "podium-tier",
-                    `${rider.tier} • ${Number(rider.races_scored || 0)} races`
+                    `${getRiderTier(getRiderMmr(rider))} • ${Number(rider.races_scored || 0)} races`
                 )
             );
 
@@ -679,10 +738,8 @@
             row.appendChild(
                 createTextElement(
                     "div",
-                    "points",
-                    Number(
-                        rider.total_points || 0
-                    ).toLocaleString()
+                    "mmr",
+                    getRiderMmr(rider).toLocaleString()
                 )
             );
 
@@ -690,7 +747,9 @@
                 createTextElement(
                     "div",
                     "tier-badge",
-                    rider.tier
+                    getRiderTier(
+                        getRiderMmr(rider)
+                    )
                 )
             );
 

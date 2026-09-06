@@ -340,7 +340,7 @@
         .tier-ladder {
             margin-top: 28px;
             display: grid;
-            grid-template-columns: repeat(8, 1fr);
+            grid-template-columns: repeat(6, 1fr);
             gap: 7px;
         }
 
@@ -1258,7 +1258,7 @@
             >
 
             <p class="small-note">
-                Upload the MX Bikes classification HTML. A minimum of 12 classified riders is required. Only your own matched MotoGrid account can receive points from your submission.
+                Upload the MX Bikes classification HTML. A minimum of 12 classified riders is required. Only your own matched MotoGrid account can receive MMR from your submission.
             </p>
 
             <button
@@ -1388,23 +1388,41 @@
         document.getElementById("raceRiderList");
 
     /*
-        Rider tier thresholds.
-
-        rider_points can later be awarded from race results,
-        participation, hosted events, or whatever progression
-        system you decide to build.
-
-        Change these values whenever you want.
+        MotoGrid Rider Tier thresholds.
+        Every division spans 1,000 MMR.
     */
     const RIDER_TIERS = [
-        { name: "Copper", minimum: 0 },
-        { name: "Bronze", minimum: 100 },
-        { name: "Silver", minimum: 250 },
-        { name: "Gold", minimum: 500 },
-        { name: "Platinum", minimum: 1000 },
-        { name: "Diamond", minimum: 1750 },
-        { name: "Emerald", minimum: 2750 },
-        { name: "Magenta", minimum: 4000 }
+        { name: "Copper I", minimum: 0 },
+        { name: "Copper II", minimum: 1000 },
+        { name: "Copper III", minimum: 2000 },
+
+        { name: "Bronze I", minimum: 3000 },
+        { name: "Bronze II", minimum: 4000 },
+        { name: "Bronze III", minimum: 5000 },
+
+        { name: "Silver I", minimum: 6000 },
+        { name: "Silver II", minimum: 7000 },
+        { name: "Silver III", minimum: 8000 },
+
+        { name: "Gold I", minimum: 9000 },
+        { name: "Gold II", minimum: 10000 },
+        { name: "Gold III", minimum: 11000 },
+
+        { name: "Platinum I", minimum: 12000 },
+        { name: "Platinum II", minimum: 13000 },
+        { name: "Platinum III", minimum: 14000 },
+
+        { name: "Diamond I", minimum: 15000 },
+        { name: "Diamond II", minimum: 16000 },
+        { name: "Diamond III", minimum: 17000 },
+
+        { name: "Emerald I", minimum: 18000 },
+        { name: "Emerald II", minimum: 19000 },
+        { name: "Emerald III", minimum: 20000 },
+
+        { name: "Magenta I", minimum: 21000 },
+        { name: "Magenta II", minimum: 22000 },
+        { name: "Magenta III", minimum: 23000 }
     ];
 
 
@@ -1419,11 +1437,11 @@
     }
 
 
-    function getTierData(points) {
+    function getTierData(mmr) {
         let currentIndex = 0;
 
         for (let i = 0; i < RIDER_TIERS.length; i++) {
-            if (points >= RIDER_TIERS[i].minimum) {
+            if (mmr >= RIDER_TIERS[i].minimum) {
                 currentIndex = i;
             } else {
                 break;
@@ -1437,7 +1455,7 @@
 
         if (next) {
             const tierRange = next.minimum - current.minimum;
-            const progressIntoTier = points - current.minimum;
+            const progressIntoTier = mmr - current.minimum;
 
             progress = Math.max(
                 0,
@@ -1457,13 +1475,13 @@
     }
 
 
-    function renderTier(points) {
-        const safePoints = Number.isFinite(points) ? points : 0;
-        const tier = getTierData(safePoints);
+    function renderTier(mmr) {
+        const safeMmr = Number.isFinite(mmr) ? mmr : 0;
+        const tier = getTierData(safeMmr);
 
         tierName.textContent = tier.current.name;
         tierPointsText.textContent =
-            `${safePoints.toLocaleString()} rider points`;
+            `${safeMmr.toLocaleString()} MMR`;
 
         tierProgressBar.style.width =
             `${tier.progress}%`;
@@ -1473,10 +1491,10 @@
 
         if (tier.next) {
             const remaining =
-                Math.max(0, tier.next.minimum - safePoints);
+                Math.max(0, tier.next.minimum - safeMmr);
 
             tierNextLabel.textContent =
-                `${tier.next.name} • ${remaining.toLocaleString()} points to go`;
+                `${tier.next.name} • ${remaining.toLocaleString()} MMR to go`;
         } else {
             tierNextLabel.textContent =
                 "Maximum Rider Tier";
@@ -1606,7 +1624,7 @@
 
 
 
-    async function refreshRiderPoints() {
+    async function refreshRiderMmr() {
         const {
             data: { user }
         } =
@@ -1621,21 +1639,21 @@
             error
         } =
             await supabaseClient
-                .from("rider_points")
-                .select("total_points")
+                .from("rider_mmr")
+                .select("total_mmr")
                 .eq("user_id", user.id)
                 .maybeSingle();
 
         if (error) {
             console.error(
-                "Rider points refresh failed:",
+                "Rider MMR refresh failed:",
                 error
             );
             return;
         }
 
         renderTier(
-            Number(data?.total_points || 0)
+            Number(data?.total_mmr || 0)
         );
     }
 
@@ -1727,7 +1745,7 @@
                 "race-rider-detail";
 
             detail.textContent =
-                `${Number(rider.points || 0)} MotoGrid points`;
+                `${Number(rider.mmr || 0)} MMR`;
 
             info.appendChild(name);
             info.appendChild(detail);
@@ -1891,7 +1909,7 @@
                 }
 
                 const awarded =
-                    Number(data.points_awarded || 0);
+                    Number(data.mmr_awarded || 0);
 
                 const scored =
                     Number(data.riders_scored || 0);
@@ -1903,7 +1921,7 @@
                     "success"
                 );
 
-                await refreshRiderPoints();
+                await refreshRiderMmr();
 
             } catch (error) {
                 console.error(
@@ -2002,23 +2020,23 @@
                 metadata.mxbikes_guid || "";
 
             const {
-                data: riderPointsRow,
-                error: riderPointsError
+                data: riderMmrRow,
+                error: riderMmrError
             } = await supabaseClient
-                .from("rider_points")
-                .select("total_points, races_scored")
+                .from("rider_mmr")
+                .select("total_mmr, races_scored")
                 .eq("user_id", user.id)
                 .maybeSingle();
 
-            if (riderPointsError) {
+            if (riderMmrError) {
                 console.error(
-                    "Rider points lookup failed:",
-                    riderPointsError
+                    "Rider MMR lookup failed:",
+                    riderMmrError
                 );
             }
 
-            const riderPoints =
-                Number(riderPointsRow?.total_points || 0);
+            const riderMmr =
+                Number(riderMmrRow?.total_mmr || 0);
 
             profileUsername.textContent = username;
             profileEmail.textContent = user.email || "—";
@@ -2029,7 +2047,7 @@
             guidInput.value = guid;
 
             renderDiscordIdentity(discordIdentity);
-            renderTier(riderPoints);
+            renderTier(riderMmr);
             renderSubscription(subscription);
 
             const params =
@@ -2106,7 +2124,7 @@
                         provider: "discord",
                         options: {
                             redirectTo:
-                                "https://vinitive.github.io/MotoGrid-Website/pages/account.html?discord=linked"
+                                "https://motogridmx.com/pages/account.html?discord=linked"
                         }
                     });
 
