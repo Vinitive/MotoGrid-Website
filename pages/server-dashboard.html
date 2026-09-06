@@ -476,7 +476,7 @@
         }
     
 .server-settings-panel{margin-top:24px}.server-settings-form{display:grid;gap:12px;max-width:620px}
-.server-settings-form label{font-weight:700}.server-name-input,.bike-class-select,.track-select{width:100%;box-sizing:border-box;padding:12px 14px;border:1px solid rgba(255,255,255,.18);border-radius:8px;background:rgba(0,0,0,.28);color:inherit;font:inherit}
+.server-settings-form label{font-weight:700}.server-name-input,.bike-class-select,.track-select,.race-setting-input{width:100%;box-sizing:border-box;padding:12px 14px;border:1px solid rgba(255,255,255,.18);border-radius:8px;background:rgba(0,0,0,.28);color:inherit;font:inherit}
 .track-download{display:none;width:max-content;color:#7cff00;text-decoration:none;font-size:.9rem;font-weight:700}.track-download:hover{text-decoration:underline}
 .settings-help{opacity:.72;font-size:.9rem}.settings-message{min-height:1.25em;font-size:.92rem}.settings-save-btn[disabled]{opacity:.55;cursor:not-allowed}
 </style>
@@ -646,6 +646,23 @@
   </select>
   <div class="settings-help">Choose the track this server will run.</div>
   <a id="trackDownloadLink" class="track-download" href="#" target="_blank" rel="noopener noreferrer">Download Track for MX Bikes</a>
+
+  <div style="margin-top:10px;padding-top:18px;border-top:1px solid rgba(255,255,255,.08);">
+   <div class="kicker">Race Configuration</div>
+   <div class="settings-help" style="margin:6px 0 12px;">These values are stored per server and used when MotoGrid generates the MX Bikes race configuration.</div>
+  </div>
+
+  <label for="practiceLengthInput">Practice Length</label>
+  <input id="practiceLengthInput" class="race-setting-input" type="number" min="1" max="120" step="1" inputmode="numeric" value="15">
+  <div class="settings-help">1–120 minutes.</div>
+
+  <label for="qualifyLengthInput">Qualifying Length</label>
+  <input id="qualifyLengthInput" class="race-setting-input" type="number" min="1" max="60" step="1" inputmode="numeric" value="10">
+  <div class="settings-help">1–60 minutes.</div>
+
+  <label for="raceLapsInput">Race Length</label>
+  <input id="raceLapsInput" class="race-setting-input" type="number" min="1" max="100" step="1" inputmode="numeric" value="5">
+  <div class="settings-help">1–100 laps.</div>
 
   <div id="serverSettingsMessage" class="settings-message" aria-live="polite"></div>
   <div><button id="saveServerSettingsBtn" class="control-btn settings-save-btn" type="button">Save Changes</button></div>
@@ -937,6 +954,7 @@
             .from("game_servers")
             .select(`
                 id, server_code, server_name, bike_class, track_key, port, max_players, current_players, status, started_at, node_id, race_phase,
+                practice_length, qualify_length, race_laps,
                 nodes ( node_name, public_ip )
             `)
             .eq("user_id", userId)
@@ -1196,6 +1214,9 @@ const serverNameInput=document.getElementById("serverNameInput");
 const bikeClassSelect=document.getElementById("bikeClassSelect");
 const trackSelect=document.getElementById("trackSelect");
 const trackDownloadLink=document.getElementById("trackDownloadLink");
+const practiceLengthInput=document.getElementById("practiceLengthInput");
+const qualifyLengthInput=document.getElementById("qualifyLengthInput");
+const raceLapsInput=document.getElementById("raceLapsInput");
 const saveServerSettingsBtn=document.getElementById("saveServerSettingsBtn");
 const serverSettingsMessage=document.getElementById("serverSettingsMessage");
 
@@ -1280,6 +1301,18 @@ function syncServerSettings(server){
   trackSelect.value=server.track_key;
  }
 
+ if(practiceLengthInput&&document.activeElement!==practiceLengthInput){
+  practiceLengthInput.value=server.practice_length??15;
+ }
+
+ if(qualifyLengthInput&&document.activeElement!==qualifyLengthInput){
+  qualifyLengthInput.value=server.qualify_length??10;
+ }
+
+ if(raceLapsInput&&document.activeElement!==raceLapsInput){
+  raceLapsInput.value=server.race_laps??5;
+ }
+
  updateTrackDownloadLink(server.track_key||trackSelect.value);
  updateCurrentTrackDisplay(server.track_key);
 }
@@ -1292,6 +1325,9 @@ async function saveServerSettings(){
  const newName=serverNameInput.value.trim().replace(/\s+/g," ");
  const bikeClass=bikeClassSelect.value;
  const trackKey=trackSelect.value;
+ const practiceLength=Number(practiceLengthInput?.value);
+ const qualifyLength=Number(qualifyLengthInput?.value);
+ const raceLaps=Number(raceLapsInput?.value);
 
  serverSettingsMessage.textContent="";
 
@@ -1310,6 +1346,21 @@ async function saveServerSettings(){
   return;
  }
 
+ if(!Number.isInteger(practiceLength)||practiceLength<1||practiceLength>120){
+  serverSettingsMessage.textContent="Practice length must be a whole number between 1 and 120 minutes.";
+  return;
+ }
+
+ if(!Number.isInteger(qualifyLength)||qualifyLength<1||qualifyLength>60){
+  serverSettingsMessage.textContent="Qualifying length must be a whole number between 1 and 60 minutes.";
+  return;
+ }
+
+ if(!Number.isInteger(raceLaps)||raceLaps<1||raceLaps>100){
+  serverSettingsMessage.textContent="Race length must be a whole number between 1 and 100 laps.";
+  return;
+ }
+
  const {data:{session}}=await supabaseClient.auth.getSession();
  if(!session){window.location.href="login.html";return;}
 
@@ -1317,6 +1368,9 @@ async function saveServerSettings(){
  serverNameInput.disabled=true;
  bikeClassSelect.disabled=true;
  trackSelect.disabled=true;
+ practiceLengthInput.disabled=true;
+ qualifyLengthInput.disabled=true;
+ raceLapsInput.disabled=true;
  saveServerSettingsBtn.textContent="Saving...";
  serverSettingsMessage.textContent="Saving server settings...";
 
@@ -1331,7 +1385,10 @@ async function saveServerSettings(){
     serverId:currentServer.id,
     serverName:newName,
     bikeClass:bikeClass,
-    trackKey:trackKey
+    trackKey:trackKey,
+    practiceLength:practiceLength,
+    qualifyLength:qualifyLength,
+    raceLaps:raceLaps
    })
   });
 
@@ -1341,6 +1398,9 @@ async function saveServerSettings(){
   serverNameInput.value=result.serverName||newName;
   bikeClassSelect.value=result.bikeClass||bikeClass;
   trackSelect.value=result.trackKey||trackKey;
+  practiceLengthInput.value=result.practiceLength??practiceLength;
+  qualifyLengthInput.value=result.qualifyLength??qualifyLength;
+  raceLapsInput.value=result.raceLaps??raceLaps;
 
   updateTrackDownloadLink(result.trackKey||trackKey);
   updateCurrentTrackDisplay(result.trackKey||trackKey);
@@ -1359,6 +1419,9 @@ async function saveServerSettings(){
   serverNameInput.disabled=false;
   bikeClassSelect.disabled=false;
   trackSelect.disabled=trackCatalog.length===0;
+  practiceLengthInput.disabled=false;
+  qualifyLengthInput.disabled=false;
+  raceLapsInput.disabled=false;
   saveServerSettingsBtn.textContent="Save Changes";
  }
 }
