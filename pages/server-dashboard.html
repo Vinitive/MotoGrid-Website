@@ -298,6 +298,53 @@
             cursor: wait;
         }
 
+        .phase-control {
+            margin-top: 18px;
+            padding-top: 18px;
+            border-top: 1px solid rgba(255,255,255,.08);
+        }
+
+        .phase-control label {
+            display: block;
+            margin-bottom: 7px;
+            color: #666;
+            font-size: 8px;
+            font-weight: 900;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+        }
+
+        .phase-row {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto;
+            gap: 10px;
+        }
+
+        .phase-select {
+            width: 100%;
+            min-height: 42px;
+            padding: 0 13px;
+            border: 1px solid rgba(255,255,255,.15);
+            background: #060706;
+            color: #fff;
+            font: inherit;
+            font-size: 11px;
+            font-weight: 900;
+            text-transform: uppercase;
+        }
+
+        .phase-select:focus {
+            outline: none;
+            border-color: #7cff00;
+        }
+
+        .phase-help {
+            margin-top: 8px;
+            color: #666;
+            font-size: 10px;
+            line-height: 1.5;
+        }
+
         .notice {
             margin-top: 18px;
             padding: 14px;
@@ -425,6 +472,7 @@
             .activity-time { padding-left: 20px; }
             .server-selector-row { flex-direction: column; }
             .server-selector-wrap { width: 100%; }
+            .phase-row { grid-template-columns: 1fr; }
         }
     
 .server-settings-panel{margin-top:24px}.server-settings-form{display:grid;gap:12px;max-width:620px}
@@ -523,6 +571,23 @@
                     <button class="control-btn" id="stopBtn" disabled>Stop</button>
                 </div>
 
+                <div class="phase-control">
+                    <label for="racePhaseSelect">Race Phase</label>
+                    <div class="phase-row">
+                        <select id="racePhaseSelect" class="phase-select" disabled>
+                            <option value="open_practice">Open Practice</option>
+                            <option value="practice">Practice</option>
+                            <option value="qualify">Qualify</option>
+                            <option value="race1">Race 1</option>
+                            <option value="race2">Race 2</option>
+                        </select>
+                        <button class="control-btn" id="setPhaseBtn" type="button" disabled>Set Phase</button>
+                    </div>
+                    <div class="phase-help">
+                        Open Practice changes the server configuration and restarts the server. Other phases use MX Bikes Remote Admin.
+                    </div>
+                </div>
+
                 <div class="notice" id="controlNotice">
                     Loading server controls...
                 </div>
@@ -606,6 +671,8 @@
     const startBtn = document.getElementById("startBtn");
     const restartBtn = document.getElementById("restartBtn");
     const stopBtn = document.getElementById("stopBtn");
+    const racePhaseSelect = document.getElementById("racePhaseSelect");
+    const setPhaseBtn = document.getElementById("setPhaseBtn");
     const controlNotice = document.getElementById("controlNotice");
     const currentTrackName = document.getElementById("currentTrackName");
     const activityList = document.getElementById("activityList");
@@ -694,7 +761,20 @@
         updateButtons(normalized);
     }
 
+    function syncRacePhase(server) {
+        if (!racePhaseSelect || !server) return;
+        racePhaseSelect.value = server.race_phase || "open_practice";
+    }
+
     function updateButtons(status) {
+        const phaseAllowed =
+            Boolean(currentServer) &&
+            !controlBusy &&
+            status === "online";
+
+        racePhaseSelect.disabled = !phaseAllowed;
+        setPhaseBtn.disabled = !phaseAllowed;
+
         if (!currentServer || controlBusy) {
             startBtn.disabled = true;
             restartBtn.disabled = true;
@@ -856,7 +936,7 @@
         const { data: servers, error } = await supabaseClient
             .from("game_servers")
             .select(`
-                id, server_code, server_name, bike_class, track_key, port, max_players, current_players, status, started_at, node_id,
+                id, server_code, server_name, bike_class, track_key, port, max_players, current_players, status, started_at, node_id, race_phase,
                 nodes ( node_name, public_ip )
             `)
             .eq("user_id", userId)
@@ -902,6 +982,7 @@
 
         currentServer = server;
         syncServerSettings(server);
+        syncRacePhase(server);
         serverName.textContent = server.server_name || server.server_code;
         serverCode.textContent = server.server_code;
         serverPort.textContent = server.port || "—";
@@ -928,6 +1009,7 @@
         currentServer = server;
 
         syncServerSettings(server);
+        syncRacePhase(server);
         serverName.textContent = server.server_name || server.server_code;
         serverCode.textContent = server.server_code;
         serverPort.textContent = server.port || "—";
@@ -947,15 +1029,31 @@
         await selectServer(serverSelector.value);
     });
 
-    async function sendServerAction(action) {
+    async function sendServerAction(action, phase = null) {
         if (controlBusy || !currentServer) return;
 
+        const serverId = currentServer.id;
         controlBusy = true;
         startBtn.disabled = restartBtn.disabled = stopBtn.disabled = true;
+        racePhaseSelect.disabled = true;
+        setPhaseBtn.disabled = true;
         startBtn.classList.add("busy");
         restartBtn.classList.add("busy");
         stopBtn.classList.add("busy");
-        controlNotice.textContent = `${action.toUpperCase()} command being sent...`;
+        if (action === "set_phase") setPhaseBtn.classList.add("busy");
+
+        const phaseLabels = {
+            open_practice: "OPEN PRACTICE",
+            practice: "PRACTICE",
+            qualify: "QUALIFY",
+            race1: "RACE 1",
+            race2: "RACE 2"
+        };
+
+        controlNotice.textContent =
+            action === "set_phase"
+                ? `Setting race phase to ${phaseLabels[phase] || phase}...`
+                : `${action.toUpperCase()} command being sent...`;
 
         try {
             const { data: { session } } = await supabaseClient.auth.getSession();
@@ -963,6 +1061,9 @@
                 window.location.href = "login.html";
                 return;
             }
+
+            const body = { action, serverId };
+            if (action === "set_phase") body.phase = phase;
 
             const response = await fetch(
                 "https://vsqczlaszguuahwhlfcg.supabase.co/functions/v1/server-control",
@@ -972,14 +1073,18 @@
                         "Content-Type": "application/json",
                         "Authorization": `Bearer ${session.access_token}`
                     },
-                    body: JSON.stringify({ action, serverId: currentServer.id })
+                    body: JSON.stringify(body)
                 }
             );
 
-            const result = await response.json();
+            const result = await response.json().catch(() => ({}));
             if (!response.ok) throw new Error(result.error || "Server command failed");
 
-            controlNotice.textContent = `${result.server_code}: ${action.toUpperCase()} command accepted.`;
+            controlNotice.textContent =
+                action === "set_phase"
+                    ? `${result.server_code}: ${phaseLabels[phase] || phase} phase command accepted.`
+                    : `${result.server_code}: ${action.toUpperCase()} command accepted.`;
+
             await new Promise(resolve => setTimeout(resolve, 1500));
             await refreshServer();
         } catch (error) {
@@ -990,6 +1095,7 @@
             startBtn.classList.remove("busy");
             restartBtn.classList.remove("busy");
             stopBtn.classList.remove("busy");
+            setPhaseBtn.classList.remove("busy");
             if (currentServer) await refreshServer();
         }
     }
@@ -1003,6 +1109,10 @@
     startBtn.addEventListener("click", () => sendServerAction("start"));
     restartBtn.addEventListener("click", () => sendServerAction("restart"));
     stopBtn.addEventListener("click", () => sendServerAction("stop"));
+    setPhaseBtn.addEventListener("click", () => {
+        if (!currentServer || !racePhaseSelect.value) return;
+        sendServerAction("set_phase", racePhaseSelect.value);
+    });
 
     async function loadDashboard() {
         try {
