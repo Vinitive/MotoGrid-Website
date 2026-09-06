@@ -53,6 +53,7 @@
             grid-template-columns: auto 1fr auto;
             align-items: center;
             gap: 24px;
+            position: relative;
         }
 
         .brand {
@@ -83,6 +84,10 @@
             align-items: center;
             justify-content: center;
             gap: 22px;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            white-space: nowrap;
         }
 
         .standings-nav a {
@@ -103,6 +108,8 @@
             display: flex;
             gap: 10px;
             align-items: center;
+            justify-self: end;
+            grid-column: 3;
         }
 
         .top-button {
