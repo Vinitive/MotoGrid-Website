@@ -164,6 +164,47 @@
             text-transform: uppercase;
         }
 
+        .server-selector-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+
+        .server-selector-wrap {
+            width: min(340px, 100%);
+        }
+
+        .server-selector-wrap label {
+            display: block;
+            margin-bottom: 7px;
+            color: #666;
+            font-size: 8px;
+            font-weight: 900;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+        }
+
+        .server-selector {
+            width: 100%;
+            min-height: 44px;
+            padding: 0 38px 0 13px;
+            border: 1px solid rgba(255,255,255,.15);
+            background: #060706;
+            color: #fff;
+            font: inherit;
+            font-size: 11px;
+            font-weight: 900;
+            text-transform: uppercase;
+            cursor: pointer;
+        }
+
+        .server-selector:focus {
+            outline: none;
+            border-color: #7cff00;
+        }
+
         .server-name {
             font-size: 34px;
             font-weight: 1000;
@@ -382,6 +423,8 @@
             .stats, .control-row { grid-template-columns: 1fr; }
             .activity-item { align-items: flex-start; flex-direction: column; gap: 7px; }
             .activity-time { padding-left: 20px; }
+            .server-selector-row { flex-direction: column; }
+            .server-selector-wrap { width: 100%; }
         }
     
 .server-settings-panel{margin-top:24px}.server-settings-form{display:grid;gap:12px;max-width:620px}
@@ -419,8 +462,19 @@
 
         <div class="grid">
             <section class="panel overview">
-                <span class="kicker">Server</span>
-                <h2>Overview</h2>
+                <div class="server-selector-row">
+                    <div>
+                        <span class="kicker">Server</span>
+                        <h2>Overview</h2>
+                    </div>
+
+                    <div class="server-selector-wrap">
+                        <label for="serverSelector">Select Server</label>
+                        <select id="serverSelector" class="server-selector" disabled>
+                            <option value="">Loading servers...</option>
+                        </select>
+                    </div>
+                </div>
 
                 <div class="server-name" id="serverName">Motogrid Server</div>
 
@@ -556,8 +610,11 @@
     const currentTrackName = document.getElementById("currentTrackName");
     const activityList = document.getElementById("activityList");
     const serverUptime = document.getElementById("serverUptime");
+    const serverSelector = document.getElementById("serverSelector");
 
+    let ownedServers = [];
     let currentServer = null;
+    let selectedServerId = null;
     let controlBusy = false;
     let uptimeTimer = null;
 
@@ -764,20 +821,55 @@
         renderServerActivity(data || []);
     }
 
-    async function loadServer(userId) {
-        const { data: server, error } = await supabaseClient
+    function populateServerSelector() {
+        if (!serverSelector) return;
+
+        serverSelector.innerHTML = "";
+
+        if (!ownedServers.length) {
+            const option = document.createElement("option");
+            option.value = "";
+            option.textContent = "No servers available";
+            serverSelector.appendChild(option);
+            serverSelector.disabled = true;
+            return;
+        }
+
+        for (const server of ownedServers) {
+            const option = document.createElement("option");
+            option.value = server.id;
+            option.textContent =
+                server.server_name ||
+                server.server_code ||
+                "MotoGrid Server";
+            serverSelector.appendChild(option);
+        }
+
+        serverSelector.disabled = ownedServers.length <= 1;
+
+        if (selectedServerId) {
+            serverSelector.value = selectedServerId;
+        }
+    }
+
+    async function loadServers(userId, preferredServerId = null) {
+        const { data: servers, error } = await supabaseClient
             .from("game_servers")
             .select(`
                 id, server_code, server_name, bike_class, track_key, port, max_players, current_players, status, started_at, node_id,
                 nodes ( node_name, public_ip )
             `)
             .eq("user_id", userId)
-            .maybeSingle();
+            .order("created_at", { ascending: true });
 
         if (error) throw error;
 
-        if (!server) {
+        ownedServers = Array.isArray(servers) ? servers : [];
+
+        if (!ownedServers.length) {
+            selectedServerId = null;
             currentServer = null;
+            populateServerSelector();
             serverName.textContent = "No Server";
             serverStatus.textContent = "Server not provisioned";
             serverStatusDot.style.background = "#777";
@@ -788,25 +880,72 @@
             currentTrackName.textContent = "—";
             serverUptime.textContent = "—";
             renderServerActivity([]);
-            controlNotice.textContent = "Your hosting subscription is active, but no server has been provisioned yet.";
+            controlNotice.textContent =
+                "No MotoGrid server has been provisioned for this account yet.";
             updateButtons("offline");
             return;
         }
 
+        const requestedId =
+            preferredServerId ||
+            selectedServerId ||
+            localStorage.getItem("motogridSelectedServerId");
+
+        let server =
+            ownedServers.find(item => item.id === requestedId) ||
+            ownedServers[0];
+
+        selectedServerId = server.id;
+        localStorage.setItem("motogridSelectedServerId", selectedServerId);
+
+        populateServerSelector();
+
         currentServer = server;
-            syncServerSettings(server);
+        syncServerSettings(server);
         serverName.textContent = server.server_name || server.server_code;
         serverCode.textContent = server.server_code;
         serverPort.textContent = server.port || "—";
-        playerCount.textContent = `${server.current_players ?? 0} / ${server.max_players || "—"}`;
+        playerCount.textContent =
+            `${server.current_players ?? 0} / ${server.max_players || "—"}`;
         serverAddress.textContent = server.nodes?.public_ip || "—";
         updateCurrentTrackDisplay(server.track_key);
         displayStatus(server.status);
         updateUptimeDisplay();
-        controlNotice.textContent = "Your server is connected to the MotoGrid hosting network.";
+        controlNotice.textContent =
+            "Your server is connected to the MotoGrid hosting network.";
 
         await loadServerActivity(server.id);
     }
+
+    async function selectServer(serverId) {
+        const server =
+            ownedServers.find(item => item.id === serverId);
+
+        if (!server) return;
+
+        selectedServerId = server.id;
+        localStorage.setItem("motogridSelectedServerId", selectedServerId);
+        currentServer = server;
+
+        syncServerSettings(server);
+        serverName.textContent = server.server_name || server.server_code;
+        serverCode.textContent = server.server_code;
+        serverPort.textContent = server.port || "—";
+        playerCount.textContent =
+            `${server.current_players ?? 0} / ${server.max_players || "—"}`;
+        serverAddress.textContent = server.nodes?.public_ip || "—";
+        updateCurrentTrackDisplay(server.track_key);
+        displayStatus(server.status);
+        updateUptimeDisplay();
+        controlNotice.textContent =
+            "Your server is connected to the MotoGrid hosting network.";
+
+        await loadServerActivity(server.id);
+    }
+
+    serverSelector?.addEventListener("change", async () => {
+        await selectServer(serverSelector.value);
+    });
 
     async function sendServerAction(action) {
         if (controlBusy || !currentServer) return;
@@ -833,7 +972,7 @@
                         "Content-Type": "application/json",
                         "Authorization": `Bearer ${session.access_token}`
                     },
-                    body: JSON.stringify({ action })
+                    body: JSON.stringify({ action, serverId: currentServer.id })
                 }
             );
 
@@ -858,7 +997,7 @@
     async function refreshServer() {
         const { data: { user } } = await supabaseClient.auth.getUser();
         if (!user) return;
-        await loadServer(user.id);
+        await loadServers(user.id, selectedServerId);
     }
 
     startBtn.addEventListener("click", () => sendServerAction("start"));
@@ -925,7 +1064,7 @@
                 }
             }
 
-            await loadServer(user.id);
+            await loadServers(user.id);
             startUptimeClock();
             loading.classList.add("hidden");
             setInterval(refreshServer, 5000);
