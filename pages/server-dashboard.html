@@ -1185,6 +1185,11 @@ async function saveServerSettings(){
 
  serverSettingsMessage.textContent="";
 
+ if(!currentServer?.id){
+  serverSettingsMessage.textContent="Select a server before saving settings.";
+  return;
+ }
+
  if(newName.length<3||newName.length>50){
   serverSettingsMessage.textContent="Server name must be between 3 and 50 characters.";
   return;
@@ -1213,6 +1218,7 @@ async function saveServerSettings(){
     "Authorization":`Bearer ${session.access_token}`
    },
    body:JSON.stringify({
+    serverId:currentServer.id,
     serverName:newName,
     bikeClass:bikeClass,
     trackKey:trackKey
