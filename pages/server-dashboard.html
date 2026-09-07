@@ -661,6 +661,10 @@
   <input id="qualifyLengthInput" class="race-setting-input" type="number" min="0" max="60" step="1" inputmode="numeric" value="10">
   <div class="settings-help">0–60 minutes.</div>
 
+  <label for="warmupLengthInput">Warmup Length</label>
+  <input id="warmupLengthInput" class="race-setting-input" type="number" min="0" max="60" step="1" inputmode="numeric" value="5">
+  <div class="settings-help">0–60 minutes. Set to 0 to disable Warmup.</div>
+
   <label for="raceLapsInput">Race Length</label>
   <input id="raceLapsInput" class="race-setting-input" type="number" min="1" max="100" step="1" inputmode="numeric" value="5">
   <div class="settings-help">1–100 laps.</div>
@@ -955,7 +959,7 @@
             .from("game_servers")
             .select(`
                 id, server_code, server_name, bike_class, track_key, port, max_players, current_players, status, started_at, node_id, race_phase,
-                practice_length, qualify_length, race_laps,
+                practice_length, qualify_length, warmup_length, race_laps,
                 nodes ( node_name, public_ip )
             `)
             .eq("user_id", userId)
@@ -1218,6 +1222,7 @@ const trackSelect=document.getElementById("trackSelect");
 const trackDownloadLink=document.getElementById("trackDownloadLink");
 const practiceLengthInput=document.getElementById("practiceLengthInput");
 const qualifyLengthInput=document.getElementById("qualifyLengthInput");
+const warmupLengthInput=document.getElementById("warmupLengthInput");
 const raceLapsInput=document.getElementById("raceLapsInput");
 const saveServerSettingsBtn=document.getElementById("saveServerSettingsBtn");
 const serverSettingsMessage=document.getElementById("serverSettingsMessage");
@@ -1311,6 +1316,10 @@ function syncServerSettings(server){
   qualifyLengthInput.value=server.qualify_length??10;
  }
 
+ if(warmupLengthInput&&document.activeElement!==warmupLengthInput){
+  warmupLengthInput.value=server.warmup_length??5;
+ }
+
  if(raceLapsInput&&document.activeElement!==raceLapsInput){
   raceLapsInput.value=server.race_laps??5;
  }
@@ -1329,6 +1338,7 @@ async function saveServerSettings(){
  const trackKey=trackSelect.value;
  const practiceLength=Number(practiceLengthInput?.value);
  const qualifyLength=Number(qualifyLengthInput?.value);
+ const warmupLength=Number(warmupLengthInput?.value);
  const raceLaps=Number(raceLapsInput?.value);
 
  serverSettingsMessage.textContent="";
@@ -1358,6 +1368,11 @@ async function saveServerSettings(){
   return;
  }
 
+ if(!Number.isInteger(warmupLength)||warmupLength<0||warmupLength>60){
+  serverSettingsMessage.textContent="Warmup length must be a whole number between 0 and 60 minutes.";
+  return;
+ }
+
  if(!Number.isInteger(raceLaps)||raceLaps<1||raceLaps>100){
   serverSettingsMessage.textContent="Race length must be a whole number between 1 and 100 laps.";
   return;
@@ -1372,6 +1387,7 @@ async function saveServerSettings(){
  trackSelect.disabled=true;
  practiceLengthInput.disabled=true;
  qualifyLengthInput.disabled=true;
+ warmupLengthInput.disabled=true;
  raceLapsInput.disabled=true;
  saveServerSettingsBtn.textContent="Saving...";
  serverSettingsMessage.textContent="Saving server settings...";
@@ -1390,6 +1406,7 @@ async function saveServerSettings(){
     trackKey:trackKey,
     practiceLength:practiceLength,
     qualifyLength:qualifyLength,
+    warmupLength:warmupLength,
     raceLaps:raceLaps
    })
   });
@@ -1402,6 +1419,7 @@ async function saveServerSettings(){
   trackSelect.value=result.trackKey||trackKey;
   practiceLengthInput.value=result.practiceLength??practiceLength;
   qualifyLengthInput.value=result.qualifyLength??qualifyLength;
+  warmupLengthInput.value=result.warmupLength??warmupLength;
   raceLapsInput.value=result.raceLaps??raceLaps;
 
   updateTrackDownloadLink(result.trackKey||trackKey);
@@ -1423,6 +1441,7 @@ async function saveServerSettings(){
   trackSelect.disabled=trackCatalog.length===0;
   practiceLengthInput.disabled=false;
   qualifyLengthInput.disabled=false;
+  warmupLengthInput.disabled=false;
   raceLapsInput.disabled=false;
   saveServerSettingsBtn.textContent="Save Changes";
  }
