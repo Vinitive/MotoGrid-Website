@@ -248,7 +248,7 @@
             position: relative;
             z-index: 2;
             display: grid;
-            grid-template-columns: 70px 92px 1fr;
+            grid-template-columns: 70px minmax(180px, 285px) 1fr;
             align-items: center;
             gap: 16px;
             min-height: 118px;
@@ -269,6 +269,11 @@
             height: 92px;
             object-fit: contain;
             display: block;
+        }
+
+        .podium-rider-card {
+            width: 100%;
+            max-width: 285px;
         }
 
         .podium-name {
@@ -496,7 +501,7 @@
 
         @media (max-width: 1050px) {
             .standings-nav { gap: 14px; }
-            .podium-content { grid-template-columns: 54px 70px 1fr; }
+            .podium-content { grid-template-columns: 54px minmax(160px, 220px) 1fr; }
             .podium-badge { width: 70px; height: 70px; }
 
             .table-head,
@@ -554,7 +559,7 @@
             .top-button:first-child { display: none; }
             .hero h1 { letter-spacing: -3px; }
             .podium-card { padding: 18px; }
-            .podium-content { grid-template-columns: 42px 64px 1fr; gap: 10px; }
+            .podium-content { grid-template-columns: 42px minmax(145px, 190px) 1fr; gap: 10px; }
             .podium-position { font-size: 36px; }
             .podium-badge { width: 64px; height: 64px; }
             .podium-name { font-size: 17px; }
@@ -807,7 +812,9 @@
     function getDisplayedRiderCard(rider) {
         const selectedSlug =
             String(
-                rider?.selected_rider_card || ""
+                rider?.selected_rider_card ||
+                rider?.displayed_rider_card ||
+                ""
             ).trim();
 
         if (selectedSlug) {
@@ -975,8 +982,15 @@
                 )
             );
 
+            const podiumRiderCard =
+                createRiderCard(rider);
+
+            podiumRiderCard.element.classList.add(
+                "podium-rider-card"
+            );
+
             content.appendChild(
-                createBadge(mmr, "podium-badge", rider.username + " ")
+                podiumRiderCard.element
             );
 
             const info = document.createElement("div");
