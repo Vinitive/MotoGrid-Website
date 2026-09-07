@@ -786,6 +786,25 @@
         { minimum: 50000, slug: "motogrid-master-rider", label: "MotoGrid Master Rider" }
     ];
 
+    const CUSTOM_RIDER_CARDS = [
+        { slug: "motogrid-rookie", label: "MotoGrid Rookie" },
+        { slug: "two-stroke", label: "Two Stroke" },
+        { slug: "privateer", label: "Privateer" },
+        { slug: "mud-runner", label: "Mud Runner" },
+        { slug: "four-stroke", label: "Four Stroke" },
+        { slug: "night-rider", label: "Night Rider" },
+        { slug: "factory-fresh", label: "Factory Fresh" },
+        { slug: "send-it", label: "Send It" },
+        { slug: "first-gate-drop", label: "First Gate Drop" },
+        { slug: "first-points", label: "First Points" },
+        { slug: "top-ten", label: "Top Ten" },
+        { slug: "top-five", label: "Top Five" },
+        { slug: "first-podium", label: "First Podium" },
+        { slug: "first-win", label: "First Win" },
+        { slug: "underdog", label: "Underdog" },
+        { slug: "giant-killer", label: "Giant Killer" },
+    ];
+
     const ACHIEVEMENT_MILESTONES =
         [25, 50, 75, 100, 125, 150];
 
@@ -836,6 +855,7 @@
             const selectedCard =
                 [
                     ...MMR_MAJOR_CARDS,
+                    ...CUSTOM_RIDER_CARDS,
                     ...ACHIEVEMENT_MILESTONES.map(value => ({
                         slug: `wins-${value}`,
                         label: `${value} Wins`

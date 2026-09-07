@@ -1857,6 +1857,24 @@
     }
 
     const RIDER_CARDS = [
+        { slug: "motogrid-rookie", name: "MotoGrid Rookie", type: "starter", requirement: 0 },
+        { slug: "two-stroke", name: "Two Stroke", type: "starter", requirement: 0 },
+        { slug: "privateer", name: "Privateer", type: "starter", requirement: 0 },
+        { slug: "mud-runner", name: "Mud Runner", type: "starter", requirement: 0 },
+        { slug: "four-stroke", name: "Four Stroke", type: "starter", requirement: 0 },
+        { slug: "night-rider", name: "Night Rider", type: "starter", requirement: 0 },
+        { slug: "factory-fresh", name: "Factory Fresh", type: "starter", requirement: 0 },
+        { slug: "send-it", name: "Send It", type: "starter", requirement: 0 },
+
+        { slug: "first-gate-drop", name: "First Gate Drop", type: "races", requirement: 1 },
+        { slug: "first-points", name: "First Points", type: "mmr_positive", requirement: 1 },
+        { slug: "top-ten", name: "Top Ten", type: "best_finish", requirement: 10 },
+        { slug: "top-five", name: "Top Five", type: "best_finish", requirement: 5 },
+        { slug: "first-podium", name: "First Podium", type: "podiums", requirement: 1 },
+        { slug: "first-win", name: "First Win", type: "wins", requirement: 1 },
+        { slug: "underdog", name: "Underdog", type: "underdog", requirement: 1 },
+        { slug: "giant-killer", name: "Giant Killer", type: "giant_killer", requirement: 5000 },
+
         { slug: "mmr-copper", name: "Copper MMR", type: "mmr", requirement: 0 },
         { slug: "mmr-bronze", name: "Bronze MMR", type: "mmr", requirement: 3000 },
         { slug: "mmr-silver", name: "Silver MMR", type: "mmr", requirement: 6000 },
@@ -1884,6 +1902,30 @@
 
 
     function riderCardRequirementText(card) {
+        if (card.type === "starter") {
+            return "Unlocked by default";
+        }
+
+        if (card.type === "races") {
+            return `${card.requirement} scored race required`;
+        }
+
+        if (card.type === "mmr_positive") {
+            return "Gain MMR in a scored race";
+        }
+
+        if (card.type === "best_finish") {
+            return `Finish Top ${card.requirement} in a scored race`;
+        }
+
+        if (card.type === "underdog") {
+            return "Beat a higher-MMR rider";
+        }
+
+        if (card.type === "giant_killer") {
+            return "Beat a rider 5,000+ MMR higher";
+        }
+
         if (card.type === "mmr") {
             return card.requirement === 0
                 ? "Unlocked by default"
