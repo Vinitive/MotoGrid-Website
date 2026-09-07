@@ -361,7 +361,7 @@
         .table-head,
         .standings-row {
             display: grid;
-            grid-template-columns: 72px minmax(250px, 1.35fr) 170px 140px 120px;
+            grid-template-columns: 72px minmax(430px, 1.8fr) 160px 120px 110px;
             gap: 12px;
             align-items: center;
         }
@@ -396,16 +396,40 @@
         .rider-cell {
             display: flex;
             align-items: center;
-            gap: 13px;
+            gap: 14px;
             min-width: 0;
         }
 
-        .rider-badge {
-            width: 44px;
-            height: 44px;
-            flex: 0 0 44px;
-            object-fit: contain;
+        .rider-card-wrap {
+            position: relative;
+            width: clamp(200px, 21vw, 285px);
+            aspect-ratio: 425 / 69;
+            flex: 0 0 auto;
+            overflow: hidden;
+            border-radius: 2px;
+            filter: drop-shadow(0 3px 10px rgba(0,0,0,.55));
+        }
+
+        .rider-card-image {
+            width: 100%;
+            height: 100%;
             display: block;
+            object-fit: cover;
+        }
+
+        .rider-card-wrap::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            box-shadow: inset 0 0 0 1px rgba(255,255,255,.05);
+        }
+
+        .rider-identity {
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
         }
 
         .rider-name {
@@ -414,6 +438,19 @@
             font-weight: 1000;
             text-transform: uppercase;
             overflow-wrap: anywhere;
+        }
+
+        .rider-achievement {
+            color: #666;
+            font-size: 8px;
+            font-weight: 900;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        .rider-badge {
+            display: none;
         }
 
         .tier-text {
@@ -464,7 +501,11 @@
 
             .table-head,
             .standings-row {
-                grid-template-columns: 58px minmax(220px, 1fr) 130px 110px;
+                grid-template-columns: 58px minmax(330px, 1fr) 130px 110px;
+            }
+
+            .rider-card-wrap {
+                width: 220px;
             }
 
             .table-head div:nth-child(5),
@@ -486,6 +527,14 @@
             .table-head,
             .standings-row {
                 grid-template-columns: 48px 1fr 90px;
+            }
+
+            .rider-card-wrap {
+                width: min(245px, 52vw);
+            }
+
+            .rider-identity {
+                display: none;
             }
 
             .table-head div:nth-child(3),
@@ -517,10 +566,8 @@
                 padding-right: 10px;
             }
 
-            .rider-badge {
-                width: 36px;
-                height: 36px;
-                flex-basis: 36px;
+            .rider-card-wrap {
+                width: min(210px, 58vw);
             }
         }
     </style>
@@ -704,6 +751,141 @@
     }
 
 
+
+    const RIDER_CARD_ASSET_ROOT =
+        "../assets/rider-cards/";
+
+    const MMR_MAJOR_CARDS = [
+        { minimum: 0, slug: "mmr-copper", label: "Copper MMR" },
+        { minimum: 3000, slug: "mmr-bronze", label: "Bronze MMR" },
+        { minimum: 6000, slug: "mmr-silver", label: "Silver MMR" },
+        { minimum: 9000, slug: "mmr-gold", label: "Gold MMR" },
+        { minimum: 12000, slug: "mmr-platinum", label: "Platinum MMR" },
+        { minimum: 15000, slug: "mmr-diamond", label: "Diamond MMR" },
+        { minimum: 18000, slug: "mmr-emerald", label: "Emerald MMR" },
+        { minimum: 21000, slug: "mmr-magenta", label: "Magenta MMR" }
+    ];
+
+    const ACHIEVEMENT_MILESTONES =
+        [25, 50, 75, 100, 125, 150];
+
+    function highestMilestone(value) {
+        const amount =
+            Math.max(
+                0,
+                Number(value || 0)
+            );
+
+        let unlocked = 0;
+
+        for (const milestone of ACHIEVEMENT_MILESTONES) {
+            if (amount >= milestone) {
+                unlocked = milestone;
+            }
+        }
+
+        return unlocked;
+    }
+
+
+    function getMajorMmrCard(mmr) {
+        let current =
+            MMR_MAJOR_CARDS[0];
+
+        for (const card of MMR_MAJOR_CARDS) {
+            if (Number(mmr || 0) >= card.minimum) {
+                current = card;
+            } else {
+                break;
+            }
+        }
+
+        return current;
+    }
+
+
+    function getDisplayedRiderCard(rider) {
+        const wins =
+            Math.max(
+                0,
+                Number(rider?.wins || 0)
+            );
+
+        const podiums =
+            Math.max(
+                0,
+                Number(rider?.podiums || 0)
+            );
+
+        const winMilestone =
+            highestMilestone(wins);
+
+        if (winMilestone) {
+            return {
+                slug:
+                    `wins-${winMilestone}`,
+                label:
+                    `${winMilestone} Wins`
+            };
+        }
+
+        const podiumMilestone =
+            highestMilestone(podiums);
+
+        if (podiumMilestone) {
+            return {
+                slug:
+                    `podiums-${podiumMilestone}`,
+                label:
+                    `${podiumMilestone} Podiums`
+            };
+        }
+
+        return getMajorMmrCard(
+            getRiderMmr(rider)
+        );
+    }
+
+
+    function createRiderCard(rider) {
+        const card =
+            getDisplayedRiderCard(rider);
+
+        const wrap =
+            document.createElement("div");
+
+        const img =
+            document.createElement("img");
+
+        wrap.className =
+            "rider-card-wrap";
+
+        wrap.title =
+            `${rider.username} — ${card.label} | ` +
+            `${Number(rider.wins || 0)} wins | ` +
+            `${Number(rider.podiums || 0)} podiums`;
+
+        img.className =
+            "rider-card-image";
+
+        img.src =
+            `${RIDER_CARD_ASSET_ROOT}${card.slug}.png`;
+
+        img.alt =
+            `${rider.username} ${card.label} rider card`;
+
+        img.loading =
+            "lazy";
+
+        wrap.appendChild(img);
+
+        return {
+            element: wrap,
+            card
+        };
+    }
+
+
     function createTextElement(tag, className, text) {
         const element = document.createElement(tag);
 
@@ -846,16 +1028,37 @@
             const riderCell = document.createElement("div");
             riderCell.className = "rider-cell";
 
-            riderCell.appendChild(
-                createBadge(mmr, "rider-badge", rider.username + " ")
-            );
+            const riderCard =
+                createRiderCard(rider);
 
             riderCell.appendChild(
+                riderCard.element
+            );
+
+            const riderIdentity =
+                document.createElement("div");
+
+            riderIdentity.className =
+                "rider-identity";
+
+            riderIdentity.appendChild(
                 createTextElement(
                     "div",
                     "rider-name",
                     rider.username
                 )
+            );
+
+            riderIdentity.appendChild(
+                createTextElement(
+                    "div",
+                    "rider-achievement",
+                    `${Number(rider.wins || 0)}W · ${Number(rider.podiums || 0)}P`
+                )
+            );
+
+            riderCell.appendChild(
+                riderIdentity
             );
 
             row.appendChild(riderCell);
