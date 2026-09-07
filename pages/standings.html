@@ -761,8 +761,13 @@
         "../assets/rider-cards/";
 
     function riderCardAssetPath(slug) {
+        const animatedCards = new Set([
+            "mmr-magenta",
+            "motogrid-master-rider"
+        ]);
+
         const extension =
-            slug === "mmr-magenta"
+            animatedCards.has(slug)
                 ? "webp"
                 : "png";
 
@@ -777,7 +782,8 @@
         { minimum: 12000, slug: "mmr-platinum", label: "Platinum MMR" },
         { minimum: 15000, slug: "mmr-diamond", label: "Diamond MMR" },
         { minimum: 18000, slug: "mmr-emerald", label: "Emerald MMR" },
-        { minimum: 21000, slug: "mmr-magenta", label: "Magenta MMR" }
+        { minimum: 21000, slug: "mmr-magenta", label: "Magenta MMR" },
+        { minimum: 50000, slug: "motogrid-master-rider", label: "MotoGrid Master Rider" }
     ];
 
     const ACHIEVEMENT_MILESTONES =
@@ -846,6 +852,17 @@
             if (selectedCard) {
                 return selectedCard;
             }
+        }
+
+        const riderMmr =
+            getRiderMmr(rider);
+
+        if (riderMmr >= 50000) {
+            return {
+                minimum: 50000,
+                slug: "motogrid-master-rider",
+                label: "MotoGrid Master Rider"
+            };
         }
 
         const wins =

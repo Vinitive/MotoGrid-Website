@@ -1843,8 +1843,13 @@
         "../assets/rider-cards/";
 
     function riderCardAssetPath(slug) {
+        const animatedCards = new Set([
+            "mmr-magenta",
+            "motogrid-master-rider"
+        ]);
+
         const extension =
-            slug === "mmr-magenta"
+            animatedCards.has(slug)
                 ? "webp"
                 : "png";
 
@@ -1860,6 +1865,7 @@
         { slug: "mmr-diamond", name: "Diamond MMR", type: "mmr", requirement: 15000 },
         { slug: "mmr-emerald", name: "Emerald MMR", type: "mmr", requirement: 18000 },
         { slug: "mmr-magenta", name: "Magenta MMR", type: "mmr", requirement: 21000 },
+        { slug: "motogrid-master-rider", name: "MotoGrid Master Rider", type: "mmr", requirement: 50000 },
 
         { slug: "wins-25", name: "25 Wins", type: "wins", requirement: 25 },
         { slug: "wins-50", name: "50 Wins", type: "wins", requirement: 50 },
@@ -1900,14 +1906,18 @@
 
 
     function autoSelectedCardSlug(settings) {
+        const mmr =
+            Math.max(0, Number(settings?.total_mmr || 0));
+
+        if (mmr >= 50000) {
+            return "motogrid-master-rider";
+        }
+
         const wins =
             Math.max(0, Number(settings?.wins || 0));
 
         const podiums =
             Math.max(0, Number(settings?.podiums || 0));
-
-        const mmr =
-            Math.max(0, Number(settings?.total_mmr || 0));
 
         const winCards =
             RIDER_CARDS
