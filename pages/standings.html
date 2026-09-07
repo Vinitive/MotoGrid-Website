@@ -760,6 +760,15 @@
     const RIDER_CARD_ASSET_ROOT =
         "../assets/rider-cards/";
 
+    function riderCardAssetPath(slug) {
+        const extension =
+            slug === "mmr-magenta"
+                ? "webp"
+                : "png";
+
+        return `${RIDER_CARD_ASSET_ROOT}${slug}.${extension}`;
+    }
+
     const MMR_MAJOR_CARDS = [
         { minimum: 0, slug: "mmr-copper", label: "Copper MMR" },
         { minimum: 3000, slug: "mmr-bronze", label: "Bronze MMR" },
@@ -903,7 +912,7 @@
             "rider-card-image";
 
         img.src =
-            `${RIDER_CARD_ASSET_ROOT}${card.slug}.png`;
+            riderCardAssetPath(card.slug);
 
         img.alt =
             `${rider.username} ${card.label} rider card`;

@@ -1842,6 +1842,15 @@
     const RIDER_CARD_ASSET_ROOT =
         "../assets/rider-cards/";
 
+    function riderCardAssetPath(slug) {
+        const extension =
+            slug === "mmr-magenta"
+                ? "webp"
+                : "png";
+
+        return `${RIDER_CARD_ASSET_ROOT}${slug}.${extension}`;
+    }
+
     const RIDER_CARDS = [
         { slug: "mmr-copper", name: "Copper MMR", type: "mmr", requirement: 0 },
         { slug: "mmr-bronze", name: "Bronze MMR", type: "mmr", requirement: 3000 },
@@ -1953,7 +1962,7 @@
             riderCardBySlug("mmr-copper");
 
         riderCardCurrentImage.src =
-            `${RIDER_CARD_ASSET_ROOT}${displayedCard.slug}.png`;
+            riderCardAssetPath(displayedCard.slug);
 
         riderCardCurrentImage.alt =
             `${displayedCard.name} MotoGrid rider card`;
@@ -2008,7 +2017,7 @@
                 "rider-card-option-image";
 
             image.src =
-                `${RIDER_CARD_ASSET_ROOT}${card.slug}.png`;
+                riderCardAssetPath(card.slug);
 
             image.alt =
                 `${card.name} MotoGrid rider card`;
