@@ -805,6 +805,33 @@
 
 
     function getDisplayedRiderCard(rider) {
+        const selectedSlug =
+            String(
+                rider?.selected_rider_card || ""
+            ).trim();
+
+        if (selectedSlug) {
+            const selectedCard =
+                [
+                    ...MMR_MAJOR_CARDS,
+                    ...ACHIEVEMENT_MILESTONES.map(value => ({
+                        slug: `wins-${value}`,
+                        label: `${value} Wins`
+                    })),
+                    ...ACHIEVEMENT_MILESTONES.map(value => ({
+                        slug: `podiums-${value}`,
+                        label: `${value} Podiums`
+                    }))
+                ].find(
+                    card =>
+                        card.slug === selectedSlug
+                );
+
+            if (selectedCard) {
+                return selectedCard;
+            }
+        }
+
         const wins =
             Math.max(
                 0,
