@@ -2047,6 +2047,7 @@
 
         RIDER_CARDS.forEach(card => {
             const isUnlocked =
+                card.type === "starter" ||
                 unlocked.has(card.slug);
 
             const isSelected =
@@ -2277,6 +2278,18 @@
             }
 
             renderRiderCardSettings(data);
+
+            // Re-read the saved server state after the update. This makes the
+            // account preview reflect the database value rather than relying
+            // only on the POST response.
+            try {
+                await loadRiderCardSettings();
+            } catch (refreshError) {
+                console.warn(
+                    "Rider card refresh after save failed:",
+                    refreshError
+                );
+            }
 
             setMessage(
                 riderCardMessage,
