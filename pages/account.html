@@ -780,9 +780,17 @@
 
         .subscription-actions {
             display: none;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: repeat(3, 1fr);
             gap: 10px;
             margin-top: 18px;
+        }
+
+        .racing-system-action {
+            display: none;
+        }
+
+        .racing-system-action.visible {
+            display: inline-flex;
         }
 
         .subscription-actions.visible {
@@ -1041,6 +1049,10 @@
 
             .race-match {
                 grid-column: 2;
+            }
+
+            .subscription-actions.visible {
+                grid-template-columns: 1fr;
             }
 
             .password-grid {
@@ -1333,6 +1345,14 @@
                     >
                         Manage
                     </a>
+
+                    <a
+                        href="racing-system.html"
+                        class="subscription-action secondary racing-system-action"
+                        id="racingSystemButton"
+                    >
+                        Racing System
+                    </a>
                 </div>
             </section>
 
@@ -1552,6 +1572,9 @@
 
     const manageSubscriptionButton =
         document.getElementById("manageSubscriptionButton");
+
+    const racingSystemButton =
+        document.getElementById("racingSystemButton");
 
     const discordLinkStatus =
         document.getElementById("discordLinkStatus");
@@ -2236,7 +2259,14 @@
                 `Your ${displayTier} Motogrid server subscription is active.`;
 
             subscriptionActions.classList.add("visible");
+
+            if (rawTier === "race") {
+                racingSystemButton.classList.add("visible");
+            } else {
+                racingSystemButton.classList.remove("visible");
+            }
         } else {
+            racingSystemButton.classList.remove("visible");
             subscriptionStatusText.textContent =
                 "You do not currently have an active Motogrid server subscription.";
 
