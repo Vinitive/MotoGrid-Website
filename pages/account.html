@@ -555,6 +555,14 @@
             margin-bottom: 20px;
         }
 
+        .progression-tier-badge {
+            width: 72px;
+            height: 72px;
+            object-fit: contain;
+            display: block;
+            flex: 0 0 auto;
+        }
+
         .tier-name {
             font-size: clamp(38px, 5vw, 64px);
             font-weight: 1000;
@@ -623,6 +631,41 @@
             background: rgba(124,255,0,0.05);
         }
 
+
+        .profile-rider-hero {
+            position: relative;
+            min-height: 112px;
+            margin: 4px 0 18px;
+            padding: 14px;
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,.08);
+            background: #060706;
+        }
+
+        .profile-rider-card-bg {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: .58;
+            filter: brightness(.72);
+            pointer-events: none;
+        }
+
+        .profile-rider-card-shade {
+            position: absolute;
+            inset: 0;
+            background:
+                linear-gradient(90deg, rgba(5,6,5,.42), rgba(5,6,5,.18) 55%, rgba(5,6,5,.64)),
+                linear-gradient(180deg, rgba(5,6,5,.08), rgba(5,6,5,.42));
+            pointer-events: none;
+        }
+
+        .profile-rider-hero-content {
+            position: relative;
+            z-index: 2;
+        }
 
         .rider-overview {
             display: grid;
@@ -1056,16 +1099,23 @@
 
             <section class="panel profile-panel">
                 <span class="panel-kicker">Rider Profile</span>
-                <div class="rider-overview">
-                    <img id="accountTierBadge" class="rider-tier-badge"
-                         src="../assets/rider-tiers/copper-i.png" alt="Current rider tier">
-                    <div>
-                        <div class="rider-rank" id="accountRiderRank">Unranked</div>
-                        <div class="profile-identity-row">
-                            <div class="profile-name" id="profileUsername">Rider</div>
-                            <a href="admin.html" class="admin-button" id="adminButton">Admin</a>
+                <div class="profile-rider-hero">
+                    <img id="profileRiderCardBg" class="profile-rider-card-bg"
+                         src="../assets/rider-cards/mmr-copper.png" alt="">
+                    <div class="profile-rider-card-shade"></div>
+                    <div class="profile-rider-hero-content">
+                        <div class="rider-overview">
+                            <img id="accountTierBadge" class="rider-tier-badge"
+                                 src="../assets/rider-tiers/copper-i.png" alt="Current rider tier">
+                            <div>
+                                <div class="rider-rank" id="accountRiderRank">Unranked</div>
+                                <div class="profile-identity-row">
+                                    <div class="profile-name" id="profileUsername">Rider</div>
+                                    <a href="admin.html" class="admin-button" id="adminButton">Admin</a>
+                                </div>
+                                <div class="profile-email" id="profileEmail">—</div>
+                            </div>
                         </div>
-                        <div class="profile-email" id="profileEmail">—</div>
                     </div>
                 </div>
                 <div class="rider-stat-grid">
@@ -1086,7 +1136,12 @@
                 <span class="panel-kicker">Standings Progression</span>
                 <h2>Current Rider Tier</h2>
                 <div class="tier-current">
-                    <div class="tier-name" id="tierName">Copper I</div>
+                    <img
+                        id="progressionTierBadge"
+                        class="progression-tier-badge"
+                        src="../assets/rider-tiers/copper-i.png"
+                        alt="Current rider tier"
+                    >
                     <div class="tier-points" id="tierPointsText">0 MMR</div>
                 </div>
                 <div class="tier-progress-track">
@@ -1401,13 +1456,14 @@
     const profileGuid = document.getElementById("profileGuid");
     const adminButton = document.getElementById("adminButton");
 
-    const tierName = document.getElementById("tierName");
+    const progressionTierBadge = document.getElementById("progressionTierBadge");
     const tierPointsText = document.getElementById("tierPointsText");
     const tierProgressBar = document.getElementById("tierProgressBar");
     const tierStartLabel = document.getElementById("tierStartLabel");
     const tierNextLabel = document.getElementById("tierNextLabel");
 
     const accountTierBadge = document.getElementById("accountTierBadge");
+    const profileRiderCardBg = document.getElementById("profileRiderCardBg");
     const accountRiderRank = document.getElementById("accountRiderRank");
     const accountRiderMmr = document.getElementById("accountRiderMmr");
     const accountRiderRaces = document.getElementById("accountRiderRaces");
@@ -1904,6 +1960,8 @@
             riderCardMessage,
             ""
         );
+
+        return data;
     }
 
 
@@ -1968,6 +2026,14 @@
             }
 
             renderRiderCardSettings(data);
+        if (profileRiderCardBg) {
+            profileRiderCardBg.src =
+                riderCardAssetPath(
+                    data?.displayed_rider_card ||
+                    data?.selected_rider_card ||
+                    "mmr-copper"
+                );
+        }
 
             // Re-read the saved server state after the update. This makes the
             // account preview reflect the database value rather than relying
@@ -2061,7 +2127,10 @@
         const safeMmr = Number.isFinite(mmr) ? mmr : 0;
         const tier = getTierData(safeMmr);
 
-        tierName.textContent = tier.current.name;
+        progressionTierBadge.src =
+            tierBadgeAssetPath(tier.current.name);
+        progressionTierBadge.alt =
+            `${tier.current.name} rider tier`;
         tierPointsText.textContent =
             `${safeMmr.toLocaleString()} MMR`;
 
@@ -2222,6 +2291,18 @@
                 ? averageFinish.toFixed(2)
                 : "—";
         accountRiderTier.textContent = tier;
+        const displayedCard =
+            String(
+                profile?.displayed_rider_card ||
+                riderCardSettings?.displayed_rider_card ||
+                "mmr-copper"
+            ).trim();
+
+        profileRiderCardBg.src =
+            riderCardAssetPath(displayedCard);
+        profileRiderCardBg.alt =
+            `${displayedCard} MotoGrid rider card`;
+
         accountTierBadge.src = tierBadgeAssetPath(tier);
         accountTierBadge.alt = `${tier} rider tier`;
 
@@ -2245,19 +2326,43 @@
             throw new Error(data?.error || "Could not load your standings rider profile.");
         }
 
-        return data;
+        return data?.rider || data;
     }
 
     async function refreshRiderMmr() {
-        const { data: { user } } = await supabaseClient.auth.getUser();
+        const { data: { user } } =
+            await supabaseClient.auth.getUser();
+
         if (!user) return;
 
         try {
-            renderAccountRiderProfile(
-                await loadStandingsRiderProfile(user.id)
-            );
+            const cardSettings =
+                await loadRiderCardSettings();
+
+            const standingsRiderId =
+                String(cardSettings?.standings_rider_id || "").trim();
+
+            if (!standingsRiderId) return;
+
+            const publicProfile =
+                await loadStandingsRiderProfile(standingsRiderId);
+
+            renderAccountRiderProfile({
+                ...publicProfile,
+                selected_rider_card:
+                    cardSettings?.selected_rider_card ??
+                    publicProfile?.selected_rider_card ??
+                    null,
+                displayed_rider_card:
+                    cardSettings?.displayed_rider_card ||
+                    publicProfile?.displayed_rider_card ||
+                    "mmr-copper"
+            });
         } catch (error) {
-            console.error("Standings rider profile refresh failed:", error);
+            console.error(
+                "Standings rider profile refresh failed:",
+                error
+            );
         }
     }
 
@@ -2339,17 +2444,6 @@
 
             let standingsProfile = null;
 
-            try {
-                standingsProfile =
-                    await loadStandingsRiderProfile(user.id);
-            } catch (standingsProfileError) {
-                console.error(
-                    "Standings rider profile lookup failed:",
-                    standingsProfileError
-                );
-            }
-
-
             profileUsername.textContent = username;
             profileEmail.textContent = user.email || "—";
 
@@ -2359,6 +2453,61 @@
             guidInput.value = guid;
 
             renderDiscordIdentity(discordIdentity);
+            renderSubscription(subscription);
+
+            try {
+                const cardSettings =
+                    await loadRiderCardSettings();
+
+                const standingsRiderId =
+                    String(cardSettings?.standings_rider_id || "").trim();
+
+                if (standingsRiderId) {
+                    standingsProfile =
+                        await loadStandingsRiderProfile(standingsRiderId);
+
+                    standingsProfile = {
+                        ...standingsProfile,
+                        selected_rider_card:
+                            cardSettings?.selected_rider_card ??
+                            standingsProfile?.selected_rider_card ??
+                            null,
+                        displayed_rider_card:
+                            cardSettings?.displayed_rider_card ||
+                            standingsProfile?.displayed_rider_card ||
+                            "mmr-copper"
+                    };
+                } else {
+                    standingsProfile = {
+                        total_mmr: Number(cardSettings?.total_mmr || 0),
+                        races_scored: Number(cardSettings?.races_scored || 0),
+                        wins: Number(cardSettings?.wins || 0),
+                        podiums: Number(cardSettings?.podiums || 0),
+                        average_finish: null,
+                        rank: 0,
+                        tier:
+                            getTierData(
+                                Number(cardSettings?.total_mmr || 0)
+                            ).current.name,
+                        selected_rider_card:
+                            cardSettings?.selected_rider_card || null,
+                        displayed_rider_card:
+                            cardSettings?.displayed_rider_card ||
+                            "mmr-copper"
+                    };
+                }
+            } catch (riderProfileError) {
+                console.error(
+                    "Rider profile/settings load failed:",
+                    riderProfileError
+                );
+                setMessage(
+                    riderCardMessage,
+                    riderProfileError.message ||
+                    "Could not load rider standings profile.",
+                    "error"
+                );
+            }
 
             renderAccountRiderProfile(
                 standingsProfile || {
@@ -2368,27 +2517,10 @@
                     podiums: 0,
                     average_finish: null,
                     rank: 0,
-                    tier: "Copper I"
+                    tier: "Copper I",
+                    displayed_rider_card: "mmr-copper"
                 }
             );
-
-            renderSubscription(subscription);
-
-            try {
-                await loadRiderCardSettings();
-            } catch (riderCardError) {
-                console.error(
-                    "Rider card settings load failed:",
-                    riderCardError
-                );
-
-                setMessage(
-                    riderCardMessage,
-                    riderCardError.message ||
-                    "Could not load rider card settings.",
-                    "error"
-                );
-            }
 
             const params =
                 new URLSearchParams(window.location.search);
