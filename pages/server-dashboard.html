@@ -390,6 +390,76 @@
 
         .field.full { grid-column: 1 / -1; }
 
+        .weather-toggle-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            padding: 14px 16px;
+            border: 1px solid rgba(255,255,255,.08);
+            background: #070807;
+        }
+
+        .weather-toggle-copy strong {
+            display: block;
+            color: #ddd;
+            font-size: 10px;
+            font-weight: 900;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .weather-toggle-copy span {
+            display: block;
+            margin-top: 5px;
+            color: #666;
+            font-size: 9px;
+            line-height: 1.45;
+        }
+
+        .weather-switch {
+            position: relative;
+            width: 48px;
+            height: 26px;
+            flex: 0 0 auto;
+        }
+
+        .weather-switch input {
+            position: absolute;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .weather-switch-track {
+            position: absolute;
+            inset: 0;
+            border: 1px solid rgba(255,255,255,.15);
+            background: #050605;
+            cursor: pointer;
+            transition: .18s ease;
+        }
+
+        .weather-switch-track::after {
+            content: "";
+            position: absolute;
+            top: 4px;
+            left: 4px;
+            width: 16px;
+            height: 16px;
+            background: #666;
+            transition: .18s ease;
+        }
+
+        .weather-switch input:checked + .weather-switch-track {
+            border-color: #7cff00;
+            background: rgba(124,255,0,.08);
+        }
+
+        .weather-switch input:checked + .weather-switch-track::after {
+            left: 26px;
+            background: #7cff00;
+        }
+
         .race-grid {
             grid-column: 1 / -1;
             display: grid;
@@ -736,6 +806,18 @@
                             <option value="">Loading tracks...</option>
                         </select>
                         <a id="trackDownloadLink" class="track-download" href="#" target="_blank" rel="noopener noreferrer">Download Track</a>
+                    </div>
+
+                    <div class="weather-toggle-row">
+                        <div class="weather-toggle-copy">
+                            <strong>Realistic Weather</strong>
+                            <span>Turn this off to use fixed clear/dry server weather instead of MX Bikes realistic weather.</span>
+                        </div>
+
+                        <label class="weather-switch" for="realisticWeatherInput">
+                            <input id="realisticWeatherInput" type="checkbox" checked>
+                            <span class="weather-switch-track"></span>
+                        </label>
                     </div>
 
                     <div class="race-grid">
@@ -1097,7 +1179,7 @@
             .from("game_servers")
             .select(`
                 id, server_code, server_name, bike_class, track_key, port, max_players, current_players, status, started_at, node_id, race_phase,
-                practice_length, qualify_length, warmup_length, race_laps,
+                practice_length, qualify_length, warmup_length, race_laps, realistic_weather,
                 nodes ( node_name, public_ip )
             `)
             .eq("user_id", userId)
@@ -1362,6 +1444,7 @@ const practiceLengthInput=document.getElementById("practiceLengthInput");
 const qualifyLengthInput=document.getElementById("qualifyLengthInput");
 const warmupLengthInput=document.getElementById("warmupLengthInput");
 const raceLapsInput=document.getElementById("raceLapsInput");
+const realisticWeatherInput=document.getElementById("realisticWeatherInput");
 const saveServerSettingsBtn=document.getElementById("saveServerSettingsBtn");
 const serverSettingsMessage=document.getElementById("serverSettingsMessage");
 
@@ -1462,6 +1545,10 @@ function syncServerSettings(server){
   raceLapsInput.value=server.race_laps??5;
  }
 
+ if(realisticWeatherInput){
+  realisticWeatherInput.checked=server.realistic_weather!==false;
+ }
+
  updateTrackDownloadLink(server.track_key||trackSelect.value);
  updateCurrentTrackDisplay(server.track_key);
 }
@@ -1478,6 +1565,7 @@ async function saveServerSettings(){
  const qualifyLength=Number(qualifyLengthInput?.value);
  const warmupLength=Number(warmupLengthInput?.value);
  const raceLaps=Number(raceLapsInput?.value);
+ const realisticWeather=realisticWeatherInput?.checked!==false;
 
  serverSettingsMessage.textContent="";
 
@@ -1527,6 +1615,7 @@ async function saveServerSettings(){
  qualifyLengthInput.disabled=true;
  warmupLengthInput.disabled=true;
  raceLapsInput.disabled=true;
+ realisticWeatherInput.disabled=true;
  saveServerSettingsBtn.textContent="Saving...";
  serverSettingsMessage.textContent="Saving server settings...";
 
@@ -1545,7 +1634,8 @@ async function saveServerSettings(){
     practiceLength:practiceLength,
     qualifyLength:qualifyLength,
     warmupLength:warmupLength,
-    raceLaps:raceLaps
+    raceLaps:raceLaps,
+    realisticWeather:realisticWeather
    })
   });
 
@@ -1559,6 +1649,7 @@ async function saveServerSettings(){
   qualifyLengthInput.value=result.qualifyLength??qualifyLength;
   warmupLengthInput.value=result.warmupLength??warmupLength;
   raceLapsInput.value=result.raceLaps??raceLaps;
+  realisticWeatherInput.checked=result.realisticWeather??realisticWeather;
 
   updateTrackDownloadLink(result.trackKey||trackKey);
   updateCurrentTrackDisplay(result.trackKey||trackKey);
@@ -1581,6 +1672,7 @@ async function saveServerSettings(){
   qualifyLengthInput.disabled=false;
   warmupLengthInput.disabled=false;
   raceLapsInput.disabled=false;
+  realisticWeatherInput.disabled=false;
   saveServerSettingsBtn.textContent="Save Changes";
  }
 }
