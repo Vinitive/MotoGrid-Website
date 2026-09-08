@@ -580,12 +580,11 @@
                             <option value="qualify">Qualify</option>
                             <option value="warmup">Warmup</option>
                             <option value="race1">Race 1</option>
-                            <option value="race2">Race 2</option>
                         </select>
                         <button class="control-btn" id="setPhaseBtn" type="button" disabled>Set Phase</button>
                     </div>
                     <div class="phase-help">
-                        Open Practice changes the server configuration and restarts the server. Other phases use MX Bikes Remote Admin.
+                        MotoGrid starts servers in the automatic Warmup → Race 1 loop. Selecting a phase here overrides that loop for the current server run.
                     </div>
                 </div>
 
@@ -654,8 +653,8 @@
   </div>
 
   <label for="practiceLengthInput">Practice Length</label>
-  <input id="practiceLengthInput" class="race-setting-input" type="number" min="1" max="120" step="1" inputmode="numeric" value="15">
-  <div class="settings-help">1–120 minutes.</div>
+  <input id="practiceLengthInput" class="race-setting-input" type="number" min="0" max="120" step="1" inputmode="numeric" value="15">
+  <div class="settings-help">0–120 minutes. Set to 0 to disable Practice.</div>
 
   <label for="qualifyLengthInput">Qualifying Length</label>
   <input id="qualifyLengthInput" class="race-setting-input" type="number" min="0" max="60" step="1" inputmode="numeric" value="10">
@@ -1358,8 +1357,8 @@ async function saveServerSettings(){
   return;
  }
 
- if(!Number.isInteger(practiceLength)||practiceLength<1||practiceLength>120){
-  serverSettingsMessage.textContent="Practice length must be a whole number between 1 and 120 minutes.";
+ if(!Number.isInteger(practiceLength)||practiceLength<0||practiceLength>120){
+  serverSettingsMessage.textContent="Practice length must be a whole number between 0 and 120 minutes.";
   return;
  }
 
