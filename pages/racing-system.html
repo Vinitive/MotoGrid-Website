@@ -6,66 +6,62 @@
 <title>Racing System | MotoGrid</title>
 <link rel="stylesheet" href="../css/style.css">
 <style>
-*{box-sizing:border-box}body{margin:0;background:#050605;color:#fff;font-family:Arial,Helvetica,sans-serif}
-body:before{content:"";position:fixed;inset:0;pointer-events:none;background-image:linear-gradient(rgba(255,255,255,.018) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.018) 1px,transparent 1px);background-size:55px 55px}
-.shell{position:relative;width:min(1450px,calc(100% - 40px));margin:auto;padding-bottom:70px}
-.topbar{min-height:84px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,.08)}
-.brand{display:flex;align-items:center;gap:12px;color:#fff;text-decoration:none;font-weight:1000;font-style:italic;letter-spacing:1px}.brand img{height:50px}.brand span span{color:#7cff00}
-.back{border:1px solid rgba(255,255,255,.12);padding:12px 16px;color:#aaa;text-decoration:none;font-size:9px;font-weight:900;letter-spacing:1.4px;text-transform:uppercase}.back:hover{border-color:#7cff00;color:#7cff00}
-.hero{padding:48px 0 28px}.eyebrow{color:#7cff00;font-size:10px;font-weight:1000;letter-spacing:3px;text-transform:uppercase}.hero h1{margin:8px 0;font-size:clamp(42px,7vw,74px);line-height:.95;letter-spacing:-3px;font-style:italic;text-transform:uppercase}.hero p{margin:0;color:#707070;font-size:13px}
-.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 20px}.tab{border:1px solid rgba(255,255,255,.1);background:#090b09;color:#777;padding:12px 16px;font-size:9px;font-weight:1000;letter-spacing:1.2px;text-transform:uppercase;cursor:pointer}.tab.active,.tab:hover{border-color:#7cff00;color:#7cff00}
-.grid{display:grid;grid-template-columns:2fr 1fr;gap:18px}.panel{position:relative;background:#0a0c0a;border:1px solid rgba(255,255,255,.09);padding:26px;overflow:hidden}.panel:before{content:"";position:absolute;top:0;left:0;width:72px;height:3px;background:#7cff00}
-.panel-head{display:flex;justify-content:space-between;gap:18px;align-items:center;margin-bottom:20px}.kicker{color:#666;font-size:9px;font-weight:900;letter-spacing:2px;text-transform:uppercase}.panel h2{margin:7px 0 0;text-transform:uppercase;font-size:22px}
-.green{border:1px solid #7cff00;background:#7cff00;color:#050705;min-height:42px;padding:0 15px;font-size:9px;font-weight:1000;letter-spacing:1.2px;text-transform:uppercase;cursor:pointer}
-.champ-list{display:grid;gap:10px}.champ{display:grid;grid-template-columns:1fr auto;gap:15px;align-items:center;border:1px solid rgba(255,255,255,.08);background:#070807;padding:16px}.champ strong{font-size:14px;text-transform:uppercase}.meta{margin-top:6px;color:#666;font-size:9px;text-transform:uppercase;letter-spacing:1px}.status{color:#7cff00;border:1px solid rgba(124,255,0,.3);padding:7px 9px;font-size:8px;font-weight:1000;text-transform:uppercase}
-.stats{display:grid;grid-template-columns:1fr 1fr;gap:9px}.stat{background:#060706;border:1px solid rgba(255,255,255,.07);padding:15px}.stat span{display:block;color:#555;font-size:8px;font-weight:900;text-transform:uppercase;letter-spacing:1px}.stat strong{display:block;margin-top:7px;font-size:22px}
-.empty{padding:38px 20px;border:1px dashed rgba(255,255,255,.1);text-align:center;color:#5e5e5e;font-size:11px;line-height:1.7}.empty strong{display:block;color:#ddd;font-size:15px;text-transform:uppercase;margin-bottom:5px}
-.notice{display:none;margin-bottom:18px;border:1px solid rgba(255,107,107,.3);background:rgba(255,107,107,.04);padding:15px;color:#ff8a8a;font-size:11px}.notice.visible{display:block}
-.loading{position:fixed;z-index:999;inset:0;display:flex;align-items:center;justify-content:center;background:#050605;color:#7cff00;font-size:10px;font-weight:1000;letter-spacing:3px;text-transform:uppercase}.loading.hidden{display:none}
-.feature-list{display:grid;gap:9px;margin-top:16px}.feature{border-bottom:1px solid rgba(255,255,255,.06);padding:10px 0;color:#aaa;font-size:10px}.feature b{color:#7cff00}
-@media(max-width:850px){.grid{grid-template-columns:1fr}.shell{width:min(100% - 24px,1450px)}.brand span{display:none}.hero{padding-top:34px}}
+:root{--green:#7cff00;--bg:#050605;--panel:#0a0c0a;--panel2:#070907;--line:rgba(255,255,255,.085);--muted:#686b68}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:#fff;font-family:Arial,Helvetica,sans-serif}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;background:linear-gradient(rgba(255,255,255,.014) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.014) 1px,transparent 1px);background-size:54px 54px}
+.shell{position:relative;width:min(1480px,calc(100% - 42px));margin:auto;padding-bottom:70px}
+.topbar{height:82px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line)}
+.brand{display:flex;align-items:center;gap:11px;text-decoration:none;color:#fff;font-weight:1000;font-style:italic}.brand img{height:48px}.brand b{font-size:17px}.brand b span{color:var(--green)}
+.back,.outline-btn,.primary-btn{min-height:42px;padding:0 16px;display:inline-flex;align-items:center;justify-content:center;text-align:center;text-decoration:none;text-transform:uppercase;font-size:9px;font-weight:1000;letter-spacing:1.25px;cursor:pointer}
+.back,.outline-btn{border:1px solid rgba(255,255,255,.12);background:#080908;color:#aaa}.back:hover,.outline-btn:hover{border-color:var(--green);color:var(--green)}
+.primary-btn{border:1px solid var(--green);background:var(--green);color:#061006}
+.hero{padding:42px 0 25px;display:flex;justify-content:space-between;gap:25px;align-items:end}
+.eyebrow{font-size:9px;font-weight:1000;letter-spacing:2.6px;text-transform:uppercase;color:var(--green)}
+.hero h1{font-size:clamp(40px,6vw,68px);line-height:.92;margin:8px 0 10px;font-style:italic;letter-spacing:-2.8px;text-transform:uppercase}
+.hero p{margin:0;color:#6e716e;font-size:12px}.server-pill{border:1px solid rgba(124,255,0,.22);background:rgba(124,255,0,.035);padding:11px 14px;color:#9a9d9a;font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:1px}
+.nav{display:flex;gap:7px;padding:0 0 18px;border-bottom:1px solid var(--line);margin-bottom:18px;overflow:auto}.nav button{flex:0 0 auto;border:0;border-bottom:2px solid transparent;background:transparent;color:#5f625f;padding:10px 14px;font-size:9px;font-weight:1000;letter-spacing:1.3px;text-transform:uppercase}.nav button.active{color:#fff;border-bottom-color:var(--green)}
+.dashboard{display:grid;grid-template-columns:minmax(0,1.9fr) minmax(300px,.8fr);gap:18px}
+.panel{position:relative;background:var(--panel);border:1px solid var(--line);padding:24px}.panel:before{content:"";position:absolute;left:-1px;top:-1px;width:64px;height:3px;background:var(--green)}
+.panel-head{display:flex;align-items:center;justify-content:space-between;gap:15px;margin-bottom:19px}.section-label{font-size:8px;font-weight:1000;letter-spacing:2px;color:#5e615e;text-transform:uppercase}.panel h2{font-size:20px;margin:5px 0 0;text-transform:uppercase}
+.champ-list{display:grid;gap:10px}.champ-card{position:relative;display:grid;grid-template-columns:110px minmax(0,1fr) auto;gap:16px;align-items:center;padding:13px;border:1px solid rgba(255,255,255,.075);background:#070807;cursor:pointer;transition:.15s}.champ-card:hover{border-color:rgba(124,255,0,.45);transform:translateY(-1px)}
+.champ-img{width:110px;aspect-ratio:16/9;background:#0d0f0d;border:1px solid rgba(255,255,255,.07);overflow:hidden;display:flex;align-items:center;justify-content:center;color:#404340;font-size:8px;font-weight:900;text-transform:uppercase}.champ-img img{width:100%;height:100%;object-fit:cover}
+.champ-name{font-size:15px;font-weight:1000;text-transform:uppercase}.champ-desc{margin-top:6px;color:#646764;font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.champ-meta{display:flex;gap:12px;margin-top:9px;color:#858885;font-size:8px;font-weight:900;text-transform:uppercase;letter-spacing:.8px}.champ-meta b{color:var(--green)}
+.status{justify-self:end;padding:7px 9px;border:1px solid rgba(124,255,0,.24);color:var(--green);font-size:8px;font-weight:1000;text-transform:uppercase}
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.stat{padding:16px;background:#070807;border:1px solid rgba(255,255,255,.065)}.stat span{display:block;color:#555;font-size:8px;font-weight:900;letter-spacing:1.1px;text-transform:uppercase}.stat strong{display:block;font-size:24px;margin-top:7px}
+.feature{display:flex;gap:11px;padding:13px 0;border-bottom:1px solid rgba(255,255,255,.055);font-size:10px;color:#858885}.feature b{color:var(--green)}
+.empty{padding:48px 24px;border:1px dashed rgba(255,255,255,.1);text-align:center;color:#5c5f5c;font-size:11px;line-height:1.7}.empty strong{display:block;color:#ddd;font-size:15px;text-transform:uppercase;margin-bottom:5px}
+.notice{display:none;margin-bottom:16px;padding:14px;border:1px solid rgba(255,100,100,.25);color:#ff8d8d;background:rgba(255,100,100,.035);font-size:10px}.notice.visible{display:block}
+.loading{position:fixed;z-index:1000;inset:0;display:flex;align-items:center;justify-content:center;background:#050605;color:var(--green);font-size:9px;font-weight:1000;letter-spacing:3px;text-transform:uppercase}.loading.hidden{display:none}
+@media(max-width:900px){.dashboard{grid-template-columns:1fr}.hero{align-items:flex-start;flex-direction:column}.champ-card{grid-template-columns:80px minmax(0,1fr)}.champ-img{width:80px}.status{grid-column:2;justify-self:start}.shell{width:min(100% - 24px,1480px)}}
 </style>
 </head>
 <body>
-<div class="loading" id="loading">Loading Racing System...</div>
+<div class="loading" id="loading">Loading Race Control...</div>
 <div class="shell">
 <header class="topbar">
-<a class="brand" href="../index.html"><img src="../assets/logo/motogrid-logo.png" alt="MotoGrid"><span>MOTO<span>GRID</span></span></a>
-<a class="back" href="account.html">Back to My Account</a>
+<a class="brand" href="../index.html"><img src="../assets/logo/motogrid-logo.png" alt="MotoGrid"><b>MOTO<span>GRID</span></b></a>
+<a class="back" href="account.html">My Account</a>
 </header>
 <section class="hero">
-<div class="eyebrow">MotoGrid Race Control</div>
-<h1>Racing System</h1>
-<p id="serverLine">Championship management, scoring, results and race control.</p>
+<div><div class="eyebrow">MotoGrid Competition Suite</div><h1>Racing System</h1><p>Build championships, control rounds, score races and manage your riders.</p></div>
+<div class="server-pill" id="serverPill">Loading Server</div>
 </section>
 <div class="notice" id="notice"></div>
-<nav class="tabs">
-<button class="tab active">Championships</button>
-<button class="tab">Results</button>
-<button class="tab">Standings</button>
-<button class="tab">Riders</button>
-<button class="tab">Settings</button>
-</nav>
-<div class="grid">
+<nav class="nav"><button class="active">Championships</button><button>Results</button><button>Standings</button><button>Riders</button><button>Settings</button></nav>
+<div class="dashboard">
 <section class="panel">
-<div class="panel-head">
-<div><div class="kicker">Race Management</div><h2>Championships</h2></div>
-<button class="green" id="createChampionship">Create Championship</button>
-</div>
+<div class="panel-head"><div><div class="section-label">Competition Management</div><h2>Your Championships</h2></div><button class="primary-btn" id="createChampionship">+ Create Championship</button></div>
 <div class="champ-list" id="championshipList"></div>
 </section>
 <aside class="panel">
-<div class="kicker">System Overview</div><h2>Race Control</h2>
-<div class="stats">
-<div class="stat"><span>Championships</span><strong id="champCount">0</strong></div>
-<div class="stat"><span>Active</span><strong id="activeCount">0</strong></div>
-</div>
-<div class="feature-list">
-<div class="feature"><b>01</b> Qualifying, Race 1 & Race 2 result ingestion</div>
-<div class="feature"><b>02</b> MX, SX & custom point systems</div>
-<div class="feature"><b>03</b> Independent championship standings</div>
-<div class="feature"><b>04</b> Rider point deductions & adjustments</div>
-<div class="feature"><b>05</b> Rider suspensions</div>
+<div class="section-label">Racing System</div><h2 style="margin-bottom:18px">Overview</h2>
+<div class="stat-grid"><div class="stat"><span>Championships</span><strong id="champCount">0</strong></div><div class="stat"><span>Active</span><strong id="activeCount">0</strong></div></div>
+<div style="margin-top:18px">
+<div class="feature"><b>01</b><span>Qualifying, Race 1 and Race 2 result ingestion</span></div>
+<div class="feature"><b>02</b><span>MX, SX and custom scoring systems</span></div>
+<div class="feature"><b>03</b><span>Independent championship standings</span></div>
+<div class="feature"><b>04</b><span>Point penalties and manual adjustments</span></div>
+<div class="feature"><b>05</b><span>Rider suspension management</span></div>
 </div>
 </aside>
 </div>
@@ -73,62 +69,26 @@ body:before{content:"";position:fixed;inset:0;pointer-events:none;background-ima
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="../js/supabase.js"></script>
 <script>
-const loading=document.getElementById("loading");
-const notice=document.getElementById("notice");
-const list=document.getElementById("championshipList");
-const serverLine=document.getElementById("serverLine");
-const champCount=document.getElementById("champCount");
-const activeCount=document.getElementById("activeCount");
-
-function showError(message){notice.textContent=message;notice.classList.add("visible")}
-function esc(v){return String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
-
-async function init(){
+const loading=document.getElementById("loading"),notice=document.getElementById("notice"),list=document.getElementById("championshipList");
+const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+function error(m){notice.textContent=m;notice.classList.add("visible")}
+(async function(){
  try{
-  const {data:{session}}=await supabaseClient.auth.getSession();
-  if(!session){location.href="login.html";return}
+  const {data:{session}}=await supabaseClient.auth.getSession();if(!session){location.href="login.html";return}
   const user=session.user;
-
-  const {data:sub,error:subErr}=await supabaseClient.from("subscriptions")
-   .select("plan,status").eq("user_id",user.id).maybeSingle();
-  if(subErr) throw subErr;
-  const entitled=sub && String(sub.plan).toLowerCase()==="race" &&
-    ["active","trialing"].includes(String(sub.status).toLowerCase());
-  if(!entitled){
-    showError("The MotoGrid Racing System requires an active Race subscription.");
-    document.getElementById("createChampionship").disabled=true;
-    list.innerHTML='<div class="empty"><strong>Racing System Locked</strong>An active Race subscription is required.</div>';
-    return;
-  }
-
-  const {data:servers,error:serverErr}=await supabaseClient.from("game_servers")
-   .select("id,server_code,server_name,status").eq("user_id",user.id).order("created_at",{ascending:true}).limit(1);
-  if(serverErr) throw serverErr;
-  const server=servers?.[0];
-  if(!server) throw new Error("No MotoGrid game server was found for this account.");
-  serverLine.textContent=`${server.server_name||server.server_code} • Championship management and automatic race results`;
-
-  const {data:champs,error:champErr}=await supabaseClient.from("racing_championships")
-   .select("id,name,description,status,scoring_type,created_at").eq("game_server_id",server.id).order("created_at",{ascending:false});
-  if(champErr) throw champErr;
-
-  champCount.textContent=String(champs?.length||0);
-  activeCount.textContent=String((champs||[]).filter(c=>c.status==="active").length);
-
-  if(!champs?.length){
-   list.innerHTML='<div class="empty"><strong>No Championships Yet</strong>Create your first championship to begin configuring rounds, scoring and automatic results.</div>';
-  }else{
-   list.innerHTML=champs.map(c=>`<div class="champ" style="cursor:pointer" onclick="location.href='championship.html?id=${encodeURIComponent(c.id)}'"><div><strong>${esc(c.name)}</strong><div class="meta">${esc(c.scoring_type).toUpperCase()} scoring • ${esc(c.description||"No description")}</div></div><span class="status">${esc(c.status)}</span></div>`).join("");
-  }
-
-  document.getElementById("createChampionship").onclick=()=>{
-    location.href=`championship-create.html?server=${encodeURIComponent(server.id)}`;
-  };
- }catch(e){
-  console.error(e);showError(e.message||"Could not load the Racing System.");
- }finally{loading.classList.add("hidden")}
-}
-init();
+  const {data:subs,error:subErr}=await supabaseClient.from("subscriptions").select("plan,status").eq("user_id",user.id).maybeSingle();if(subErr)throw subErr;
+  if(!subs||!["active","trialing"].includes(String(subs.status).toLowerCase()))throw new Error("An active MotoGrid server subscription is required.");
+  const {data:servers,error:serverErr}=await supabaseClient.from("game_servers").select("id,server_code,server_name,status").eq("user_id",user.id).order("created_at",{ascending:true}).limit(1);if(serverErr)throw serverErr;
+  const server=servers?.[0];if(!server)throw new Error("No MotoGrid server was found.");
+  document.getElementById("serverPill").textContent=`${server.server_name||server.server_code} • ${server.status||"Server"}`;
+  const {data:champs,error:champErr}=await supabaseClient.from("racing_championships").select("id,name,description,image_url,status,scoring_type,created_at").eq("game_server_id",server.id).order("created_at",{ascending:false});if(champErr)throw champErr;
+  document.getElementById("champCount").textContent=String(champs?.length||0);document.getElementById("activeCount").textContent=String((champs||[]).filter(c=>c.status==="active").length);
+  if(!champs?.length)list.innerHTML='<div class="empty"><strong>No Championships Yet</strong>Create your first championship to configure rounds, scoring and race results.</div>';
+  else list.innerHTML=champs.map(c=>`<article class="champ-card" onclick="location.href='championship.html?id=${encodeURIComponent(c.id)}'"><div class="champ-img">${c.image_url?`<img src="${esc(c.image_url)}" alt="">`:"MotoGrid"}</div><div><div class="champ-name">${esc(c.name)}</div><div class="champ-desc">${esc(c.description||"No description")}</div><div class="champ-meta"><span><b>${esc(c.scoring_type).toUpperCase()}</b> scoring</span><span>Created ${new Date(c.created_at).toLocaleDateString()}</span></div></div><span class="status">${esc(c.status)}</span></article>`).join("");
+  document.getElementById("createChampionship").onclick=()=>location.href=`championship-create.html?server=${encodeURIComponent(server.id)}`;
+ }catch(e){console.error(e);error(e.message||"Could not load the Racing System.");list.innerHTML='<div class="empty"><strong>Unable to Load</strong>Check the message above and try again.</div>'}
+ finally{loading.classList.add("hidden")}
+})();
 </script>
 </body>
 </html>

@@ -785,12 +785,19 @@
             margin-top: 18px;
         }
 
-        .racing-system-action {
-            display: none;
+        .subscription-action {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
         }
 
-        .racing-system-action.visible {
+        .racing-system-action {
             display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            white-space: nowrap;
         }
 
         .subscription-actions.visible {
@@ -2260,13 +2267,7 @@
 
             subscriptionActions.classList.add("visible");
 
-            if (rawTier === "race") {
-                racingSystemButton.classList.add("visible");
-            } else {
-                racingSystemButton.classList.remove("visible");
-            }
         } else {
-            racingSystemButton.classList.remove("visible");
             subscriptionStatusText.textContent =
                 "You do not currently have an active Motogrid server subscription.";
 

@@ -159,7 +159,7 @@ async function createChampionship(){
 
   const {data:sub,error:subErr}=await supabaseClient.from("subscriptions").select("plan,status").eq("user_id",user.id).maybeSingle();
   if(subErr)throw subErr;
-  if(!sub||String(sub.plan).toLowerCase()!=="race"||!["active","trialing"].includes(String(sub.status).toLowerCase()))throw new Error("An active Race subscription is required.");
+  if(!sub||!["active","trialing"].includes(String(sub.status).toLowerCase()))throw new Error("An active MotoGrid server subscription is required.");
 
   if(!serverId){
    const {data:servers,error}=await supabaseClient.from("game_servers").select("id").eq("user_id",user.id).order("created_at",{ascending:true}).limit(1);
