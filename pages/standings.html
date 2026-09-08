@@ -392,6 +392,16 @@
         .standings-row:last-child { border-bottom: 0; }
         .standings-row:hover { background: rgba(124,255,0,.025); }
 
+        .standings-row.rider-profile-link,
+        .podium-card.rider-profile-link {
+            cursor: pointer;
+        }
+
+        .standings-row.rider-profile-link:hover,
+        .podium-card.rider-profile-link:hover {
+            border-color: rgba(124,255,0,.35);
+        }
+
         .rank {
             color: #ddd;
             font-size: 13px;
@@ -994,6 +1004,23 @@
     }
 
 
+    function openRiderProfile(rider) {
+        const riderId =
+            String(rider?.rider_id || "").trim();
+
+        if (!riderId) {
+            console.warn(
+                "Rider profile unavailable: missing rider_id.",
+                rider
+            );
+            return;
+        }
+
+        window.location.href =
+            `rider-profile.html?rider=${encodeURIComponent(riderId)}`;
+    }
+
+
     function renderPodium(standings) {
         podium.innerHTML = "";
 
@@ -1016,8 +1043,16 @@
             const tier = getTierData(mmr);
 
             const card = document.createElement("article");
-            card.className = `podium-card place-${rank}`;
+            card.className =
+                `podium-card place-${rank} rider-profile-link`;
             card.dataset.rank = String(rank || "");
+            card.title =
+                `View ${rider.username}'s rider profile`;
+
+            card.addEventListener(
+                "click",
+                () => openRiderProfile(rider)
+            );
 
             const content = document.createElement("div");
             content.className = "podium-content";
@@ -1101,7 +1136,15 @@
             const tier = getTierData(mmr);
 
             const row = document.createElement("div");
-            row.className = "standings-row";
+            row.className =
+                "standings-row rider-profile-link";
+            row.title =
+                `View ${rider.username}'s rider profile`;
+
+            row.addEventListener(
+                "click",
+                () => openRiderProfile(rider)
+            );
 
             row.appendChild(
                 createTextElement(
