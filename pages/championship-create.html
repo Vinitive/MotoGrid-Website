@@ -10,7 +10,7 @@
 body:before{content:"";position:fixed;inset:0;pointer-events:none;background-image:linear-gradient(rgba(255,255,255,.018) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.018) 1px,transparent 1px);background-size:55px 55px}
 .shell{position:relative;width:min(1320px,calc(100% - 40px));margin:auto;padding-bottom:70px}
 .topbar{min-height:84px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,.08)}
-.brand{display:flex;align-items:center;gap:12px;color:#fff;text-decoration:none;font-weight:1000;font-style:italic}.brand img{height:50px}.brand span span{color:#7cff00}
+.brand{display:flex;align-items:center;gap:12px;color:#fff;text-decoration:none;font-weight:1000;font-style:italic}.brand img{display:block;height:54px;width:auto;max-width:220px;object-fit:contain}.brand span span{color:#7cff00}
 .back{border:1px solid rgba(255,255,255,.12);padding:12px 16px;color:#aaa;text-decoration:none;font-size:9px;font-weight:900;letter-spacing:1.4px;text-transform:uppercase}.back:hover{border-color:#7cff00;color:#7cff00}
 .hero{padding:45px 0 26px}.eyebrow{color:#7cff00;font-size:10px;font-weight:1000;letter-spacing:3px;text-transform:uppercase}.hero h1{margin:8px 0;font-size:clamp(38px,6vw,68px);line-height:.95;letter-spacing:-3px;font-style:italic;text-transform:uppercase}.hero p{margin:0;color:#707070;font-size:13px}
 .layout{display:grid;grid-template-columns:minmax(0,2fr) minmax(280px,1fr);gap:18px}
@@ -28,13 +28,13 @@ input,textarea,select{width:100%;border:1px solid rgba(255,255,255,.12);outline:
 .preview{aspect-ratio:16/7;border:1px dashed rgba(255,255,255,.12);background:#060706;display:flex;align-items:center;justify-content:center;overflow:hidden;color:#444;font-size:9px;text-transform:uppercase}.preview img{width:100%;height:100%;object-fit:cover}
 .summary{display:grid;gap:11px}.summary-row{display:flex;justify-content:space-between;gap:14px;padding-bottom:11px;border-bottom:1px solid rgba(255,255,255,.06);font-size:10px}.summary-row span{color:#666;text-transform:uppercase}.summary-row strong{text-align:right;color:#ddd}
 .message{margin-top:14px;min-height:16px;font-size:10px;color:#777}.message.error{color:#ff7777}.message.success{color:#7cff00}
-@media(max-width:900px){.layout{grid-template-columns:1fr}.grid2,.choice-row{grid-template-columns:1fr}.round{grid-template-columns:45px 1fr auto}.round .track{grid-column:2}.shell{width:min(100% - 24px,1320px)}.brand>span{display:none}}
+@media(max-width:900px){.layout{grid-template-columns:1fr}.grid2,.choice-row{grid-template-columns:1fr}.round{grid-template-columns:45px 1fr auto}.round .track{grid-column:2}.shell{width:min(100% - 24px,1320px)}}
 </style>
 </head>
 <body>
 <div class="shell">
 <header class="topbar">
-<a class="brand" href="../index.html"><img src="../assets/logo/motogrid-logo.png" alt="MotoGrid"><span>MOTO<span>GRID</span></span></a>
+<a class="brand" href="../index.html"><img src="../assets/logo/motogrid-logo.png" alt="MotoGrid"></a>
 <a class="back" href="racing-system.html">Back to Racing System</a>
 </header>
 <section class="hero"><div class="eyebrow">Championship Builder</div><h1>Create Championship</h1><p>Configure the championship, rounds and point scoring system.</p></section>

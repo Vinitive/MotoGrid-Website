@@ -11,7 +11,7 @@
 body:before{content:"";position:fixed;inset:0;pointer-events:none;background:linear-gradient(rgba(255,255,255,.014) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.014) 1px,transparent 1px);background-size:54px 54px}
 .shell{position:relative;width:min(1480px,calc(100% - 42px));margin:auto;padding-bottom:70px}
 .topbar{height:82px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line)}
-.brand{display:flex;align-items:center;gap:11px;text-decoration:none;color:#fff;font-weight:1000;font-style:italic}.brand img{height:48px}.brand b{font-size:17px}.brand b span{color:var(--green)}
+.brand{display:flex;align-items:center;gap:11px;text-decoration:none;color:#fff;font-weight:1000;font-style:italic}.brand img{display:block;height:54px;width:auto;max-width:220px;object-fit:contain}.brand b{font-size:17px}.brand b span{color:var(--green)}
 .back,.outline-btn,.primary-btn{min-height:42px;padding:0 16px;display:inline-flex;align-items:center;justify-content:center;text-align:center;text-decoration:none;text-transform:uppercase;font-size:9px;font-weight:1000;letter-spacing:1.25px;cursor:pointer}
 .back,.outline-btn{border:1px solid rgba(255,255,255,.12);background:#080908;color:#aaa}.back:hover,.outline-btn:hover{border-color:var(--green);color:var(--green)}
 .primary-btn{border:1px solid var(--green);background:var(--green);color:#061006}
@@ -39,7 +39,7 @@ body:before{content:"";position:fixed;inset:0;pointer-events:none;background:lin
 <div class="loading" id="loading">Loading Race Control...</div>
 <div class="shell">
 <header class="topbar">
-<a class="brand" href="../index.html"><img src="../assets/logo/motogrid-logo.png" alt="MotoGrid"><b>MOTO<span>GRID</span></b></a>
+<a class="brand" href="../index.html"><img src="../assets/logo/motogrid-logo.png" alt="MotoGrid"></a>
 <a class="back" href="account.html">My Account</a>
 </header>
 <section class="hero">
