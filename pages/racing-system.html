@@ -118,7 +118,7 @@ async function init(){
   if(!champs?.length){
    list.innerHTML='<div class="empty"><strong>No Championships Yet</strong>Create your first championship to begin configuring rounds, scoring and automatic results.</div>';
   }else{
-   list.innerHTML=champs.map(c=>`<div class="champ"><div><strong>${esc(c.name)}</strong><div class="meta">${esc(c.scoring_type).toUpperCase()} scoring • ${esc(c.description||"No description")}</div></div><span class="status">${esc(c.status)}</span></div>`).join("");
+   list.innerHTML=champs.map(c=>`<div class="champ" style="cursor:pointer" onclick="location.href='championship.html?id=${encodeURIComponent(c.id)}'"><div><strong>${esc(c.name)}</strong><div class="meta">${esc(c.scoring_type).toUpperCase()} scoring • ${esc(c.description||"No description")}</div></div><span class="status">${esc(c.status)}</span></div>`).join("");
   }
 
   document.getElementById("createChampionship").onclick=()=>{
