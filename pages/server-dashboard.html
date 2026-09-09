@@ -1548,6 +1548,12 @@ const race1ExtraLapsField=document.getElementById("race1ExtraLapsField");
 const race2LapsField=document.getElementById("race2LapsField");
 const race2MinutesField=document.getElementById("race2MinutesField");
 const race2ExtraLapsField=document.getElementById("race2ExtraLapsField");
+const realisticWeatherInput=document.getElementById("realisticWeatherInput");
+const minimumMmrSelect=document.getElementById("minimumMmrSelect");
+const serverMessageInput=document.getElementById("serverMessageInput");
+const serverMessageIntervalSelect=document.getElementById("serverMessageIntervalSelect");
+const saveServerSettingsBtn=document.getElementById("saveServerSettingsBtn");
+const serverSettingsMessage=document.getElementById("serverSettingsMessage");
 
 let serverSettingsDirty=false;
 let serverSettingsSaving=false;
@@ -1583,13 +1589,7 @@ for(const control of serverSettingsControls){
  control.addEventListener("change",markServerSettingsDirty);
 }
 raceFormatSelect?.addEventListener("change",updateRaceFormatFields);
-
-const realisticWeatherInput=document.getElementById("realisticWeatherInput");
-const minimumMmrSelect=document.getElementById("minimumMmrSelect");
-const serverMessageInput=document.getElementById("serverMessageInput");
-const serverMessageIntervalSelect=document.getElementById("serverMessageIntervalSelect");
-const saveServerSettingsBtn=document.getElementById("saveServerSettingsBtn");
-const serverSettingsMessage=document.getElementById("serverSettingsMessage");
+updateRaceFormatFields();
 
 let trackCatalog=[];
 
