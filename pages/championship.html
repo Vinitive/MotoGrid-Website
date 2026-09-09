@@ -123,6 +123,11 @@ td strong{color:#fff}
 
 .settings-stack{display:grid;gap:14px}
 .settings-note{padding:11px 12px;border:1px solid rgba(255,255,255,.07);background:#070807;color:#777b77;font-size:8px;line-height:1.5}
+.champ-image-settings{display:grid;grid-template-columns:220px minmax(0,1fr);gap:14px;align-items:start;margin-bottom:14px}
+.champ-image-preview{height:126px;border:1px solid rgba(255,255,255,.08);background:#060706;overflow:hidden;display:flex;align-items:center;justify-content:center;color:#555;font-size:8px;text-transform:uppercase}
+.champ-image-preview img{display:block;width:100%;height:100%;object-fit:cover}
+.file-input{padding:9px}
+@media(max-width:700px){.champ-image-settings{grid-template-columns:1fr}.champ-image-preview{height:170px}}
 .danger-zone{border-color:rgba(255,104,104,.16)}.danger-zone:before{background:#ff6868}
 .danger-action{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:18px;align-items:center;padding:14px;border:1px solid rgba(255,104,104,.13);background:rgba(255,104,104,.025)}
 .danger-action+.danger-action{margin-top:8px}
@@ -277,6 +282,20 @@ td strong{color:#fff}
       <div class="panel-head">
         <div><div class="section-kicker">Championship Configuration</div><h2>General Settings</h2></div>
         <button class="btn primary" type="submit" form="settingsForm">Save Changes</button>
+      </div>
+      <div class="champ-image-settings">
+        <div class="champ-image-preview" id="settingImagePreview">No championship image</div>
+        <div>
+          <div class="field">
+            <label>Championship Image</label>
+            <input class="input file-input" id="settingImageFile" type="file" accept="image/png,image/jpeg,image/webp">
+          </div>
+          <div class="row-actions" style="margin-top:9px">
+            <button class="btn primary" id="uploadChampImageBtn" type="button">Upload / Replace Image</button>
+            <button class="btn danger" id="removeChampImageBtn" type="button">Remove Image</button>
+          </div>
+          <div class="muted" style="margin-top:8px">PNG, JPEG or WebP. Maximum 8 MB.</div>
+        </div>
       </div>
       <form id="settingsForm">
         <div class="grid-2">
@@ -673,6 +692,12 @@ function renderSettings(){
   qs("settingStatus").value=champ.status||"draft";
   qs("settingScoring").value=champ.scoring_type||"mx";
   qs("deleteChampName").textContent=champ.name||"";
+  const preview=qs("settingImagePreview");
+  if(champ.image_url){
+    preview.innerHTML=`<img src="${esc(champ.image_url)}" alt="Championship image">`;
+  }else{
+    preview.textContent="No championship image";
+  }
 }
 qs("settingsForm").onsubmit=async e=>{
   e.preventDefault();
@@ -683,6 +708,92 @@ qs("settingsForm").onsubmit=async e=>{
     if(error)throw error;champ=data;renderAll();toast("Championship settings saved.");
   }catch(err){toast(err.message,true)}
 };
+
+qs("settingImageFile").addEventListener("change",()=>{
+  const file=qs("settingImageFile").files?.[0];
+  if(!file)return;
+  if(file.size>8*1024*1024){
+    qs("settingImageFile").value="";
+    toast("Championship images must be 8 MB or smaller.",true);
+    return;
+  }
+  const reader=new FileReader();
+  reader.onload=()=>{qs("settingImagePreview").innerHTML=`<img src="${reader.result}" alt="Championship image preview">`;};
+  reader.readAsDataURL(file);
+});
+
+qs("uploadChampImageBtn").onclick=async()=>{
+  const file=qs("settingImageFile").files?.[0];
+  if(!file)return toast("Choose an image first.",true);
+
+  const button=qs("uploadChampImageBtn");
+  button.disabled=true;
+  button.textContent="Uploading...";
+
+  try{
+    const extension=(file.name.split(".").pop()||"jpg").toLowerCase().replace(/[^a-z0-9]/g,"");
+    const objectPath=`${sessionUser.id}/${championshipId}/championship.${extension}`;
+
+    const {error:uploadErr}=await supabaseClient.storage
+      .from("championship-images")
+      .upload(objectPath,file,{
+        cacheControl:"3600",
+        upsert:true,
+        contentType:file.type
+      });
+    if(uploadErr)throw uploadErr;
+
+    const {data:publicUrlData}=supabaseClient.storage
+      .from("championship-images")
+      .getPublicUrl(objectPath);
+
+    const imageUrl=publicUrlData?.publicUrl||null;
+    if(!imageUrl)throw new Error("Storage upload succeeded, but no public image URL was returned.");
+
+    const cacheBustedUrl=`${imageUrl}?v=${Date.now()}`;
+    const {data,error:updateErr}=await supabaseClient
+      .from("racing_championships")
+      .update({image_url:cacheBustedUrl,updated_at:new Date().toISOString()})
+      .eq("id",championshipId)
+      .select("id,user_id,game_server_id,name,description,image_url,status,scoring_type,created_at")
+      .single();
+    if(updateErr)throw updateErr;
+
+    champ=data;
+    qs("settingImageFile").value="";
+    qs("heroBg").style.backgroundImage=`url("${String(champ.image_url).replace(/"/g,"%22")}")`;
+    renderSettings();
+    toast("Championship image uploaded.");
+  }catch(error){
+    console.error("Championship image upload failed:",error);
+    toast(error.message||"Championship image upload failed.",true);
+  }finally{
+    button.disabled=false;
+    button.textContent="Upload / Replace Image";
+  }
+};
+
+qs("removeChampImageBtn").onclick=async()=>{
+  if(!champ.image_url)return toast("This championship does not currently have an image.",true);
+  if(!confirm("Remove this championship image?"))return;
+
+  try{
+    const {data,error}=await supabaseClient
+      .from("racing_championships")
+      .update({image_url:null,updated_at:new Date().toISOString()})
+      .eq("id",championshipId)
+      .select("id,user_id,game_server_id,name,description,image_url,status,scoring_type,created_at")
+      .single();
+    if(error)throw error;
+    champ=data;
+    qs("heroBg").style.backgroundImage="";
+    renderSettings();
+    toast("Championship image removed.");
+  }catch(error){
+    toast(error.message||"Could not remove image.",true);
+  }
+};
+
 qs("archiveBtn").onclick=async()=>{
   if(!confirm("Archive this championship?"))return;
   const {error}=await supabaseClient.from("racing_championships").update({status:"archived",updated_at:new Date().toISOString()}).eq("id",championshipId);

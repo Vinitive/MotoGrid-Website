@@ -245,6 +245,7 @@ async function createChampionship(){
      .from("championship-images")
      .getPublicUrl(objectPath);
     imageUrl=publicUrlData?.publicUrl||null;
+    if(imageUrl)imageUrl=`${imageUrl}?v=${Date.now()}`;
 
     if(imageUrl){
      const {error:imageUpdateErr}=await supabaseClient
@@ -254,7 +255,8 @@ async function createChampionship(){
      if(imageUpdateErr)throw imageUpdateErr;
     }
    }catch(imageErr){
-    console.warn("Championship created, but image upload failed:",imageErr);
+    console.error("Championship created, but image upload failed:",imageErr);
+    throw new Error(`Championship and rounds were created, but the image upload failed: ${imageErr.message||imageErr}`);
    }
   }
 
