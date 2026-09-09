@@ -183,8 +183,7 @@ function error(m){notice.textContent=m;notice.classList.add("visible")}
   const {data:publicChamps,error:publicErr}=await supabaseClient
    .from("racing_championships")
    .select("id,user_id,name,description,image_url,status,scoring_type,created_at")
-   .neq("user_id",user.id)
-   .in("status",["scheduled","active","complete"])
+   .or(`user_id.eq.${user.id},status.in.(scheduled,active,complete)`)
    .order("created_at",{ascending:false})
    .limit(8);
 
