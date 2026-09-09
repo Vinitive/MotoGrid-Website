@@ -15,6 +15,25 @@
 .round-list{display:grid;gap:9px}.round{display:grid;grid-template-columns:58px minmax(0,1fr) 150px 95px;gap:12px;align-items:center;padding:14px;border:1px solid rgba(255,255,255,.07);background:#070807}.round-num{width:46px;height:46px;display:flex;align-items:center;justify-content:center;border:1px solid rgba(124,255,0,.24);color:var(--g);font-size:12px;font-weight:1000}.round-name{font-size:12px;font-weight:1000;text-transform:uppercase}.round-track{margin-top:5px;color:#606360;font-size:9px}.session-pills{display:flex;gap:4px}.pill{padding:6px;border:1px solid rgba(255,255,255,.08);color:#505350;font-size:7px;font-weight:1000;text-transform:uppercase}.round-state{text-align:right;color:#777;font-size:8px;font-weight:1000;text-transform:uppercase}.round-state.active{color:var(--g)}
 .stats{display:grid;grid-template-columns:1fr 1fr;gap:8px}.stat{padding:15px;background:#070807;border:1px solid rgba(255,255,255,.065)}.stat span{display:block;color:#555;font-size:8px;font-weight:900;text-transform:uppercase}.stat strong{display:block;margin-top:7px;font-size:20px}.tools{display:grid;gap:8px;margin-top:16px}.tool{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px;border:1px solid rgba(255,255,255,.065);background:#070807}.tool span{font-size:9px;color:#898c89}.tool b{color:var(--g);font-size:8px;text-transform:uppercase}.empty{padding:35px;text-align:center;color:#606360;border:1px dashed rgba(255,255,255,.1);font-size:10px}
 @media(max-width:900px){.content{grid-template-columns:1fr}.quick{grid-template-columns:1fr 1fr}.round{grid-template-columns:50px 1fr}.session-pills,.round-state{grid-column:2;text-align:left}.cover-content{align-items:flex-start;flex-direction:column}.shell{width:min(100% - 24px,1480px)}}@media(max-width:520px){.quick{grid-template-columns:1fr}.quick-item{border-right:0;border-bottom:1px solid var(--line)}}
+
+.round-actions{display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end}
+.round-btn{min-height:34px;padding:0 10px;border:1px solid rgba(255,255,255,.12);background:#080908;color:#aaa;font-size:8px;font-weight:1000;letter-spacing:.8px;text-transform:uppercase;cursor:pointer}
+.round-btn:hover{border-color:rgba(124,255,0,.5);color:var(--g)}
+.round-btn.primary{border-color:var(--g);background:var(--g);color:#061006}
+.round-btn.danger{border-color:rgba(255,100,100,.28);color:#ff8585}
+.round-btn:disabled{opacity:.45;cursor:not-allowed}
+.round-row-main{display:grid;grid-template-columns:58px minmax(0,1fr) 150px 95px auto;gap:12px;align-items:center}
+.round-editor{display:none;grid-column:1/-1;margin-top:11px;padding-top:12px;border-top:1px solid rgba(255,255,255,.06)}
+.round-editor.open{display:grid}
+.round-editor-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.round-editor label{display:grid;gap:6px;color:#666;font-size:8px;font-weight:900;text-transform:uppercase;letter-spacing:.9px}
+.round-editor input{width:100%;min-height:38px;padding:0 10px;border:1px solid rgba(255,255,255,.1);background:#060706;color:#fff;outline:0}
+.round-editor input:focus{border-color:var(--g)}
+.round-editor-actions{display:flex;gap:7px;justify-content:flex-end;margin-top:9px}
+.message{margin-top:12px;min-height:15px;color:#777;font-size:9px}
+.message.error{color:#ff7f7f}.message.success{color:var(--g)}
+.active-banner{display:none;margin-bottom:12px;padding:11px 13px;border:1px solid rgba(124,255,0,.25);background:rgba(124,255,0,.035);font-size:9px;color:#a8aca8}
+.active-banner.visible{display:block}.active-banner b{color:var(--g)}
 </style>
 </head>
 <body>
@@ -24,7 +43,15 @@
 <div class="quick"><div class="quick-item"><span>Scoring System</span><strong id="scoring">—</strong></div><div class="quick-item"><span>Rounds</span><strong id="roundCount">0</strong></div><div class="quick-item"><span>Current Round</span><strong id="activeRound">None</strong></div><div class="quick-item"><span>Imported Sessions</span><strong id="sessionCount">0</strong></div></div>
 <nav class="tabs"><button class="tab active">Overview</button><button class="tab">Results</button><button class="tab">Standings</button><button class="tab">Riders</button><button class="tab">Penalties</button></nav>
 <div class="content">
-<main class="panel"><div class="panel-head"><div><div class="label">Championship Schedule</div><h2>Rounds</h2></div><span class="eyebrow" id="roundProgress">0 Rounds</span></div><div class="round-list" id="rounds"></div></main>
+<main class="panel">
+<div class="panel-head">
+  <div><div class="label">Championship Schedule</div><h2>Rounds</h2></div>
+  <span class="eyebrow" id="roundProgress">0 Rounds</span>
+</div>
+<div class="active-banner" id="activeBanner"></div>
+<div class="round-list" id="rounds"></div>
+<div class="message" id="roundMessage"></div>
+</main>
 <aside class="panel"><div class="label">Race Control</div><h2 style="margin-bottom:17px">Championship Status</h2><div class="stats"><div class="stat"><span>Completed</span><strong id="completedRounds">0</strong></div><div class="stat"><span>Remaining</span><strong id="remainingRounds">0</strong></div></div><div class="tools"><div class="tool"><span>Automatic Result Import</span><b>Planned</b></div><div class="tool"><span>Point Adjustments</span><b>Ready Next</b></div><div class="tool"><span>Rider Suspensions</span><b>Ready Next</b></div><div class="tool"><span>Championship Standings</span><b>Ready Next</b></div></div></aside>
 </div>
 </div>
@@ -41,7 +68,150 @@ const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&
   const {count:resultCount,error:resErr}=await supabaseClient.from("racing_session_results").select("id",{count:"exact",head:true}).eq("championship_id",id);if(resErr)throw resErr;
   const active=r.find(x=>x.status==="active"),completed=r.filter(x=>x.status==="complete").length;
   document.getElementById("roundCount").textContent=r.length;document.getElementById("activeRound").textContent=active?`Round ${active.round_number}`:"None";document.getElementById("sessionCount").textContent=resultCount||0;document.getElementById("completedRounds").textContent=completed;document.getElementById("remainingRounds").textContent=Math.max(0,r.length-completed);document.getElementById("roundProgress").textContent=`${r.length} Round${r.length===1?"":"s"}`;
-  document.getElementById("rounds").innerHTML=r.length?r.map(x=>`<article class="round"><div class="round-num">${x.round_number}</div><div><div class="round-name">${esc(x.name)}</div><div class="round-track">${esc(x.track_key||"Track not assigned")}${x.scheduled_at?` • ${new Date(x.scheduled_at).toLocaleDateString()}`:""}</div></div><div class="session-pills"><span class="pill">Qual</span><span class="pill">Race 1</span><span class="pill">Race 2</span></div><div class="round-state ${x.status==="active"?"active":""}">${esc(x.status)}</div></article>`).join(""):'<div class="empty">No rounds configured for this championship.</div>';
+  const roundsEl=document.getElementById("rounds");
+  const msg=document.getElementById("roundMessage");
+  const activeBanner=document.getElementById("activeBanner");
+
+  function renderActiveBanner(rows){
+    const current=rows.find(x=>x.status==="active");
+    if(current){
+      activeBanner.classList.add("visible");
+      activeBanner.innerHTML=`<b>ACTIVE ROUND:</b> Round ${current.round_number} — ${esc(current.name)}. Incoming championship results should be assigned here.`;
+    }else{
+      activeBanner.classList.remove("visible");
+      activeBanner.textContent="";
+    }
+  }
+
+  function renderRounds(rows){
+    renderActiveBanner(rows);
+    roundsEl.innerHTML=rows.length?rows.map(x=>`
+      <article class="round" data-round-id="${esc(x.id)}">
+        <div class="round-row-main">
+          <div class="round-num">${x.round_number}</div>
+          <div>
+            <div class="round-name">${esc(x.name)}</div>
+            <div class="round-track">${esc(x.track_key||"Track not assigned")}${x.scheduled_at?` • ${new Date(x.scheduled_at).toLocaleString()}`:""}</div>
+          </div>
+          <div class="session-pills"><span class="pill">Qual</span><span class="pill">Race 1</span><span class="pill">Race 2</span></div>
+          <div class="round-state ${x.status==="active"?"active":""}">${esc(x.status)}</div>
+          <div class="round-actions">
+            ${x.status==="active"
+              ? `<button class="round-btn danger" data-action="complete">Complete</button>`
+              : `<button class="round-btn primary" data-action="activate" ${x.status==="complete"?"disabled":""}>Activate</button>`}
+            <button class="round-btn" data-action="edit">Edit</button>
+          </div>
+        </div>
+        <div class="round-editor">
+          <div class="round-editor-grid">
+            <label>Round Name<input class="edit-name" value="${esc(x.name)}"></label>
+            <label>Track Key / ID<input class="edit-track" value="${esc(x.track_key||"")}"></label>
+            <label>Scheduled Date & Time<input class="edit-schedule" type="datetime-local" value="${x.scheduled_at?new Date(new Date(x.scheduled_at).getTime()-new Date(x.scheduled_at).getTimezoneOffset()*60000).toISOString().slice(0,16):""}"></label>
+          </div>
+          <div class="round-editor-actions">
+            <button class="round-btn" data-action="cancel-edit">Cancel</button>
+            <button class="round-btn primary" data-action="save-edit">Save Round</button>
+          </div>
+        </div>
+      </article>`).join(""):'<div class="empty">No rounds configured for this championship.</div>';
+
+    roundsEl.querySelectorAll("[data-action]").forEach(btn=>{
+      btn.addEventListener("click",async()=>{
+        const card=btn.closest(".round");
+        const roundId=card.dataset.roundId;
+        const action=btn.dataset.action;
+        msg.className="message";msg.textContent="";
+
+        if(action==="edit"){
+          card.querySelector(".round-editor").classList.add("open");
+          return;
+        }
+        if(action==="cancel-edit"){
+          card.querySelector(".round-editor").classList.remove("open");
+          return;
+        }
+
+        btn.disabled=true;
+        try{
+          if(action==="activate"){
+            const {error:clearErr}=await supabaseClient
+              .from("racing_rounds")
+              .update({status:"scheduled"})
+              .eq("championship_id",id)
+              .eq("status","active");
+            if(clearErr)throw clearErr;
+
+            const {error:actErr}=await supabaseClient
+              .from("racing_rounds")
+              .update({status:"active"})
+              .eq("id",roundId)
+              .eq("championship_id",id);
+            if(actErr)throw actErr;
+
+            const {error:champStatusErr}=await supabaseClient
+              .from("racing_championships")
+              .update({status:"active"})
+              .eq("id",id);
+            if(champStatusErr)throw champStatusErr;
+
+            msg.className="message success";
+            msg.textContent="Round activated. This is now the championship's active result target.";
+          }
+
+          if(action==="complete"){
+            const {error:completeErr}=await supabaseClient
+              .from("racing_rounds")
+              .update({status:"complete"})
+              .eq("id",roundId)
+              .eq("championship_id",id);
+            if(completeErr)throw completeErr;
+            msg.className="message success";
+            msg.textContent="Round completed.";
+          }
+
+          if(action==="save-edit"){
+            const name=card.querySelector(".edit-name").value.trim();
+            const track=card.querySelector(".edit-track").value.trim()||null;
+            const scheduleRaw=card.querySelector(".edit-schedule").value;
+            if(!name)throw new Error("Round name is required.");
+            const scheduledAt=scheduleRaw?new Date(scheduleRaw).toISOString():null;
+
+            const {error:saveErr}=await supabaseClient
+              .from("racing_rounds")
+              .update({name,track_key:track,scheduled_at:scheduledAt})
+              .eq("id",roundId)
+              .eq("championship_id",id);
+            if(saveErr)throw saveErr;
+
+            msg.className="message success";
+            msg.textContent="Round updated.";
+          }
+
+          const {data:fresh,error:freshErr}=await supabaseClient
+            .from("racing_rounds")
+            .select("id,round_number,name,track_key,status,scheduled_at")
+            .eq("championship_id",id)
+            .order("round_number");
+          if(freshErr)throw freshErr;
+
+          r.length=0;r.push(...fresh);
+          const freshActive=fresh.find(x=>x.status==="active");
+          const freshCompleted=fresh.filter(x=>x.status==="complete").length;
+          document.getElementById("activeRound").textContent=freshActive?`Round ${freshActive.round_number}`:"None";
+          document.getElementById("completedRounds").textContent=freshCompleted;
+          document.getElementById("remainingRounds").textContent=Math.max(0,fresh.length-freshCompleted);
+          renderRounds(fresh);
+        }catch(err){
+          console.error(err);
+          msg.className="message error";
+          msg.textContent=err.message||"Could not update the round.";
+          btn.disabled=false;
+        }
+      });
+    });
+  }
+
+  renderRounds(r);
  }catch(e){console.error(e);document.getElementById("name").textContent="Championship unavailable";document.getElementById("description").textContent=e.message||"Could not load championship."}
 })();
 </script></body></html>
