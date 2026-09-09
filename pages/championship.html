@@ -1,255 +1,673 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Championship | MotoGrid</title><link rel="stylesheet" href="../css/style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Championship | MotoGrid</title>
 <style>
-:root{--g:#7cff00;--bg:#050605;--panel:#0a0c0a;--line:rgba(255,255,255,.085);--muted:#666a66}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:#fff;font-family:Arial,Helvetica,sans-serif}body:before{content:"";position:fixed;inset:0;pointer-events:none;background:linear-gradient(rgba(255,255,255,.014) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.014) 1px,transparent 1px);background-size:54px 54px}
-.shell{position:relative;width:min(1480px,calc(100% - 42px));margin:auto;padding-bottom:70px}.top{height:82px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between}.brand{display:flex;align-items:center;gap:10px;color:#fff;text-decoration:none;font-weight:1000;font-style:italic}.brand img{display:block;height:54px;width:auto;max-width:220px;object-fit:contain}.brand span span{color:var(--g)}
-.back,.btn{min-height:41px;display:inline-flex;align-items:center;justify-content:center;padding:0 15px;text-decoration:none;text-align:center;text-transform:uppercase;font-size:9px;font-weight:1000;letter-spacing:1.2px}.back,.btn.secondary{border:1px solid rgba(255,255,255,.12);background:#080908;color:#aaa}.btn.primary{border:1px solid var(--g);background:var(--g);color:#071007}.back:hover,.btn.secondary:hover{border-color:var(--g);color:var(--g)}
-.cover{position:relative;margin-top:26px;min-height:260px;border:1px solid var(--line);background:#090b09;overflow:hidden;display:flex;align-items:flex-end}.cover-bg{position:absolute;inset:0;background-position:center;background-size:cover;opacity:.28;filter:saturate(.8)}.cover:after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(5,6,5,.97) 0%,rgba(5,6,5,.72) 48%,rgba(5,6,5,.2)),linear-gradient(0deg,rgba(5,6,5,.85),transparent 70%)}.cover-content{position:relative;z-index:2;width:100%;padding:31px;display:flex;align-items:end;justify-content:space-between;gap:25px}.eyebrow{color:var(--g);font-size:9px;font-weight:1000;letter-spacing:2.4px;text-transform:uppercase}.title{margin:7px 0 9px;font-size:clamp(36px,5vw,62px);line-height:.94;letter-spacing:-2.5px;font-style:italic;text-transform:uppercase}.description{max-width:780px;color:#929592;font-size:11px;line-height:1.6}.status{display:inline-flex;margin-top:13px;padding:7px 9px;border:1px solid rgba(124,255,0,.27);color:var(--g);font-size:8px;font-weight:1000;text-transform:uppercase;letter-spacing:1px}
-.quick{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--line);border-top:0;background:#080a08}.quick-item{padding:15px 18px;border-right:1px solid var(--line)}.quick-item:last-child{border:0}.quick-item span{display:block;color:#555;font-size:8px;font-weight:900;text-transform:uppercase;letter-spacing:1px}.quick-item strong{display:block;margin-top:6px;font-size:13px}
-.tabs{display:flex;gap:4px;margin-top:22px;border-bottom:1px solid var(--line);overflow:auto}.tab{flex:0 0 auto;padding:13px 17px;border:0;border-bottom:2px solid transparent;background:transparent;color:#5e625e;font-size:9px;font-weight:1000;letter-spacing:1.2px;text-transform:uppercase}.tab.active{color:#fff;border-bottom-color:var(--g)}
-.content{display:grid;grid-template-columns:minmax(0,1.9fr) minmax(300px,.8fr);gap:18px;margin-top:18px}.panel{position:relative;background:var(--panel);border:1px solid var(--line);padding:23px}.panel:before{content:"";position:absolute;top:-1px;left:-1px;width:62px;height:3px;background:var(--g)}.panel-head{display:flex;justify-content:space-between;align-items:center;gap:15px;margin-bottom:17px}.label{color:#5b5e5b;font-size:8px;font-weight:1000;letter-spacing:2px;text-transform:uppercase}.panel h2{margin:5px 0 0;font-size:20px;text-transform:uppercase}
-.round-list{display:grid;gap:9px}.round{display:grid;grid-template-columns:58px minmax(0,1fr) 150px 95px;gap:12px;align-items:center;padding:14px;border:1px solid rgba(255,255,255,.07);background:#070807}.round-num{width:46px;height:46px;display:flex;align-items:center;justify-content:center;border:1px solid rgba(124,255,0,.24);color:var(--g);font-size:12px;font-weight:1000}.round-name{font-size:12px;font-weight:1000;text-transform:uppercase}.round-track{margin-top:5px;color:#606360;font-size:9px}.session-pills{display:flex;gap:4px}.pill{padding:6px;border:1px solid rgba(255,255,255,.08);color:#505350;font-size:7px;font-weight:1000;text-transform:uppercase}.round-state{text-align:right;color:#777;font-size:8px;font-weight:1000;text-transform:uppercase}.round-state.active{color:var(--g)}
-.stats{display:grid;grid-template-columns:1fr 1fr;gap:8px}.stat{padding:15px;background:#070807;border:1px solid rgba(255,255,255,.065)}.stat span{display:block;color:#555;font-size:8px;font-weight:900;text-transform:uppercase}.stat strong{display:block;margin-top:7px;font-size:20px}.tools{display:grid;gap:8px;margin-top:16px}.tool{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px;border:1px solid rgba(255,255,255,.065);background:#070807}.tool span{font-size:9px;color:#898c89}.tool b{color:var(--g);font-size:8px;text-transform:uppercase}.empty{padding:35px;text-align:center;color:#606360;border:1px dashed rgba(255,255,255,.1);font-size:10px}
-@media(max-width:900px){.content{grid-template-columns:1fr}.quick{grid-template-columns:1fr 1fr}.round{grid-template-columns:50px 1fr}.session-pills,.round-state{grid-column:2;text-align:left}.cover-content{align-items:flex-start;flex-direction:column}.shell{width:min(100% - 24px,1480px)}}@media(max-width:520px){.quick{grid-template-columns:1fr}.quick-item{border-right:0;border-bottom:1px solid var(--line)}}
+:root{
+  --g:#7cff00;--bg:#050605;--panel:#0a0c0a;--panel2:#070807;--panel3:#0d100d;
+  --line:rgba(255,255,255,.085);--line2:rgba(255,255,255,.14);
+  --text:#f4f6f4;--muted:#777b77;--muted2:#505450;--red:#ff6868;--yellow:#ffc400;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,Helvetica,sans-serif}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;background:
+linear-gradient(rgba(255,255,255,.012) 1px,transparent 1px),
+linear-gradient(90deg,rgba(255,255,255,.012) 1px,transparent 1px);background-size:54px 54px}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
+.shell{position:relative;width:min(1480px,calc(100% - 36px));margin:auto;padding-bottom:70px}
+.topbar{min-height:74px;display:flex;align-items:center;justify-content:space-between;gap:16px;border-bottom:1px solid var(--line)}
+.brand img{display:block;height:50px;width:auto;max-width:220px;object-fit:contain}
+.btn{min-height:39px;padding:0 14px;display:inline-flex;align-items:center;justify-content:center;border:1px solid var(--line2);background:#080908;color:#a6aaa6;text-decoration:none;text-transform:uppercase;font-size:8px;font-weight:1000;letter-spacing:1.1px}
+.btn:hover{border-color:rgba(124,255,0,.55);color:var(--g)}
+.btn.primary{border-color:var(--g);background:var(--g);color:#061006}
+.btn.danger{border-color:rgba(255,104,104,.35);color:#ff8c8c}
+.btn:disabled{opacity:.4;cursor:not-allowed}
 
-.round-actions{display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end}
-.round-btn{min-height:34px;padding:0 10px;border:1px solid rgba(255,255,255,.12);background:#080908;color:#aaa;font-size:8px;font-weight:1000;letter-spacing:.8px;text-transform:uppercase;cursor:pointer}
-.round-btn:hover{border-color:rgba(124,255,0,.5);color:var(--g)}
-.round-btn.primary{border-color:var(--g);background:var(--g);color:#061006}
-.round-btn.danger{border-color:rgba(255,100,100,.28);color:#ff8585}
-.round-btn:disabled{opacity:.45;cursor:not-allowed}
-.round-row-main{display:grid;grid-template-columns:58px minmax(0,1fr) 150px 95px auto;gap:12px;align-items:center}
-.round-editor{display:none;grid-column:1/-1;margin-top:11px;padding-top:12px;border-top:1px solid rgba(255,255,255,.06)}
-.round-editor.open{display:grid}
-.round-editor-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
-.round-editor label{display:grid;gap:6px;color:#666;font-size:8px;font-weight:900;text-transform:uppercase;letter-spacing:.9px}
-.round-editor input{width:100%;min-height:38px;padding:0 10px;border:1px solid rgba(255,255,255,.1);background:#060706;color:#fff;outline:0}
-.round-editor input:focus{border-color:var(--g)}
-.round-editor-actions{display:flex;gap:7px;justify-content:flex-end;margin-top:9px}
-.message{margin-top:12px;min-height:15px;color:#777;font-size:9px}
-.message.error{color:#ff7f7f}.message.success{color:var(--g)}
-.active-banner{display:none;margin-bottom:12px;padding:11px 13px;border:1px solid rgba(124,255,0,.25);background:rgba(124,255,0,.035);font-size:9px;color:#a8aca8}
-.active-banner.visible{display:block}.active-banner b{color:var(--g)}
+.hero{position:relative;margin-top:24px;min-height:245px;border:1px solid var(--line);overflow:hidden;background:#080a08;display:flex;align-items:flex-end}
+.hero-bg{position:absolute;inset:0;background-size:cover;background-position:center;opacity:.3;filter:saturate(.8)}
+.hero:after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(5,6,5,.98),rgba(5,6,5,.74) 52%,rgba(5,6,5,.24)),linear-gradient(0deg,rgba(5,6,5,.9),transparent 70%)}
+.hero-content{position:relative;z-index:2;width:100%;padding:30px;display:flex;align-items:flex-end;justify-content:space-between;gap:24px}
+.eyebrow,.section-kicker{color:var(--g);font-size:8px;font-weight:1000;letter-spacing:2px;text-transform:uppercase}
+h1{margin:7px 0 8px;font-size:clamp(38px,5vw,62px);line-height:.94;letter-spacing:-2.4px;font-style:italic;text-transform:uppercase}
+.hero-desc{max-width:780px;color:#8d918d;font-size:11px;line-height:1.55}
+.status-badge{display:inline-flex;margin-top:12px;padding:6px 8px;border:1px solid rgba(124,255,0,.28);color:var(--g);font-size:7px;font-weight:1000;text-transform:uppercase;letter-spacing:.8px}
+
+.metrics{display:grid;grid-template-columns:repeat(5,1fr);border:1px solid var(--line);border-top:0;background:#080a08}
+.metric{padding:14px 16px;border-right:1px solid var(--line)}
+.metric:last-child{border-right:0}
+.metric span{display:block;color:var(--muted2);font-size:7px;font-weight:900;text-transform:uppercase;letter-spacing:.9px}
+.metric strong{display:block;margin-top:5px;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+.tabs{display:flex;gap:3px;margin-top:20px;border-bottom:1px solid var(--line);overflow:auto}
+.tab{flex:0 0 auto;padding:13px 16px;border:0;border-bottom:2px solid transparent;background:transparent;color:#5f635f;font-size:8px;font-weight:1000;letter-spacing:1px;text-transform:uppercase}
+.tab:hover{color:#bbb}
+.tab.active{color:#fff;border-bottom-color:var(--g)}
+.tab-view{display:none;margin-top:16px}
+.tab-view.active{display:block}
+
+.layout{display:grid;grid-template-columns:minmax(0,1.8fr) minmax(300px,.75fr);gap:14px}
+.panel{position:relative;background:var(--panel);border:1px solid var(--line);padding:20px;min-width:0}
+.panel:before{content:"";position:absolute;top:-1px;left:-1px;width:60px;height:2px;background:var(--g)}
+.panel-head{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:15px}
+.panel h2{margin:4px 0 0;font-size:18px;text-transform:uppercase}
+.muted{color:var(--muted);font-size:9px;line-height:1.5}
+.row-actions{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+
+.active-round{display:none;margin-bottom:10px;padding:11px 12px;border:1px solid rgba(124,255,0,.25);background:rgba(124,255,0,.035);color:#989c98;font-size:9px}
+.active-round.visible{display:block}.active-round b{color:var(--g)}
+.round-list{display:grid;gap:8px}
+.round-card{padding:12px;border:1px solid rgba(255,255,255,.07);background:var(--panel2)}
+.round-main{display:grid;grid-template-columns:48px minmax(0,1fr) 190px 85px auto;gap:11px;align-items:center}
+.round-num{width:44px;height:44px;display:flex;align-items:center;justify-content:center;border:1px solid rgba(124,255,0,.25);color:var(--g);font-size:11px;font-weight:1000}
+.round-name{font-size:11px;font-weight:1000;text-transform:uppercase}.round-sub{margin-top:4px;color:#666a66;font-size:8px}
+.session-pills{display:flex;gap:4px;flex-wrap:wrap}
+.session-pill{padding:5px 6px;border:1px solid rgba(255,255,255,.08);color:#555955;font-size:6px;font-weight:1000;text-transform:uppercase}
+.session-pill.done{border-color:rgba(124,255,0,.25);color:var(--g);background:rgba(124,255,0,.03)}
+.round-state{text-align:right;color:#6c706c;font-size:7px;font-weight:1000;text-transform:uppercase}
+.round-state.active{color:var(--g)}.round-state.complete{color:#bbb}.round-state.cancelled{color:#ff8c8c}
+.round-actions{display:flex;justify-content:flex-end;gap:5px;flex-wrap:wrap}
+.mini-btn{min-height:31px;padding:0 9px;border:1px solid rgba(255,255,255,.11);background:#080908;color:#999;font-size:7px;font-weight:1000;text-transform:uppercase}
+.mini-btn:hover{border-color:rgba(124,255,0,.5);color:var(--g)}
+.mini-btn.primary{border-color:var(--g);background:var(--g);color:#061006}
+.mini-btn.danger{border-color:rgba(255,104,104,.3);color:#ff8585}
+.round-editor{display:none;margin-top:11px;padding-top:11px;border-top:1px solid rgba(255,255,255,.06)}
+.round-editor.open{display:block}
+
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
+.field{display:grid;gap:6px}
+.field.full{grid-column:1/-1}
+.field label{color:#666a66;font-size:7px;font-weight:1000;text-transform:uppercase;letter-spacing:.8px}
+.input{width:100%;min-height:38px;padding:0 10px;border:1px solid rgba(255,255,255,.1);background:#060706;color:#fff;outline:0}
+textarea.input{min-height:96px;padding:10px;resize:vertical}
+.input:focus{border-color:var(--g)}
+.editor-actions{display:flex;justify-content:flex-end;gap:6px;margin-top:9px}
+
+.side-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.side-stat{padding:13px;border:1px solid rgba(255,255,255,.06);background:var(--panel2)}
+.side-stat span{display:block;color:var(--muted2);font-size:7px;font-weight:900;text-transform:uppercase}.side-stat strong{display:block;margin-top:6px;font-size:18px}
+.tool-list{display:grid;gap:7px;margin-top:13px}
+.tool{display:flex;justify-content:space-between;gap:12px;padding:10px;border:1px solid rgba(255,255,255,.06);background:var(--panel2);font-size:8px;color:#898d89}
+.tool b{color:var(--g);text-transform:uppercase;font-size:7px}
+
+.table-wrap{overflow:auto;border:1px solid rgba(255,255,255,.07)}
+table{width:100%;border-collapse:collapse;min-width:700px}
+th,td{padding:11px 12px;border-bottom:1px solid rgba(255,255,255,.06);text-align:left;font-size:9px}
+th{background:#070807;color:#5d615d;font-size:7px;text-transform:uppercase;letter-spacing:.9px}
+tbody tr:hover{background:#0b0d0b}
+td strong{color:#fff}
+.points-positive{color:var(--g)}.points-negative{color:#ff8585}
+
+.session-card{border:1px solid rgba(255,255,255,.07);background:var(--panel2);margin-bottom:8px}
+.session-head{display:grid;grid-template-columns:110px 1fr 130px auto;gap:12px;align-items:center;padding:12px}
+.session-type{color:var(--g);font-size:8px;font-weight:1000;text-transform:uppercase}
+.session-meta{color:#6b6f6b;font-size:8px}.session-time{color:#7d817d;font-size:8px}
+.session-entries{display:none;border-top:1px solid rgba(255,255,255,.06)}.session-entries.open{display:block}
+
+.form-card{padding:14px;border:1px solid rgba(255,255,255,.07);background:var(--panel2);margin-bottom:10px}
+.form-card h3{margin:0 0 11px;font-size:11px;text-transform:uppercase}
+.list{display:grid;gap:7px}
+.list-item{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center;padding:11px;border:1px solid rgba(255,255,255,.07);background:var(--panel2)}
+.list-title{font-size:10px;font-weight:900}.list-sub{margin-top:4px;color:#6c706c;font-size:8px;line-height:1.4}
+
+.empty{padding:34px 20px;border:1px dashed rgba(255,255,255,.1);text-align:center;color:#606460;font-size:9px;line-height:1.6}
+.empty strong{display:block;color:#ddd;font-size:11px;text-transform:uppercase;margin-bottom:4px}
+
+.toast{position:fixed;right:20px;bottom:20px;z-index:1000;min-width:260px;max-width:420px;padding:12px 14px;border:1px solid rgba(124,255,0,.28);background:#0b0e0b;color:#dce0dc;font-size:9px;box-shadow:0 18px 40px rgba(0,0,0,.35);transform:translateY(20px);opacity:0;pointer-events:none;transition:.18s}
+.toast.show{transform:translateY(0);opacity:1}.toast.error{border-color:rgba(255,104,104,.35);color:#ff9999}
+.loading{position:fixed;inset:0;z-index:2000;display:flex;align-items:center;justify-content:center;background:#050605;color:var(--g);font-size:9px;font-weight:1000;letter-spacing:2px;text-transform:uppercase}.loading.hidden{display:none}
+
+.danger-zone{border-color:rgba(255,104,104,.13)}.danger-zone:before{background:#ff6868}
+@media(max-width:1100px){.metrics{grid-template-columns:repeat(3,1fr)}.metric:nth-child(3){border-right:0}.layout{grid-template-columns:1fr}.round-main{grid-template-columns:48px minmax(0,1fr) auto}.session-pills,.round-state{grid-column:2}.round-actions{grid-column:3;grid-row:1/3}}
+@media(max-width:760px){.shell{width:calc(100% - 22px)}.hero-content{align-items:flex-start;flex-direction:column}.metrics{grid-template-columns:1fr 1fr}.metric{border-bottom:1px solid var(--line)}.round-main{grid-template-columns:42px minmax(0,1fr)}.round-actions{grid-column:2;grid-row:auto;justify-content:flex-start}.grid-2,.grid-3{grid-template-columns:1fr}.session-head{grid-template-columns:1fr auto}.session-meta,.session-time{grid-column:1}.panel{padding:15px}}
 </style>
 </head>
 <body>
+<div class="loading" id="loading">Loading Championship...</div>
 <div class="shell">
-<header class="top"><a class="brand" href="../index.html"><img src="../assets/logo/motogrid-logo.png" alt="MotoGrid"></a><a class="back" href="racing-system.html">← Racing System</a></header>
-<section class="cover"><div class="cover-bg" id="coverBg"></div><div class="cover-content"><div><div class="eyebrow">MotoGrid Championship</div><h1 class="title" id="name">Loading Championship</h1><div class="description" id="description">Loading championship information...</div><span class="status" id="status">Loading</span></div><a class="btn secondary" href="#" id="editButton">Championship Settings</a></div></section>
-<div class="quick"><div class="quick-item"><span>Scoring System</span><strong id="scoring">—</strong></div><div class="quick-item"><span>Rounds</span><strong id="roundCount">0</strong></div><div class="quick-item"><span>Current Round</span><strong id="activeRound">None</strong></div><div class="quick-item"><span>Imported Sessions</span><strong id="sessionCount">0</strong></div></div>
-<nav class="tabs"><button class="tab active">Overview</button><button class="tab">Results</button><button class="tab">Standings</button><button class="tab">Riders</button><button class="tab">Penalties</button></nav>
-<div class="content">
-<main class="panel">
-<div class="panel-head">
-  <div><div class="label">Championship Schedule</div><h2>Rounds</h2></div>
-  <div class="round-actions">
-  <span class="eyebrow" id="roundProgress">0 Rounds</span>
-  <button class="round-btn primary" id="addRoundButton" type="button">+ Add Round</button>
+<header class="topbar">
+  <a class="brand" href="../index.html"><img src="../assets/logo/motogrid-logo.png" alt="MotoGrid"></a>
+  <a class="btn" href="racing-system.html">← Racing System</a>
+</header>
+
+<section class="hero">
+  <div class="hero-bg" id="heroBg"></div>
+  <div class="hero-content">
+    <div>
+      <div class="eyebrow">MotoGrid Championship</div>
+      <h1 id="champName">Loading Championship</h1>
+      <div class="hero-desc" id="champDescription">Loading championship details...</div>
+      <span class="status-badge" id="champStatus">Loading</span>
+    </div>
+    <button class="btn" data-tab-target="settings">Championship Settings</button>
+  </div>
+</section>
+
+<section class="metrics">
+  <div class="metric"><span>Scoring</span><strong id="metricScoring">—</strong></div>
+  <div class="metric"><span>Rounds</span><strong id="metricRounds">0</strong></div>
+  <div class="metric"><span>Active Round</span><strong id="metricActive">None</strong></div>
+  <div class="metric"><span>Imported Sessions</span><strong id="metricSessions">0</strong></div>
+  <div class="metric"><span>Riders</span><strong id="metricRiders">0</strong></div>
+</section>
+
+<nav class="tabs">
+  <button class="tab active" data-tab="overview">Overview</button>
+  <button class="tab" data-tab="results">Results</button>
+  <button class="tab" data-tab="standings">Standings</button>
+  <button class="tab" data-tab="riders">Riders</button>
+  <button class="tab" data-tab="penalties">Penalties & Suspensions</button>
+  <button class="tab" data-tab="settings">Settings</button>
+</nav>
+
+<section class="tab-view active" id="view-overview">
+  <div class="layout">
+    <main class="panel">
+      <div class="panel-head">
+        <div><div class="section-kicker">Championship Schedule</div><h2>Rounds</h2></div>
+        <div class="row-actions">
+          <span class="eyebrow" id="roundCounter">0 Rounds</span>
+          <button class="btn primary" id="addRoundBtn">+ Add Round</button>
+        </div>
+      </div>
+      <div class="active-round" id="activeRoundBanner"></div>
+      <div class="round-list" id="roundList"></div>
+    </main>
+
+    <aside class="panel">
+      <div class="section-kicker">Race Control</div>
+      <h2 style="margin-bottom:14px">Championship Status</h2>
+      <div class="side-stats">
+        <div class="side-stat"><span>Completed</span><strong id="completedRounds">0</strong></div>
+        <div class="side-stat"><span>Remaining</span><strong id="remainingRounds">0</strong></div>
+      </div>
+      <div class="tool-list">
+        <div class="tool"><span>Round Activation</span><b>Ready</b></div>
+        <div class="tool"><span>Results UI</span><b>Ready</b></div>
+        <div class="tool"><span>Championship Standings</span><b>Ready</b></div>
+        <div class="tool"><span>Point Adjustments</span><b>Ready</b></div>
+        <div class="tool"><span>Rider Suspensions</span><b>Ready</b></div>
+        <div class="tool"><span>Agent Result Import</span><b>Later</b></div>
+      </div>
+    </aside>
+  </div>
+</section>
+
+<section class="tab-view" id="view-results">
+  <div class="panel">
+    <div class="panel-head">
+      <div><div class="section-kicker">Imported Classifications</div><h2>Race Results</h2></div>
+      <span class="muted">Qualifying · Race 1 · Race 2</span>
+    </div>
+    <div id="resultsList"></div>
+  </div>
+</section>
+
+<section class="tab-view" id="view-standings">
+  <div class="panel">
+    <div class="panel-head">
+      <div><div class="section-kicker">Championship Points</div><h2>Standings</h2></div>
+      <span class="muted">Separate from MotoGrid Ranked MMR</span>
+    </div>
+    <div id="standingsWrap"></div>
+  </div>
+</section>
+
+<section class="tab-view" id="view-riders">
+  <div class="panel">
+    <div class="panel-head">
+      <div><div class="section-kicker">Championship Field</div><h2>Riders</h2></div>
+      <span class="muted" id="riderCountText">0 riders</span>
+    </div>
+    <div id="ridersWrap"></div>
+  </div>
+</section>
+
+<section class="tab-view" id="view-penalties">
+  <div class="layout">
+    <main>
+      <div class="panel" style="margin-bottom:14px">
+        <div class="panel-head"><div><div class="section-kicker">Points Control</div><h2>Point Adjustment</h2></div></div>
+        <form id="adjustmentForm" class="form-card">
+          <div class="grid-2">
+            <div class="field"><label>Rider GUID</label><input class="input" id="adjGuid" required></div>
+            <div class="field"><label>Rider Name</label><input class="input" id="adjName"></div>
+            <div class="field"><label>Points (+ or -)</label><input class="input" id="adjPoints" type="number" step="0.01" required></div>
+            <div class="field"><label>Round</label><select class="input" id="adjRound"><option value="">Championship-wide</option></select></div>
+            <div class="field full"><label>Reason</label><input class="input" id="adjReason" maxlength="240" required></div>
+          </div>
+          <div class="editor-actions"><button class="btn primary" type="submit">Apply Adjustment</button></div>
+        </form>
+        <div class="list" id="adjustmentList"></div>
+      </div>
+    </main>
+    <aside class="panel">
+      <div class="panel-head"><div><div class="section-kicker">Rider Discipline</div><h2>Suspensions</h2></div></div>
+      <form id="suspensionForm" class="form-card">
+        <div class="field"><label>Rider GUID</label><input class="input" id="susGuid" required></div>
+        <div class="field" style="margin-top:8px"><label>Rider Name</label><input class="input" id="susName"></div>
+        <div class="field" style="margin-top:8px"><label>Reason</label><input class="input" id="susReason" maxlength="240" required></div>
+        <div class="field" style="margin-top:8px"><label>Ends At (optional)</label><input class="input" id="susEnds" type="datetime-local"></div>
+        <div class="editor-actions"><button class="btn primary" type="submit">Suspend Rider</button></div>
+      </form>
+      <div class="list" id="suspensionList"></div>
+    </aside>
+  </div>
+</section>
+
+<section class="tab-view" id="view-settings">
+  <div class="layout">
+    <main class="panel">
+      <div class="panel-head"><div><div class="section-kicker">Championship Configuration</div><h2>Settings</h2></div></div>
+      <form id="settingsForm">
+        <div class="grid-2">
+          <div class="field full"><label>Championship Name</label><input class="input" id="settingName" maxlength="120" required></div>
+          <div class="field full"><label>Description</label><textarea class="input" id="settingDescription"></textarea></div>
+          <div class="field"><label>Status</label>
+            <select class="input" id="settingStatus">
+              <option value="draft">Draft</option>
+              <option value="scheduled">Scheduled</option>
+              <option value="active">Active</option>
+              <option value="complete">Complete</option>
+              <option value="archived">Archived</option>
+            </select>
+          </div>
+          <div class="field"><label>Scoring Type</label>
+            <select class="input" id="settingScoring">
+              <option value="mx">MX</option>
+              <option value="sx">SX</option>
+              <option value="custom">Custom</option>
+            </select>
+          </div>
+        </div>
+        <div class="editor-actions"><button class="btn primary" type="submit">Save Championship</button></div>
+      </form>
+    </main>
+
+    <aside class="panel danger-zone">
+      <div class="section-kicker" style="color:#ff7e7e">Danger Zone</div>
+      <h2>Championship Actions</h2>
+      <p class="muted">Archiving keeps the championship and its data. Deleting permanently removes the championship and related rounds/results.</p>
+      <div class="row-actions" style="margin-top:14px">
+        <button class="btn" id="archiveBtn">Archive</button>
+        <button class="btn danger" id="deleteChampBtn">Delete Championship</button>
+      </div>
+    </aside>
+  </div>
+</section>
 </div>
-</div>
-<div class="active-banner" id="activeBanner"></div>
-<div class="round-list" id="rounds"></div>
-<div class="message" id="roundMessage"></div>
-</main>
-<aside class="panel"><div class="label">Race Control</div><h2 style="margin-bottom:17px">Championship Status</h2><div class="stats"><div class="stat"><span>Completed</span><strong id="completedRounds">0</strong></div><div class="stat"><span>Remaining</span><strong id="remainingRounds">0</strong></div></div><div class="tools"><div class="tool"><span>Automatic Result Import</span><b>Planned</b></div><div class="tool"><span>Point Adjustments</span><b>Ready Next</b></div><div class="tool"><span>Rider Suspensions</span><b>Ready Next</b></div><div class="tool"><span>Championship Standings</span><b>Ready Next</b></div></div></aside>
-</div>
-</div>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="../js/supabase.js"></script>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../js/supabase.js"></script>
 <script>
 const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const qs=id=>document.getElementById(id);
+const championshipId=new URLSearchParams(location.search).get("id");
+let sessionUser=null,champ=null,rounds=[],sessions=[],entries=[],adjustments=[],suspensions=[];
+
+function toast(message,error=false){
+  const el=qs("toast");
+  el.textContent=message;
+  el.className=`toast show${error?" error":""}`;
+  clearTimeout(toast.timer);
+  toast.timer=setTimeout(()=>el.className="toast",3200);
+}
+
+function switchTab(name){
+  document.querySelectorAll(".tab").forEach(b=>b.classList.toggle("active",b.dataset.tab===name));
+  document.querySelectorAll(".tab-view").forEach(v=>v.classList.toggle("active",v.id===`view-${name}`));
+  history.replaceState(null,"",`${location.pathname}?id=${encodeURIComponent(championshipId)}#${name}`);
+}
+document.querySelectorAll(".tab").forEach(b=>b.onclick=()=>switchTab(b.dataset.tab));
+document.querySelectorAll("[data-tab-target]").forEach(b=>b.onclick=()=>switchTab(b.dataset.tabTarget));
+
+function localInputValue(iso){
+  if(!iso)return "";
+  const d=new Date(iso);
+  return new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,16);
+}
+function formatDate(v){return v?new Date(v).toLocaleString():"Not scheduled"}
+function sessionLabel(t){return ({qualifying:"Qualifying",race1:"Race 1",race2:"Race 2"})[t]||t}
+function roundFor(id){return rounds.find(r=>r.id===id)}
+function riderKey(e){return String(e.mxbikes_guid||e.rider_name||"").trim().toUpperCase()}
+
+async function loadAll(){
+  if(!championshipId)throw new Error("Missing championship ID.");
+
+  const {data:{session}}=await supabaseClient.auth.getSession();
+  if(!session){location.href="login.html";return}
+  sessionUser=session.user;
+
+  const [cRes,rRes,sRes,eRes,aRes,susRes]=await Promise.all([
+    supabaseClient.from("racing_championships").select("id,user_id,game_server_id,name,description,image_url,status,scoring_type,created_at").eq("id",championshipId).single(),
+    supabaseClient.from("racing_rounds").select("id,round_number,name,track_key,status,scheduled_at").eq("championship_id",championshipId).order("round_number"),
+    supabaseClient.from("racing_session_results").select("id,round_id,session_type,track_key,source_file,imported_at").eq("championship_id",championshipId).order("imported_at",{ascending:false}),
+    supabaseClient.from("racing_result_entries").select("id,session_result_id,mxbikes_guid,rider_name,race_number,finish_position,points_awarded,created_at").order("finish_position"),
+    supabaseClient.from("racing_point_adjustments").select("id,round_id,mxbikes_guid,rider_name,points,reason,created_at").eq("championship_id",championshipId).order("created_at",{ascending:false}),
+    supabaseClient.from("racing_suspensions").select("id,mxbikes_guid,rider_name,reason,starts_at,ends_at,is_active,created_at").eq("championship_id",championshipId).order("created_at",{ascending:false})
+  ]);
+
+  for(const res of [cRes,rRes,sRes,eRes,aRes,susRes]) if(res.error)throw res.error;
+  champ=cRes.data;rounds=rRes.data||[];sessions=sRes.data||[];
+  const sessionIds=new Set(sessions.map(s=>s.id));
+  entries=(eRes.data||[]).filter(e=>sessionIds.has(e.session_result_id));
+  adjustments=aRes.data||[];suspensions=susRes.data||[];
+
+  renderAll();
+}
+
+function renderAll(){
+  document.title=`${champ.name} | MotoGrid`;
+  qs("champName").textContent=champ.name;
+  qs("champDescription").textContent=champ.description||"No championship description has been added.";
+  qs("champStatus").textContent=champ.status;
+  qs("metricScoring").textContent=`${String(champ.scoring_type).toUpperCase()} Points`;
+  qs("metricRounds").textContent=rounds.length;
+  qs("metricSessions").textContent=sessions.length;
+  if(champ.image_url)qs("heroBg").style.backgroundImage=`url("${String(champ.image_url).replace(/"/g,"%22")}")`;
+
+  const active=rounds.find(r=>r.status==="active");
+  qs("metricActive").textContent=active?`Round ${active.round_number}`:"None";
+  qs("completedRounds").textContent=rounds.filter(r=>r.status==="complete").length;
+  qs("remainingRounds").textContent=rounds.filter(r=>r.status!=="complete"&&r.status!=="cancelled").length;
+  qs("roundCounter").textContent=`${rounds.length} Round${rounds.length===1?"":"s"}`;
+
+  const riderMap=new Map();
+  for(const e of entries){
+    const k=riderKey(e);if(!k)continue;
+    if(!riderMap.has(k))riderMap.set(k,{guid:e.mxbikes_guid||"",name:e.rider_name||"Unknown rider",starts:0});
+    riderMap.get(k).starts++;
+  }
+  qs("metricRiders").textContent=riderMap.size;
+  qs("riderCountText").textContent=`${riderMap.size} rider${riderMap.size===1?"":"s"}`;
+
+  renderRounds();
+  renderResults();
+  renderStandings();
+  renderRiders(riderMap);
+  renderAdjustments();
+  renderSuspensions();
+  renderSettings();
+  renderRoundSelects();
+
+  qs("loading").classList.add("hidden");
+}
+
+function sessionStatusFor(roundId,type){
+  return sessions.some(s=>s.round_id===roundId&&s.session_type===type);
+}
+function renderRounds(){
+  const active=rounds.find(r=>r.status==="active");
+  const banner=qs("activeRoundBanner");
+  if(active){
+    banner.className="active-round visible";
+    banner.innerHTML=`<b>ACTIVE ROUND:</b> Round ${active.round_number} — ${esc(active.name)}. This will be the Agent's result target once automatic import is wired in.`;
+  }else{banner.className="active-round";banner.textContent=""}
+
+  qs("roundList").innerHTML=rounds.length?rounds.map(r=>`
+    <article class="round-card" data-round="${r.id}">
+      <div class="round-main">
+        <div class="round-num">${r.round_number}</div>
+        <div>
+          <div class="round-name">${esc(r.name)}</div>
+          <div class="round-sub">${esc(r.track_key||"Track not assigned")} · ${esc(formatDate(r.scheduled_at))}</div>
+        </div>
+        <div class="session-pills">
+          <span class="session-pill ${sessionStatusFor(r.id,"qualifying")?"done":""}">Qual ${sessionStatusFor(r.id,"qualifying")?"✓":""}</span>
+          <span class="session-pill ${sessionStatusFor(r.id,"race1")?"done":""}">Race 1 ${sessionStatusFor(r.id,"race1")?"✓":""}</span>
+          <span class="session-pill ${sessionStatusFor(r.id,"race2")?"done":""}">Race 2 ${sessionStatusFor(r.id,"race2")?"✓":""}</span>
+        </div>
+        <div class="round-state ${r.status}">${esc(r.status)}</div>
+        <div class="round-actions">
+          ${r.status==="active"?`<button class="mini-btn danger" data-action="complete">Complete</button>`:
+            r.status==="complete"?`<button class="mini-btn" data-action="reopen">Reopen</button>`:
+            `<button class="mini-btn primary" data-action="activate">Activate</button>`}
+          ${r.status==="cancelled"?`<button class="mini-btn" data-action="restore">Restore</button>`:`<button class="mini-btn" data-action="cancel">Cancel</button>`}
+          <button class="mini-btn" data-action="edit">Edit</button>
+          <button class="mini-btn danger" data-action="delete">Delete</button>
+        </div>
+      </div>
+      <div class="round-editor">
+        <div class="grid-3">
+          <div class="field"><label>Round Name</label><input class="input edit-name" value="${esc(r.name)}"></div>
+          <div class="field"><label>Track Key / ID</label><input class="input edit-track" value="${esc(r.track_key||"")}"></div>
+          <div class="field"><label>Scheduled Date & Time</label><input class="input edit-date" type="datetime-local" value="${localInputValue(r.scheduled_at)}"></div>
+        </div>
+        <div class="editor-actions"><button class="mini-btn" data-action="close-edit">Cancel</button><button class="mini-btn primary" data-action="save">Save Round</button></div>
+      </div>
+    </article>`).join(""):`<div class="empty"><strong>No rounds configured</strong>Add your first round to start building the championship schedule.<div style="margin-top:12px"><button class="btn primary" id="emptyAddRound">+ Add Round</button></div></div>`;
+
+  qs("emptyAddRound")?.addEventListener("click",addRound);
+  qs("roundList").querySelectorAll("[data-action]").forEach(btn=>btn.onclick=()=>handleRoundAction(btn));
+}
+
+async function handleRoundAction(btn){
+  const card=btn.closest(".round-card"),id=card.dataset.round,action=btn.dataset.action;
+  const round=roundFor(id);
+  if(action==="edit"){card.querySelector(".round-editor").classList.add("open");return}
+  if(action==="close-edit"){card.querySelector(".round-editor").classList.remove("open");return}
+
+  try{
+    btn.disabled=true;
+    if(action==="activate"){
+      const current=rounds.find(r=>r.status==="active"&&r.id!==id);
+      if(current){
+        const {error}=await supabaseClient.from("racing_rounds").update({status:"scheduled"}).eq("id",current.id);
+        if(error)throw error;
+      }
+      let {error}=await supabaseClient.from("racing_rounds").update({status:"active"}).eq("id",id);
+      if(error)throw error;
+      ({error}=await supabaseClient.from("racing_championships").update({status:"active",updated_at:new Date().toISOString()}).eq("id",championshipId));
+      if(error)throw error;
+      toast(`Round ${round.round_number} activated.`);
+    }
+    if(action==="complete"){
+      const {error}=await supabaseClient.from("racing_rounds").update({status:"complete"}).eq("id",id);if(error)throw error;
+      toast(`Round ${round.round_number} completed.`);
+    }
+    if(action==="reopen"||action==="restore"){
+      const {error}=await supabaseClient.from("racing_rounds").update({status:"scheduled"}).eq("id",id);if(error)throw error;
+      toast(`Round ${round.round_number} returned to scheduled.`);
+    }
+    if(action==="cancel"){
+      if(!confirm(`Cancel Round ${round.round_number}?`)){btn.disabled=false;return}
+      const {error}=await supabaseClient.from("racing_rounds").update({status:"cancelled"}).eq("id",id);if(error)throw error;
+      toast(`Round ${round.round_number} cancelled.`);
+    }
+    if(action==="delete"){
+      if(!confirm(`Delete Round ${round.round_number} permanently? Any results attached to it will also be deleted.`)){btn.disabled=false;return}
+      const {error}=await supabaseClient.from("racing_rounds").delete().eq("id",id);if(error)throw error;
+      toast(`Round ${round.round_number} deleted.`);
+    }
+    if(action==="save"){
+      const name=card.querySelector(".edit-name").value.trim();
+      const track=card.querySelector(".edit-track").value.trim()||null;
+      const raw=card.querySelector(".edit-date").value;
+      if(!name)throw new Error("Round name is required.");
+      const {error}=await supabaseClient.from("racing_rounds").update({name,track_key:track,scheduled_at:raw?new Date(raw).toISOString():null}).eq("id",id);
+      if(error)throw error;toast("Round updated.");
+    }
+    await reloadRoundAndSessionData();
+  }catch(e){console.error(e);toast(e.message||"Round update failed.",true);btn.disabled=false}
+}
+
+async function addRound(){
+  try{
+    const next=rounds.reduce((m,r)=>Math.max(m,Number(r.round_number)||0),0)+1;
+    const {data,error}=await supabaseClient.from("racing_rounds").insert({championship_id:championshipId,round_number:next,name:`Round ${next}`,track_key:null,status:"scheduled"}).select("id,round_number,name,track_key,status,scheduled_at").single();
+    if(error)throw error;
+    rounds.push(data);renderRounds();renderRoundSelects();renderMetricsOnly();
+    const card=qs("roundList").querySelector(`[data-round="${data.id}"]`);
+    card?.querySelector(".round-editor")?.classList.add("open");
+    toast(`Round ${next} added.`);
+  }catch(e){console.error(e);toast(e.message||"Could not add round.",true)}
+}
+qs("addRoundBtn").onclick=addRound;
+
+async function reloadRoundAndSessionData(){
+  const [rRes,sRes]=await Promise.all([
+    supabaseClient.from("racing_rounds").select("id,round_number,name,track_key,status,scheduled_at").eq("championship_id",championshipId).order("round_number"),
+    supabaseClient.from("racing_session_results").select("id,round_id,session_type,track_key,source_file,imported_at").eq("championship_id",championshipId).order("imported_at",{ascending:false})
+  ]);
+  if(rRes.error)throw rRes.error;if(sRes.error)throw sRes.error;
+  rounds=rRes.data||[];sessions=sRes.data||[];
+  renderAll();
+}
+function renderMetricsOnly(){
+  qs("metricRounds").textContent=rounds.length;
+  const active=rounds.find(r=>r.status==="active");
+  qs("metricActive").textContent=active?`Round ${active.round_number}`:"None";
+  qs("completedRounds").textContent=rounds.filter(r=>r.status==="complete").length;
+  qs("remainingRounds").textContent=rounds.filter(r=>r.status!=="complete"&&r.status!=="cancelled").length;
+  qs("roundCounter").textContent=`${rounds.length} Round${rounds.length===1?"":"s"}`;
+}
+
+function renderResults(){
+  const wrap=qs("resultsList");
+  if(!sessions.length){wrap.innerHTML=`<div class="empty"><strong>No imported sessions yet</strong>The UI is ready. Qualifying, Race 1 and Race 2 will appear here after the Agent integration.</div>`;return}
+  wrap.innerHTML=sessions.map(s=>{
+    const r=roundFor(s.round_id),list=entries.filter(e=>e.session_result_id===s.id).sort((a,b)=>a.finish_position-b.finish_position);
+    return `<article class="session-card" data-session="${s.id}">
+      <div class="session-head">
+        <div class="session-type">${esc(sessionLabel(s.session_type))}</div>
+        <div class="session-meta">${r?`Round ${r.round_number} · ${esc(r.name)}`:"Unknown round"} · ${esc(s.track_key||"No track")}</div>
+        <div class="session-time">${esc(new Date(s.imported_at).toLocaleString())}</div>
+        <div class="row-actions"><button class="mini-btn" data-result-action="toggle">View</button><button class="mini-btn danger" data-result-action="delete">Delete</button></div>
+      </div>
+      <div class="session-entries">
+        ${list.length?`<div class="table-wrap"><table><thead><tr><th>Pos</th><th>Rider</th><th>#</th><th>GUID</th><th>Points</th></tr></thead><tbody>${list.map(e=>`<tr><td>${e.finish_position}</td><td><strong>${esc(e.rider_name)}</strong></td><td>${esc(e.race_number||"—")}</td><td>${esc(e.mxbikes_guid||"—")}</td><td>${Number(e.points_awarded||0)}</td></tr>`).join("")}</tbody></table></div>`:`<div class="empty">No classification entries stored for this session.</div>`}
+      </div>
+    </article>`
+  }).join("");
+  wrap.querySelectorAll("[data-result-action]").forEach(btn=>btn.onclick=async()=>{
+    const card=btn.closest(".session-card"),id=card.dataset.session;
+    if(btn.dataset.resultAction==="toggle"){card.querySelector(".session-entries").classList.toggle("open");btn.textContent=card.querySelector(".session-entries").classList.contains("open")?"Hide":"View";return}
+    if(!confirm("Delete this imported session and its classification?"))return;
+    const {error}=await supabaseClient.from("racing_session_results").delete().eq("id",id);
+    if(error)return toast(error.message,true);
+    sessions=sessions.filter(s=>s.id!==id);entries=entries.filter(e=>e.session_result_id!==id);renderAll();toast("Result session deleted.");
+  });
+}
+
+async function renderStandings(){
+  const wrap=qs("standingsWrap");
+  wrap.innerHTML=`<div class="empty">Loading standings...</div>`;
+  const {data,error}=await supabaseClient.from("racing_championship_standings").select("*").eq("championship_id",championshipId).order("total_points",{ascending:false});
+  if(error){wrap.innerHTML=`<div class="empty"><strong>Standings unavailable</strong>${esc(error.message)}</div>`;return}
+  const rows=data||[];
+  if(!rows.length){wrap.innerHTML=`<div class="empty"><strong>No championship points yet</strong>Standings populate after result entries receive points.</div>`;return}
+  wrap.innerHTML=`<div class="table-wrap"><table><thead><tr><th>Pos</th><th>Rider</th><th>GUID</th><th>Earned</th><th>Adjustments</th><th>Total</th></tr></thead><tbody>${rows.map((r,i)=>`<tr><td>${i+1}</td><td><strong>${esc(r.rider_name||"Unknown rider")}</strong></td><td>${esc(r.mxbikes_guid||"—")}</td><td>${Number(r.earned_points||0)}</td><td class="${Number(r.adjustment_points||0)<0?"points-negative":"points-positive"}">${Number(r.adjustment_points||0)}</td><td><strong>${Number(r.total_points||0)}</strong></td></tr>`).join("")}</tbody></table></div>`;
+}
+
+function renderRiders(map){
+  const rows=[...map.values()].sort((a,b)=>a.name.localeCompare(b.name));
+  const wrap=qs("ridersWrap");
+  if(!rows.length){wrap.innerHTML=`<div class="empty"><strong>No riders yet</strong>Riders appear after a championship result is imported.</div>`;return}
+  wrap.innerHTML=`<div class="table-wrap"><table><thead><tr><th>Rider</th><th>GUID</th><th>Session Starts</th><th>Suspension</th><th>Actions</th></tr></thead><tbody>${rows.map(r=>{
+    const sus=suspensions.find(s=>s.is_active&&String(s.mxbikes_guid).toUpperCase()===String(r.guid).toUpperCase());
+    return `<tr><td><strong>${esc(r.name)}</strong></td><td>${esc(r.guid||"—")}</td><td>${r.starts}</td><td>${sus?'<span class="points-negative">Suspended</span>':'Active'}</td><td><button class="mini-btn" data-rider-guid="${esc(r.guid)}" data-rider-name="${esc(r.name)}">Manage</button></td></tr>`}).join("")}</tbody></table></div>`;
+  wrap.querySelectorAll("[data-rider-guid]").forEach(b=>b.onclick=()=>{
+    qs("adjGuid").value=b.dataset.riderGuid;qs("adjName").value=b.dataset.riderName;
+    qs("susGuid").value=b.dataset.riderGuid;qs("susName").value=b.dataset.riderName;
+    switchTab("penalties");
+  });
+}
+
+function renderRoundSelects(){
+  qs("adjRound").innerHTML=`<option value="">Championship-wide</option>`+rounds.map(r=>`<option value="${r.id}">Round ${r.round_number} — ${esc(r.name)}</option>`).join("");
+}
+
+function renderAdjustments(){
+  const wrap=qs("adjustmentList");
+  wrap.innerHTML=adjustments.length?adjustments.map(a=>`<div class="list-item"><div><div class="list-title">${esc(a.rider_name||a.mxbikes_guid)} <span class="${Number(a.points)<0?"points-negative":"points-positive"}">${Number(a.points)>0?"+":""}${Number(a.points)} pts</span></div><div class="list-sub">${esc(a.reason)}${a.round_id?` · ${esc(roundFor(a.round_id)?.name||"Round")}`:" · Championship-wide"} · ${esc(new Date(a.created_at).toLocaleString())}</div></div><button class="mini-btn danger" data-delete-adjustment="${a.id}">Remove</button></div>`).join(""):`<div class="empty">No point adjustments.</div>`;
+  wrap.querySelectorAll("[data-delete-adjustment]").forEach(b=>b.onclick=async()=>{
+    if(!confirm("Remove this point adjustment?"))return;
+    const {error}=await supabaseClient.from("racing_point_adjustments").delete().eq("id",b.dataset.deleteAdjustment);
+    if(error)return toast(error.message,true);
+    adjustments=adjustments.filter(a=>a.id!==b.dataset.deleteAdjustment);renderAdjustments();renderStandings();toast("Adjustment removed.");
+  });
+}
+
+qs("adjustmentForm").onsubmit=async e=>{
+  e.preventDefault();
+  try{
+    const guid=qs("adjGuid").value.trim().toUpperCase(),name=qs("adjName").value.trim()||null,points=Number(qs("adjPoints").value),reason=qs("adjReason").value.trim(),roundId=qs("adjRound").value||null;
+    if(!guid||!Number.isFinite(points)||!reason)throw new Error("GUID, points and reason are required.");
+    const {data,error}=await supabaseClient.from("racing_point_adjustments").insert({championship_id:championshipId,round_id:roundId,mxbikes_guid:guid,rider_name:name,points,reason,created_by:sessionUser.id}).select("id,round_id,mxbikes_guid,rider_name,points,reason,created_at").single();
+    if(error)throw error;adjustments.unshift(data);e.target.reset();renderRoundSelects();renderAdjustments();renderStandings();toast("Point adjustment applied.");
+  }catch(err){toast(err.message,true)}
+};
+
+function renderSuspensions(){
+  const wrap=qs("suspensionList");
+  wrap.innerHTML=suspensions.length?suspensions.map(s=>`<div class="list-item"><div><div class="list-title">${esc(s.rider_name||s.mxbikes_guid)} ${s.is_active?'<span class="points-negative">ACTIVE</span>':'<span class="muted">REVOKED</span>'}</div><div class="list-sub">${esc(s.reason)} · ${s.ends_at?`Ends ${esc(new Date(s.ends_at).toLocaleString())}`:"No end date"}</div></div>${s.is_active?`<button class="mini-btn" data-revoke="${s.id}">Revoke</button>`:""}</div>`).join(""):`<div class="empty">No rider suspensions.</div>`;
+  wrap.querySelectorAll("[data-revoke]").forEach(b=>b.onclick=async()=>{
+    const {error}=await supabaseClient.from("racing_suspensions").update({is_active:false}).eq("id",b.dataset.revoke);if(error)return toast(error.message,true);
+    const s=suspensions.find(x=>x.id===b.dataset.revoke);if(s)s.is_active=false;renderSuspensions();renderRidersFromEntries();toast("Suspension revoked.");
+  });
+}
+qs("suspensionForm").onsubmit=async e=>{
+  e.preventDefault();
+  try{
+    const guid=qs("susGuid").value.trim().toUpperCase(),name=qs("susName").value.trim()||null,reason=qs("susReason").value.trim(),raw=qs("susEnds").value;
+    if(!guid||!reason)throw new Error("GUID and reason are required.");
+    const {data,error}=await supabaseClient.from("racing_suspensions").insert({championship_id:championshipId,mxbikes_guid:guid,rider_name:name,reason,ends_at:raw?new Date(raw).toISOString():null,is_active:true,created_by:sessionUser.id}).select("id,mxbikes_guid,rider_name,reason,starts_at,ends_at,is_active,created_at").single();
+    if(error)throw error;suspensions.unshift(data);e.target.reset();renderSuspensions();renderRidersFromEntries();toast("Rider suspended.");
+  }catch(err){toast(err.message,true)}
+};
+function renderRidersFromEntries(){
+  const map=new Map();
+  for(const e of entries){const k=riderKey(e);if(!k)continue;if(!map.has(k))map.set(k,{guid:e.mxbikes_guid||"",name:e.rider_name||"Unknown rider",starts:0});map.get(k).starts++}
+  renderRiders(map);
+}
+
+function renderSettings(){
+  qs("settingName").value=champ.name||"";
+  qs("settingDescription").value=champ.description||"";
+  qs("settingStatus").value=champ.status||"draft";
+  qs("settingScoring").value=champ.scoring_type||"mx";
+}
+qs("settingsForm").onsubmit=async e=>{
+  e.preventDefault();
+  try{
+    const name=qs("settingName").value.trim(),description=qs("settingDescription").value.trim(),status=qs("settingStatus").value,scoring_type=qs("settingScoring").value;
+    if(!name)throw new Error("Championship name is required.");
+    const {data,error}=await supabaseClient.from("racing_championships").update({name,description,status,scoring_type,updated_at:new Date().toISOString()}).eq("id",championshipId).select("id,user_id,game_server_id,name,description,image_url,status,scoring_type,created_at").single();
+    if(error)throw error;champ=data;renderAll();toast("Championship settings saved.");
+  }catch(err){toast(err.message,true)}
+};
+qs("archiveBtn").onclick=async()=>{
+  if(!confirm("Archive this championship?"))return;
+  const {error}=await supabaseClient.from("racing_championships").update({status:"archived",updated_at:new Date().toISOString()}).eq("id",championshipId);
+  if(error)return toast(error.message,true);champ.status="archived";renderAll();toast("Championship archived.");
+};
+qs("deleteChampBtn").onclick=async()=>{
+  const phrase=prompt(`Type DELETE to permanently delete "${champ.name}".`);
+  if(phrase!=="DELETE")return;
+  const {error}=await supabaseClient.from("racing_championships").delete().eq("id",championshipId);
+  if(error)return toast(error.message,true);
+  location.href="racing-system.html";
+};
+
 (async()=>{
- try{
-  const {data:{session}}=await supabaseClient.auth.getSession();if(!session){location.href="login.html";return}
-  const id=new URLSearchParams(location.search).get("id");if(!id)throw new Error("Missing championship ID.");
-  const {data:c,error}=await supabaseClient.from("racing_championships").select("id,name,description,image_url,status,scoring_type").eq("id",id).single();if(error)throw error;
-  document.title=`${c.name} | MotoGrid`;document.getElementById("name").textContent=c.name;document.getElementById("description").textContent=c.description||"No championship description has been added.";document.getElementById("status").textContent=c.status;document.getElementById("scoring").textContent=`${String(c.scoring_type).toUpperCase()} Points`;if(c.image_url)document.getElementById("coverBg").style.backgroundImage=`url("${String(c.image_url).replace(/"/g,'%22')}")`;
-  const {data:r,error:re}=await supabaseClient.from("racing_rounds").select("id,round_number,name,track_key,status,scheduled_at").eq("championship_id",id).order("round_number");if(re)throw re;
-  const {count:resultCount,error:resErr}=await supabaseClient.from("racing_session_results").select("id",{count:"exact",head:true}).eq("championship_id",id);if(resErr)throw resErr;
-  const active=r.find(x=>x.status==="active"),completed=r.filter(x=>x.status==="complete").length;
-  document.getElementById("roundCount").textContent=r.length;document.getElementById("activeRound").textContent=active?`Round ${active.round_number}`:"None";document.getElementById("sessionCount").textContent=resultCount||0;document.getElementById("completedRounds").textContent=completed;document.getElementById("remainingRounds").textContent=Math.max(0,r.length-completed);document.getElementById("roundProgress").textContent=`${r.length} Round${r.length===1?"":"s"}`;
-  const roundsEl=document.getElementById("rounds");
-  const msg=document.getElementById("roundMessage");
-  const activeBanner=document.getElementById("activeBanner");
-
-  function renderActiveBanner(rows){
-    const current=rows.find(x=>x.status==="active");
-    if(current){
-      activeBanner.classList.add("visible");
-      activeBanner.innerHTML=`<b>ACTIVE ROUND:</b> Round ${current.round_number} — ${esc(current.name)}. Incoming championship results should be assigned here.`;
-    }else{
-      activeBanner.classList.remove("visible");
-      activeBanner.textContent="";
-    }
+  try{
+    await loadAll();
+    const hash=location.hash.replace("#","");
+    if(["overview","results","standings","riders","penalties","settings"].includes(hash))switchTab(hash);
+  }catch(e){
+    console.error(e);
+    qs("loading").classList.add("hidden");
+    qs("champName").textContent="Championship unavailable";
+    qs("champDescription").textContent=e.message||"Could not load championship.";
+    toast(e.message||"Could not load championship.",true);
   }
-
-  function renderRounds(rows){
-    renderActiveBanner(rows);
-    roundsEl.innerHTML=rows.length?rows.map(x=>`
-      <article class="round" data-round-id="${esc(x.id)}">
-        <div class="round-row-main">
-          <div class="round-num">${x.round_number}</div>
-          <div>
-            <div class="round-name">${esc(x.name)}</div>
-            <div class="round-track">${esc(x.track_key||"Track not assigned")}${x.scheduled_at?` • ${new Date(x.scheduled_at).toLocaleString()}`:""}</div>
-          </div>
-          <div class="session-pills"><span class="pill">Qual</span><span class="pill">Race 1</span><span class="pill">Race 2</span></div>
-          <div class="round-state ${x.status==="active"?"active":""}">${esc(x.status)}</div>
-          <div class="round-actions">
-            ${x.status==="active"
-              ? `<button class="round-btn danger" data-action="complete">Complete</button>`
-              : `<button class="round-btn primary" data-action="activate" ${x.status==="complete"?"disabled":""}>Activate</button>`}
-            <button class="round-btn" data-action="edit">Edit</button>
-          </div>
-        </div>
-        <div class="round-editor">
-          <div class="round-editor-grid">
-            <label>Round Name<input class="edit-name" value="${esc(x.name)}"></label>
-            <label>Track Key / ID<input class="edit-track" value="${esc(x.track_key||"")}"></label>
-            <label>Scheduled Date & Time<input class="edit-schedule" type="datetime-local" value="${x.scheduled_at?new Date(new Date(x.scheduled_at).getTime()-new Date(x.scheduled_at).getTimezoneOffset()*60000).toISOString().slice(0,16):""}"></label>
-          </div>
-          <div class="round-editor-actions">
-            <button class="round-btn" data-action="cancel-edit">Cancel</button>
-            <button class="round-btn primary" data-action="save-edit">Save Round</button>
-          </div>
-        </div>
-      </article>`).join(""):'<div class="empty">No rounds configured for this championship.</div>';
-
-    roundsEl.querySelectorAll("[data-action]").forEach(btn=>{
-      btn.addEventListener("click",async()=>{
-        const card=btn.closest(".round");
-        const roundId=card.dataset.roundId;
-        const action=btn.dataset.action;
-        msg.className="message";msg.textContent="";
-
-        if(action==="edit"){
-          card.querySelector(".round-editor").classList.add("open");
-          return;
-        }
-        if(action==="cancel-edit"){
-          card.querySelector(".round-editor").classList.remove("open");
-          return;
-        }
-
-        btn.disabled=true;
-        try{
-          if(action==="activate"){
-            const {error:clearErr}=await supabaseClient
-              .from("racing_rounds")
-              .update({status:"scheduled"})
-              .eq("championship_id",id)
-              .eq("status","active");
-            if(clearErr)throw clearErr;
-
-            const {error:actErr}=await supabaseClient
-              .from("racing_rounds")
-              .update({status:"active"})
-              .eq("id",roundId)
-              .eq("championship_id",id);
-            if(actErr)throw actErr;
-
-            const {error:champStatusErr}=await supabaseClient
-              .from("racing_championships")
-              .update({status:"active"})
-              .eq("id",id);
-            if(champStatusErr)throw champStatusErr;
-
-            msg.className="message success";
-            msg.textContent="Round activated. This is now the championship's active result target.";
-          }
-
-          if(action==="complete"){
-            const {error:completeErr}=await supabaseClient
-              .from("racing_rounds")
-              .update({status:"complete"})
-              .eq("id",roundId)
-              .eq("championship_id",id);
-            if(completeErr)throw completeErr;
-            msg.className="message success";
-            msg.textContent="Round completed.";
-          }
-
-          if(action==="save-edit"){
-            const name=card.querySelector(".edit-name").value.trim();
-            const track=card.querySelector(".edit-track").value.trim()||null;
-            const scheduleRaw=card.querySelector(".edit-schedule").value;
-            if(!name)throw new Error("Round name is required.");
-            const scheduledAt=scheduleRaw?new Date(scheduleRaw).toISOString():null;
-
-            const {error:saveErr}=await supabaseClient
-              .from("racing_rounds")
-              .update({name,track_key:track,scheduled_at:scheduledAt})
-              .eq("id",roundId)
-              .eq("championship_id",id);
-            if(saveErr)throw saveErr;
-
-            msg.className="message success";
-            msg.textContent="Round updated.";
-          }
-
-          const {data:fresh,error:freshErr}=await supabaseClient
-            .from("racing_rounds")
-            .select("id,round_number,name,track_key,status,scheduled_at")
-            .eq("championship_id",id)
-            .order("round_number");
-          if(freshErr)throw freshErr;
-
-          r.length=0;r.push(...fresh);
-          const freshActive=fresh.find(x=>x.status==="active");
-          const freshCompleted=fresh.filter(x=>x.status==="complete").length;
-          document.getElementById("activeRound").textContent=freshActive?`Round ${freshActive.round_number}`:"None";
-          document.getElementById("completedRounds").textContent=freshCompleted;
-          document.getElementById("remainingRounds").textContent=Math.max(0,fresh.length-freshCompleted);
-          renderRounds(fresh);
-        }catch(err){
-          console.error(err);
-          msg.className="message error";
-          msg.textContent=err.message||"Could not update the round.";
-          btn.disabled=false;
-        }
-      });
-    });
-  }
-
-  renderRounds(r);
-  document.getElementById("addRoundButton").onclick=async()=>{
-    msg.className="message";
-    msg.textContent="Adding round...";
-    const nextNumber=(r.reduce((m,x)=>Math.max(m,Number(x.round_number)||0),0))+1;
-    const {data:newRound,error:addErr}=await supabaseClient
-      .from("racing_rounds")
-      .insert({
-        championship_id:id,
-        round_number:nextNumber,
-        name:`Round ${nextNumber}`,
-        track_key:null,
-        status:"scheduled"
-      })
-      .select("id,round_number,name,track_key,status,scheduled_at")
-      .single();
-
-    if(addErr){
-      console.error(addErr);
-      msg.className="message error";
-      msg.textContent=addErr.message||"Could not add the round.";
-      return;
-    }
-
-    r.push(newRound);
-    document.getElementById("roundProgress").textContent=`${r.length} Round${r.length===1?"":"s"}`;
-    document.getElementById("remainingRounds").textContent=r.filter(x=>x.status!=="complete").length;
-    renderRounds(r);
-
-    const newCard=roundsEl.querySelector(`[data-round-id="${newRound.id}"]`);
-    newCard?.querySelector(".round-editor")?.classList.add("open");
-
-    msg.className="message success";
-    msg.textContent=`Round ${nextNumber} added. Enter the round name and track, then save it.`;
-  };
-
- }catch(e){console.error(e);document.getElementById("name").textContent="Championship unavailable";document.getElementById("description").textContent=e.message||"Could not load championship."}
 })();
-</script></body></html>
+</script>
+</body>
+</html>
