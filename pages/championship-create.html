@@ -194,54 +194,69 @@ async function createChampionship(){
   }
   if(!serverId)throw new Error("No server was found.");
 
-  const {data:champ,error:champErr}=await supabaseClient.from("racing_championships").insert({
-   user_id:user.id,game_server_id:serverId,name,description,image_url:null,status:"draft",scoring_type:scoringType
-  }).select("id").single();
-  if(champErr)throw champErr;
-
-  if(selectedImageFile){
-   const extension=(selectedImageFile.name.split(".").pop()||"jpg").toLowerCase().replace(/[^a-z0-9]/g,"");
-   const objectPath=`${user.id}/${champ.id}/championship.${extension}`;
-   const {error:uploadErr}=await supabaseClient.storage
-    .from("championship-images")
-    .upload(objectPath,selectedImageFile,{cacheControl:"3600",upsert:true,contentType:selectedImageFile.type});
-   if(uploadErr)throw uploadErr;
-
-   const {data:publicUrlData}=supabaseClient.storage
-    .from("championship-images")
-    .getPublicUrl(objectPath);
-   imageUrl=publicUrlData?.publicUrl||null;
-
-   if(imageUrl){
-    const {error:imageUpdateErr}=await supabaseClient
-     .from("racing_championships")
-     .update({image_url:imageUrl})
-     .eq("id",champ.id);
-    if(imageUpdateErr)throw imageUpdateErr;
-   }
-  }
-
-  const {data:system,error:sysErr}=await supabaseClient.from("racing_scoring_systems").insert({
-   championship_id:champ.id,name:scoringType==="custom"?"Custom Scoring":`${scoringType.toUpperCase()} Scoring`,
-   scoring_type:scoringType,qualifying_points_enabled:false
-  }).select("id").single();
-  if(sysErr)throw sysErr;
-
   const points=scoringType==="custom"
    ? [...document.querySelectorAll(".custom-point")].map(i=>Number(i.value)||0)
    : (scoringType==="sx"?SX_POINTS:MX_POINTS);
 
-  const pointRows=points.map((points,i)=>({scoring_system_id:system.id,session_type:"race",position:i+1,points}));
-  const {error:pointsErr}=await supabaseClient.from("racing_scoring_positions").insert(pointRows);
-  if(pointsErr)throw pointsErr;
-
   const roundData=roundRows.map((row,i)=>({
-   championship_id:champ.id,round_number:i+1,
+   round_number:i+1,
    name:row.querySelector(".round-name").value.trim()||`Round ${i+1}`,
-   track_key:row.querySelector(".track").value.trim()||null,status:"scheduled"
+   track_key:row.querySelector(".track").value.trim()||null
   }));
-  const {error:roundErr}=await supabaseClient.from("racing_rounds").insert(roundData);
-  if(roundErr)throw roundErr;
+
+  message.textContent="Creating championship and rounds...";
+
+  const {data:champId,error:createErr}=await supabaseClient.rpc("create_racing_championship_atomic",{
+   p_game_server_id:serverId,
+   p_name:name,
+   p_description:description,
+   p_scoring_type:scoringType,
+   p_points:points,
+   p_rounds:roundData
+  });
+  if(createErr)throw createErr;
+  if(!champId)throw new Error("Championship creation did not return an ID.");
+
+  const champ={id:champId};
+
+  // Verify the critical rows actually exist before reporting success.
+  const {data:createdRounds,error:verifyErr}=await supabaseClient
+   .from("racing_rounds")
+   .select("id,round_number")
+   .eq("championship_id",champ.id)
+   .order("round_number");
+  if(verifyErr)throw verifyErr;
+  if(!createdRounds||createdRounds.length!==roundData.length){
+   throw new Error(`Championship was created, but round verification failed (${createdRounds?.length||0}/${roundData.length} rounds found).`);
+  }
+
+  // Image upload is intentionally AFTER the atomic championship/round creation.
+  // An image failure no longer prevents the championship structure from existing.
+  if(selectedImageFile){
+   try{
+    const extension=(selectedImageFile.name.split(".").pop()||"jpg").toLowerCase().replace(/[^a-z0-9]/g,"");
+    const objectPath=`${user.id}/${champ.id}/championship.${extension}`;
+    const {error:uploadErr}=await supabaseClient.storage
+     .from("championship-images")
+     .upload(objectPath,selectedImageFile,{cacheControl:"3600",upsert:true,contentType:selectedImageFile.type});
+    if(uploadErr)throw uploadErr;
+
+    const {data:publicUrlData}=supabaseClient.storage
+     .from("championship-images")
+     .getPublicUrl(objectPath);
+    imageUrl=publicUrlData?.publicUrl||null;
+
+    if(imageUrl){
+     const {error:imageUpdateErr}=await supabaseClient
+      .from("racing_championships")
+      .update({image_url:imageUrl})
+      .eq("id",champ.id);
+     if(imageUpdateErr)throw imageUpdateErr;
+    }
+   }catch(imageErr){
+    console.warn("Championship created, but image upload failed:",imageErr);
+   }
+  }
 
   message.className="message success";message.textContent="Championship created.";
   setTimeout(()=>location.href=`championship.html?id=${encodeURIComponent(champ.id)}`,500);

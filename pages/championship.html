@@ -46,7 +46,10 @@
 <main class="panel">
 <div class="panel-head">
   <div><div class="label">Championship Schedule</div><h2>Rounds</h2></div>
+  <div class="round-actions">
   <span class="eyebrow" id="roundProgress">0 Rounds</span>
+  <button class="round-btn primary" id="addRoundButton" type="button">+ Add Round</button>
+</div>
 </div>
 <div class="active-banner" id="activeBanner"></div>
 <div class="round-list" id="rounds"></div>
@@ -212,6 +215,41 @@ const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&
   }
 
   renderRounds(r);
+  document.getElementById("addRoundButton").onclick=async()=>{
+    msg.className="message";
+    msg.textContent="Adding round...";
+    const nextNumber=(r.reduce((m,x)=>Math.max(m,Number(x.round_number)||0),0))+1;
+    const {data:newRound,error:addErr}=await supabaseClient
+      .from("racing_rounds")
+      .insert({
+        championship_id:id,
+        round_number:nextNumber,
+        name:`Round ${nextNumber}`,
+        track_key:null,
+        status:"scheduled"
+      })
+      .select("id,round_number,name,track_key,status,scheduled_at")
+      .single();
+
+    if(addErr){
+      console.error(addErr);
+      msg.className="message error";
+      msg.textContent=addErr.message||"Could not add the round.";
+      return;
+    }
+
+    r.push(newRound);
+    document.getElementById("roundProgress").textContent=`${r.length} Round${r.length===1?"":"s"}`;
+    document.getElementById("remainingRounds").textContent=r.filter(x=>x.status!=="complete").length;
+    renderRounds(r);
+
+    const newCard=roundsEl.querySelector(`[data-round-id="${newRound.id}"]`);
+    newCard?.querySelector(".round-editor")?.classList.add("open");
+
+    msg.className="message success";
+    msg.textContent=`Round ${nextNumber} added. Enter the round name and track, then save it.`;
+  };
+
  }catch(e){console.error(e);document.getElementById("name").textContent="Championship unavailable";document.getElementById("description").textContent=e.message||"Could not load championship."}
 })();
 </script></body></html>
