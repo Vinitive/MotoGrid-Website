@@ -121,7 +121,19 @@ td strong{color:#fff}
 .toast.show{transform:translateY(0);opacity:1}.toast.error{border-color:rgba(255,104,104,.35);color:#ff9999}
 .loading{position:fixed;inset:0;z-index:2000;display:flex;align-items:center;justify-content:center;background:#050605;color:var(--g);font-size:9px;font-weight:1000;letter-spacing:2px;text-transform:uppercase}.loading.hidden{display:none}
 
-.danger-zone{border-color:rgba(255,104,104,.13)}.danger-zone:before{background:#ff6868}
+.settings-stack{display:grid;gap:14px}
+.settings-note{padding:11px 12px;border:1px solid rgba(255,255,255,.07);background:#070807;color:#777b77;font-size:8px;line-height:1.5}
+.danger-zone{border-color:rgba(255,104,104,.16)}.danger-zone:before{background:#ff6868}
+.danger-action{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:18px;align-items:center;padding:14px;border:1px solid rgba(255,104,104,.13);background:rgba(255,104,104,.025)}
+.danger-action+.danger-action{margin-top:8px}
+.danger-action strong{display:block;margin-bottom:4px;font-size:10px;text-transform:uppercase}
+.danger-action p{margin:0;color:#707470;font-size:8px;line-height:1.5}
+.delete-confirm{display:none;margin-top:12px;padding:14px;border:1px solid rgba(255,104,104,.28);background:#0b0707}
+.delete-confirm.open{display:block}
+.delete-confirm-title{color:#ff8d8d;font-size:10px;font-weight:1000;text-transform:uppercase}
+.delete-confirm p{margin:6px 0 10px;color:#858985;font-size:8px;line-height:1.5}
+.delete-confirm .input{border-color:rgba(255,104,104,.25)}
+@media(max-width:620px){.danger-action{grid-template-columns:1fr}.danger-action .btn{justify-self:start}}
 @media(max-width:1100px){.metrics{grid-template-columns:repeat(3,1fr)}.metric:nth-child(3){border-right:0}.layout{grid-template-columns:1fr}.round-main{grid-template-columns:48px minmax(0,1fr) auto}.session-pills,.round-state{grid-column:2}.round-actions{grid-column:3;grid-row:1/3}}
 @media(max-width:760px){.shell{width:calc(100% - 22px)}.hero-content{align-items:flex-start;flex-direction:column}.metrics{grid-template-columns:1fr 1fr}.metric{border-bottom:1px solid var(--line)}.round-main{grid-template-columns:42px minmax(0,1fr)}.round-actions{grid-column:2;grid-row:auto;justify-content:flex-start}.grid-2,.grid-3{grid-template-columns:1fr}.session-head{grid-template-columns:1fr auto}.session-meta,.session-time{grid-column:1}.panel{padding:15px}}
 </style>
@@ -260,14 +272,17 @@ td strong{color:#fff}
 </section>
 
 <section class="tab-view" id="view-settings">
-  <div class="layout">
-    <main class="panel">
-      <div class="panel-head"><div><div class="section-kicker">Championship Configuration</div><h2>Settings</h2></div></div>
+  <div class="settings-stack">
+    <section class="panel">
+      <div class="panel-head">
+        <div><div class="section-kicker">Championship Configuration</div><h2>General Settings</h2></div>
+        <button class="btn primary" type="submit" form="settingsForm">Save Changes</button>
+      </div>
       <form id="settingsForm">
         <div class="grid-2">
           <div class="field full"><label>Championship Name</label><input class="input" id="settingName" maxlength="120" required></div>
           <div class="field full"><label>Description</label><textarea class="input" id="settingDescription"></textarea></div>
-          <div class="field"><label>Status</label>
+          <div class="field"><label>Championship Status</label>
             <select class="input" id="settingStatus">
               <option value="draft">Draft</option>
               <option value="scheduled">Scheduled</option>
@@ -284,19 +299,44 @@ td strong{color:#fff}
             </select>
           </div>
         </div>
-        <div class="editor-actions"><button class="btn primary" type="submit">Save Championship</button></div>
       </form>
-    </main>
-
-    <aside class="panel danger-zone">
-      <div class="section-kicker" style="color:#ff7e7e">Danger Zone</div>
-      <h2>Championship Actions</h2>
-      <p class="muted">Archiving keeps the championship and its data. Deleting permanently removes the championship and related rounds/results.</p>
-      <div class="row-actions" style="margin-top:14px">
-        <button class="btn" id="archiveBtn">Archive</button>
-        <button class="btn danger" id="deleteChampBtn">Delete Championship</button>
+      <div class="settings-note" style="margin-top:14px">
+        Championship scoring presets can be selected here. Existing scored race results are not recalculated automatically when the scoring type changes.
       </div>
-    </aside>
+    </section>
+
+    <section class="panel danger-zone">
+      <div class="panel-head"><div><div class="section-kicker" style="color:#ff7e7e">Danger Zone</div><h2>Championship Management</h2></div></div>
+
+      <div class="danger-action">
+        <div>
+          <strong>Archive Championship</strong>
+          <p>Removes the championship from active management while keeping its rounds, results, standings and history.</p>
+        </div>
+        <button class="btn" id="archiveBtn" type="button">Archive Championship</button>
+      </div>
+
+      <div class="danger-action">
+        <div>
+          <strong>Delete Championship</strong>
+          <p>Permanently deletes this championship. This action cannot be undone.</p>
+        </div>
+        <button class="btn danger" id="deleteChampBtn" type="button">Delete Championship</button>
+      </div>
+
+      <div class="delete-confirm" id="deleteConfirm">
+        <div class="delete-confirm-title">Confirm Permanent Deletion</div>
+        <p>Type <strong id="deleteChampName"></strong> below to confirm. Related championship data will be removed according to the Racing System database relationships.</p>
+        <div class="field">
+          <label>Championship Name</label>
+          <input class="input" id="deleteConfirmInput" autocomplete="off" placeholder="Type championship name">
+        </div>
+        <div class="editor-actions">
+          <button class="btn" id="cancelDeleteBtn" type="button">Cancel</button>
+          <button class="btn danger" id="confirmDeleteBtn" type="button" disabled>Permanently Delete</button>
+        </div>
+      </div>
+    </section>
   </div>
 </section>
 </div>
@@ -632,6 +672,7 @@ function renderSettings(){
   qs("settingDescription").value=champ.description||"";
   qs("settingStatus").value=champ.status||"draft";
   qs("settingScoring").value=champ.scoring_type||"mx";
+  qs("deleteChampName").textContent=champ.name||"";
 }
 qs("settingsForm").onsubmit=async e=>{
   e.preventDefault();
@@ -647,12 +688,44 @@ qs("archiveBtn").onclick=async()=>{
   const {error}=await supabaseClient.from("racing_championships").update({status:"archived",updated_at:new Date().toISOString()}).eq("id",championshipId);
   if(error)return toast(error.message,true);champ.status="archived";renderAll();toast("Championship archived.");
 };
-qs("deleteChampBtn").onclick=async()=>{
-  const phrase=prompt(`Type DELETE to permanently delete "${champ.name}".`);
-  if(phrase!=="DELETE")return;
-  const {error}=await supabaseClient.from("racing_championships").delete().eq("id",championshipId);
-  if(error)return toast(error.message,true);
-  location.href="racing-system.html";
+qs("deleteChampBtn").onclick=()=>{
+  qs("deleteConfirm").classList.add("open");
+  qs("deleteConfirmInput").value="";
+  qs("confirmDeleteBtn").disabled=true;
+  qs("deleteConfirmInput").focus();
+};
+
+qs("cancelDeleteBtn").onclick=()=>{
+  qs("deleteConfirm").classList.remove("open");
+  qs("deleteConfirmInput").value="";
+  qs("confirmDeleteBtn").disabled=true;
+};
+
+qs("deleteConfirmInput").addEventListener("input",()=>{
+  qs("confirmDeleteBtn").disabled=
+    qs("deleteConfirmInput").value.trim()!==String(champ.name||"").trim();
+});
+
+qs("confirmDeleteBtn").onclick=async()=>{
+  if(qs("deleteConfirmInput").value.trim()!==String(champ.name||"").trim())return;
+
+  const button=qs("confirmDeleteBtn");
+  button.disabled=true;
+  button.textContent="Deleting...";
+
+  try{
+    const {error}=await supabaseClient.rpc("delete_racing_championship",{
+      p_championship_id:championshipId
+    });
+    if(error)throw error;
+
+    location.href="racing-system.html?deleted=1";
+  }catch(error){
+    console.error(error);
+    button.textContent="Permanently Delete";
+    button.disabled=false;
+    toast(error.message||"Could not delete championship.",true);
+  }
 };
 
 (async()=>{
