@@ -901,37 +901,37 @@
                             <div class="settings-help">Choose fixed laps or a timed race with optional extra laps.</div>
                         </div>
 
-                        <div class="field">
+                        <div id="race1LapsField" class="field">
                             <label class="field-label" for="raceLapsInput">Race 1 Laps</label>
                             <input id="raceLapsInput" class="race-setting-input" type="number" min="1" max="100" step="1" inputmode="numeric" value="5">
                             <div class="settings-help">Used when Race Format is Laps.</div>
                         </div>
 
-                        <div class="field">
+                        <div id="race1MinutesField" class="field">
                             <label class="field-label" for="raceMinutesInput">Race 1 Minutes</label>
                             <input id="raceMinutesInput" class="race-setting-input" type="number" min="1" max="180" step="1" inputmode="numeric" value="5">
                             <div class="settings-help">Used for timed races.</div>
                         </div>
 
-                        <div class="field">
+                        <div id="race1ExtraLapsField" class="field">
                             <label class="field-label" for="raceExtraLapsInput">Race 1 Extra Laps</label>
                             <input id="raceExtraLapsInput" class="race-setting-input" type="number" min="0" max="100" step="1" inputmode="numeric" value="0">
                             <div class="settings-help">0 = pure timed race. Example: 5 minutes + 2 laps.</div>
                         </div>
 
-                        <div class="field">
-                            <label class="field-label" for="race2LapsInput">Race 2</label>
+                        <div id="race2LapsField" class="field">
+                            <label class="field-label" for="race2LapsInput">Race 2 Laps</label>
                             <input id="race2LapsInput" class="race-setting-input" type="number" min="0" max="100" step="1" inputmode="numeric" value="0">
                             <div class="settings-help"><strong>0 disables Race 2.</strong> For Laps format, enter Race 2 lap count.</div>
                         </div>
 
-                        <div class="field">
+                        <div id="race2MinutesField" class="field">
                             <label class="field-label" for="race2MinutesInput">Race 2 Minutes</label>
                             <input id="race2MinutesInput" class="race-setting-input" type="number" min="0" max="180" step="1" inputmode="numeric" value="0">
-                            <div class="settings-help">For timed format. Leave Race 2 at 0 above to disable Race 2 entirely.</div>
+                            <div class="settings-help"><strong>0 disables Race 2.</strong> Enter minutes when timed mode is selected.</div>
                         </div>
 
-                        <div class="field">
+                        <div id="race2ExtraLapsField" class="field">
                             <label class="field-label" for="race2ExtraLapsInput">Race 2 Extra Laps</label>
                             <input id="race2ExtraLapsInput" class="race-setting-input" type="number" min="0" max="100" step="1" inputmode="numeric" value="0">
                             <div class="settings-help">Used with timed Race 2. Example: 5 minutes + 2 laps.</div>
@@ -1542,6 +1542,48 @@ const raceExtraLapsInput=document.getElementById("raceExtraLapsInput");
 const race2LapsInput=document.getElementById("race2LapsInput");
 const race2MinutesInput=document.getElementById("race2MinutesInput");
 const race2ExtraLapsInput=document.getElementById("race2ExtraLapsInput");
+const race1LapsField=document.getElementById("race1LapsField");
+const race1MinutesField=document.getElementById("race1MinutesField");
+const race1ExtraLapsField=document.getElementById("race1ExtraLapsField");
+const race2LapsField=document.getElementById("race2LapsField");
+const race2MinutesField=document.getElementById("race2MinutesField");
+const race2ExtraLapsField=document.getElementById("race2ExtraLapsField");
+
+let serverSettingsDirty=false;
+let serverSettingsSaving=false;
+let serverSettingsServerId=null;
+
+function updateRaceFormatFields(){
+ const timed=raceFormatSelect?.value==="timed";
+ if(race1LapsField) race1LapsField.style.display=timed?"none":"";
+ if(race2LapsField) race2LapsField.style.display=timed?"none":"";
+ if(race1MinutesField) race1MinutesField.style.display=timed?"":"none";
+ if(race1ExtraLapsField) race1ExtraLapsField.style.display=timed?"":"none";
+ if(race2MinutesField) race2MinutesField.style.display=timed?"":"none";
+ if(race2ExtraLapsField) race2ExtraLapsField.style.display=timed?"":"none";
+}
+
+function markServerSettingsDirty(){
+ if(serverSettingsSaving) return;
+ serverSettingsDirty=true;
+ if(serverSettingsMessage){
+  serverSettingsMessage.textContent="Unsaved changes";
+ }
+}
+
+const serverSettingsControls=[
+ serverNameInput,bikeClassSelect,trackSelect,practiceLengthInput,qualifyLengthInput,
+ warmupLengthInput,raceFormatSelect,raceLapsInput,raceMinutesInput,raceExtraLapsInput,
+ race2LapsInput,race2MinutesInput,race2ExtraLapsInput,realisticWeatherInput,
+ minimumMmrSelect,serverMessageInput,serverMessageIntervalSelect
+].filter(Boolean);
+
+for(const control of serverSettingsControls){
+ control.addEventListener("input",markServerSettingsDirty);
+ control.addEventListener("change",markServerSettingsDirty);
+}
+raceFormatSelect?.addEventListener("change",updateRaceFormatFields);
+
 const realisticWeatherInput=document.getElementById("realisticWeatherInput");
 const minimumMmrSelect=document.getElementById("minimumMmrSelect");
 const serverMessageInput=document.getElementById("serverMessageInput");
@@ -1616,6 +1658,18 @@ async function loadTrackCatalog(){
 }
 
 function syncServerSettings(server){
+ if(!server) return;
+
+ const switchingServers=
+  serverSettingsServerId &&
+  serverSettingsServerId!==server.id;
+
+ if((serverSettingsDirty||serverSettingsSaving)&&!switchingServers){
+  return;
+ }
+
+ serverSettingsServerId=server.id;
+ serverSettingsDirty=false;
  if(!serverNameInput||!bikeClassSelect||!trackSelect||!server)return;
 
  if(document.activeElement!==serverNameInput){
@@ -1680,6 +1734,8 @@ function syncServerSettings(server){
  if(serverMessageIntervalSelect){
   serverMessageIntervalSelect.value=String(server.server_chat_interval_minutes??0);
  }
+
+ updateRaceFormatFields();
 
  updateTrackDownloadLink(server.track_key||trackSelect.value);
  updateCurrentTrackDisplay(server.track_key);
@@ -1752,12 +1808,16 @@ async function saveServerSettings(){
   serverSettingsMessage.textContent="Race 1 extra laps must be between 0 and 100.";
   return;
  }
- if(!Number.isInteger(race2Laps)||race2Laps<0||race2Laps>100){
-  serverSettingsMessage.textContent="Race 2 must be 0 (disabled) or between 1 and 100 laps.";
+ if(raceFormat==="laps"&&(!Number.isInteger(race2Laps)||race2Laps<0||race2Laps>100)){
+  serverSettingsMessage.textContent="Race 2 laps must be 0 (disabled) or between 1 and 100.";
   return;
  }
- if(!Number.isInteger(race2Minutes)||race2Minutes<0||race2Minutes>180||!Number.isInteger(race2ExtraLaps)||race2ExtraLaps<0||race2ExtraLaps>100){
-  serverSettingsMessage.textContent="Race 2 timed settings are invalid.";
+ if(raceFormat==="timed"&&(!Number.isInteger(race2Minutes)||race2Minutes<0||race2Minutes>180)){
+  serverSettingsMessage.textContent="Race 2 minutes must be 0 (disabled) or between 1 and 180.";
+  return;
+ }
+ if(!Number.isInteger(race2ExtraLaps)||race2ExtraLaps<0||race2ExtraLaps>100){
+  serverSettingsMessage.textContent="Race 2 extra laps must be between 0 and 100.";
   return;
  }
 
@@ -1781,6 +1841,7 @@ async function saveServerSettings(){
  const {data:{session}}=await supabaseClient.auth.getSession();
  if(!session){window.location.href="login.html";return;}
 
+ serverSettingsSaving=true;
  saveServerSettingsBtn.disabled=true;
  serverNameInput.disabled=true;
  bikeClassSelect.disabled=true;
@@ -1831,8 +1892,21 @@ async function saveServerSettings(){
    })
   });
 
-  const result=await response.json().catch(()=>({}));
-  if(!response.ok)throw new Error(result.error||"Failed to update server settings.");
+  const rawResponse=await response.text();
+  let result={};
+  try{
+   result=rawResponse?JSON.parse(rawResponse):{};
+  }catch{
+   result={};
+  }
+  if(!response.ok){
+   throw new Error(
+    result.error||
+    result.message||
+    rawResponse||
+    `Failed to update server settings (${response.status}).`
+   );
+  }
 
   serverNameInput.value=result.serverName||newName;
   bikeClassSelect.value=result.bikeClass||bikeClass;
@@ -1855,6 +1929,8 @@ async function saveServerSettings(){
   updateTrackDownloadLink(result.trackKey||trackKey);
   updateCurrentTrackDisplay(result.trackKey||trackKey);
 
+  serverSettingsDirty=false;
+  serverSettingsServerId=currentServer?.id||serverSettingsServerId;
   serverSettingsMessage.textContent=result.restartQueued
    ?"Settings saved. Server restart queued."
    :"Settings saved. They will be used next time the server starts.";
@@ -1863,8 +1939,10 @@ async function saveServerSettings(){
 
  }catch(error){
   console.error("[SERVER SETTINGS]",error);
+  serverSettingsDirty=true;
   serverSettingsMessage.textContent=error.message||"Failed to update server settings.";
  }finally{
+  serverSettingsSaving=false;
   saveServerSettingsBtn.disabled=false;
   serverNameInput.disabled=false;
   bikeClassSelect.disabled=false;
