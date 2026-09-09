@@ -893,9 +893,48 @@
                         </div>
 
                         <div class="field">
-                            <label class="field-label" for="raceLapsInput">Race</label>
+                            <label class="field-label" for="raceFormatSelect">Race Format</label>
+                            <select id="raceFormatSelect" class="bike-class-select">
+                                <option value="laps">Laps</option>
+                                <option value="timed">Timed / Timed + Laps</option>
+                            </select>
+                            <div class="settings-help">Choose fixed laps or a timed race with optional extra laps.</div>
+                        </div>
+
+                        <div class="field">
+                            <label class="field-label" for="raceLapsInput">Race 1 Laps</label>
                             <input id="raceLapsInput" class="race-setting-input" type="number" min="1" max="100" step="1" inputmode="numeric" value="5">
-                            <div class="settings-help">Laps</div>
+                            <div class="settings-help">Used when Race Format is Laps.</div>
+                        </div>
+
+                        <div class="field">
+                            <label class="field-label" for="raceMinutesInput">Race 1 Minutes</label>
+                            <input id="raceMinutesInput" class="race-setting-input" type="number" min="1" max="180" step="1" inputmode="numeric" value="5">
+                            <div class="settings-help">Used for timed races.</div>
+                        </div>
+
+                        <div class="field">
+                            <label class="field-label" for="raceExtraLapsInput">Race 1 Extra Laps</label>
+                            <input id="raceExtraLapsInput" class="race-setting-input" type="number" min="0" max="100" step="1" inputmode="numeric" value="0">
+                            <div class="settings-help">0 = pure timed race. Example: 5 minutes + 2 laps.</div>
+                        </div>
+
+                        <div class="field">
+                            <label class="field-label" for="race2LapsInput">Race 2</label>
+                            <input id="race2LapsInput" class="race-setting-input" type="number" min="0" max="100" step="1" inputmode="numeric" value="0">
+                            <div class="settings-help"><strong>0 disables Race 2.</strong> For Laps format, enter Race 2 lap count.</div>
+                        </div>
+
+                        <div class="field">
+                            <label class="field-label" for="race2MinutesInput">Race 2 Minutes</label>
+                            <input id="race2MinutesInput" class="race-setting-input" type="number" min="0" max="180" step="1" inputmode="numeric" value="0">
+                            <div class="settings-help">For timed format. Leave Race 2 at 0 above to disable Race 2 entirely.</div>
+                        </div>
+
+                        <div class="field">
+                            <label class="field-label" for="race2ExtraLapsInput">Race 2 Extra Laps</label>
+                            <input id="race2ExtraLapsInput" class="race-setting-input" type="number" min="0" max="100" step="1" inputmode="numeric" value="0">
+                            <div class="settings-help">Used with timed Race 2. Example: 5 minutes + 2 laps.</div>
                         </div>
                     </div>
 
@@ -1232,7 +1271,7 @@
             .from("game_servers")
             .select(`
                 id, server_code, server_name, bike_class, track_key, port, max_players, current_players, status, started_at, node_id, race_phase,
-                practice_length, qualify_length, warmup_length, race_laps, realistic_weather, minimum_mmr, server_chat_message, server_chat_interval_minutes,
+                practice_length, qualify_length, warmup_length, race_laps, race_length_format, race_minutes, race_extralaps, race2_laps, race2_minutes, race2_extralaps, realistic_weather, minimum_mmr, server_chat_message, server_chat_interval_minutes,
                 nodes ( node_name, public_ip )
             `)
             .eq("user_id", userId)
@@ -1496,7 +1535,13 @@ const trackDownloadLink=document.getElementById("trackDownloadLink");
 const practiceLengthInput=document.getElementById("practiceLengthInput");
 const qualifyLengthInput=document.getElementById("qualifyLengthInput");
 const warmupLengthInput=document.getElementById("warmupLengthInput");
+const raceFormatSelect=document.getElementById("raceFormatSelect");
 const raceLapsInput=document.getElementById("raceLapsInput");
+const raceMinutesInput=document.getElementById("raceMinutesInput");
+const raceExtraLapsInput=document.getElementById("raceExtraLapsInput");
+const race2LapsInput=document.getElementById("race2LapsInput");
+const race2MinutesInput=document.getElementById("race2MinutesInput");
+const race2ExtraLapsInput=document.getElementById("race2ExtraLapsInput");
 const realisticWeatherInput=document.getElementById("realisticWeatherInput");
 const minimumMmrSelect=document.getElementById("minimumMmrSelect");
 const serverMessageInput=document.getElementById("serverMessageInput");
@@ -1601,6 +1646,25 @@ function syncServerSettings(server){
   raceLapsInput.value=server.race_laps??5;
  }
 
+ if(raceFormatSelect){
+  raceFormatSelect.value=Number(server.race_length_format??2)===1?"timed":"laps";
+ }
+ if(raceMinutesInput&&document.activeElement!==raceMinutesInput){
+  raceMinutesInput.value=server.race_minutes??5;
+ }
+ if(raceExtraLapsInput&&document.activeElement!==raceExtraLapsInput){
+  raceExtraLapsInput.value=server.race_extralaps??0;
+ }
+ if(race2LapsInput&&document.activeElement!==race2LapsInput){
+  race2LapsInput.value=server.race2_laps??0;
+ }
+ if(race2MinutesInput&&document.activeElement!==race2MinutesInput){
+  race2MinutesInput.value=server.race2_minutes??0;
+ }
+ if(race2ExtraLapsInput&&document.activeElement!==race2ExtraLapsInput){
+  race2ExtraLapsInput.value=server.race2_extralaps??0;
+ }
+
  if(realisticWeatherInput){
   realisticWeatherInput.checked=server.realistic_weather!==false;
  }
@@ -1632,7 +1696,13 @@ async function saveServerSettings(){
  const practiceLength=Number(practiceLengthInput?.value);
  const qualifyLength=Number(qualifyLengthInput?.value);
  const warmupLength=Number(warmupLengthInput?.value);
+ const raceFormat=raceFormatSelect?.value==="timed"?"timed":"laps";
  const raceLaps=Number(raceLapsInput?.value);
+ const raceMinutes=Number(raceMinutesInput?.value);
+ const raceExtraLaps=Number(raceExtraLapsInput?.value);
+ const race2Laps=Number(race2LapsInput?.value);
+ const race2Minutes=Number(race2MinutesInput?.value);
+ const race2ExtraLaps=Number(race2ExtraLapsInput?.value);
  const realisticWeather=realisticWeatherInput?.checked!==false;
  const minimumMmr=Number(minimumMmrSelect?.value||0);
  const serverMessage=String(serverMessageInput?.value||"").trim().replace(/\s+/g," ");
@@ -1670,8 +1740,24 @@ async function saveServerSettings(){
   return;
  }
 
- if(!Number.isInteger(raceLaps)||raceLaps<1||raceLaps>100){
-  serverSettingsMessage.textContent="Race length must be a whole number between 1 and 100 laps.";
+ if(raceFormat==="laps"&&(!Number.isInteger(raceLaps)||raceLaps<1||raceLaps>100)){
+  serverSettingsMessage.textContent="Race 1 laps must be between 1 and 100.";
+  return;
+ }
+ if(raceFormat==="timed"&&(!Number.isInteger(raceMinutes)||raceMinutes<1||raceMinutes>180)){
+  serverSettingsMessage.textContent="Race 1 minutes must be between 1 and 180.";
+  return;
+ }
+ if(!Number.isInteger(raceExtraLaps)||raceExtraLaps<0||raceExtraLaps>100){
+  serverSettingsMessage.textContent="Race 1 extra laps must be between 0 and 100.";
+  return;
+ }
+ if(!Number.isInteger(race2Laps)||race2Laps<0||race2Laps>100){
+  serverSettingsMessage.textContent="Race 2 must be 0 (disabled) or between 1 and 100 laps.";
+  return;
+ }
+ if(!Number.isInteger(race2Minutes)||race2Minutes<0||race2Minutes>180||!Number.isInteger(race2ExtraLaps)||race2ExtraLaps<0||race2ExtraLaps>100){
+  serverSettingsMessage.textContent="Race 2 timed settings are invalid.";
   return;
  }
 
@@ -1702,7 +1788,13 @@ async function saveServerSettings(){
  practiceLengthInput.disabled=true;
  qualifyLengthInput.disabled=true;
  warmupLengthInput.disabled=true;
+ raceFormatSelect.disabled=true;
  raceLapsInput.disabled=true;
+ raceMinutesInput.disabled=true;
+ raceExtraLapsInput.disabled=true;
+ race2LapsInput.disabled=true;
+ race2MinutesInput.disabled=true;
+ race2ExtraLapsInput.disabled=true;
  realisticWeatherInput.disabled=true;
  minimumMmrSelect.disabled=true;
  serverMessageInput.disabled=true;
@@ -1725,7 +1817,13 @@ async function saveServerSettings(){
     practiceLength:practiceLength,
     qualifyLength:qualifyLength,
     warmupLength:warmupLength,
+    raceFormat:raceFormat,
     raceLaps:raceLaps,
+    raceMinutes:raceMinutes,
+    raceExtraLaps:raceExtraLaps,
+    race2Laps:race2Laps,
+    race2Minutes:race2Minutes,
+    race2ExtraLaps:race2ExtraLaps,
     realisticWeather:realisticWeather,
     minimumMmr:minimumMmr,
     serverMessage:serverMessage,
@@ -1743,6 +1841,12 @@ async function saveServerSettings(){
   qualifyLengthInput.value=result.qualifyLength??qualifyLength;
   warmupLengthInput.value=result.warmupLength??warmupLength;
   raceLapsInput.value=result.raceLaps??raceLaps;
+  raceFormatSelect.value=result.raceFormat??raceFormat;
+  raceMinutesInput.value=result.raceMinutes??raceMinutes;
+  raceExtraLapsInput.value=result.raceExtraLaps??raceExtraLaps;
+  race2LapsInput.value=result.race2Laps??race2Laps;
+  race2MinutesInput.value=result.race2Minutes??race2Minutes;
+  race2ExtraLapsInput.value=result.race2ExtraLaps??race2ExtraLaps;
   realisticWeatherInput.checked=result.realisticWeather??realisticWeather;
   minimumMmrSelect.value=String(result.minimumMmr??minimumMmr);
   serverMessageInput.value=result.serverMessage??serverMessage;
@@ -1768,7 +1872,13 @@ async function saveServerSettings(){
   practiceLengthInput.disabled=false;
   qualifyLengthInput.disabled=false;
   warmupLengthInput.disabled=false;
-  raceLapsInput.disabled=false;
+  raceFormatSelect.disabled=false;
+ raceLapsInput.disabled=false;
+ raceMinutesInput.disabled=false;
+ raceExtraLapsInput.disabled=false;
+ race2LapsInput.disabled=false;
+ race2MinutesInput.disabled=false;
+ race2ExtraLapsInput.disabled=false;
   realisticWeatherInput.disabled=false;
   minimumMmrSelect.disabled=false;
  serverMessageInput.disabled=false;
