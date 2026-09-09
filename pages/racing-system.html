@@ -5,184 +5,68 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>Racing System | MotoGrid</title>
 <link rel="stylesheet" href="../css/style.css">
+
 <style>
-:root{--green:#7cff00;--bg:#050605;--panel:#0a0c0a;--panel2:#070907;--line:rgba(255,255,255,.085);--muted:#686b68}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:#fff;font-family:Arial,Helvetica,sans-serif}
-body:before{content:"";position:fixed;inset:0;pointer-events:none;background:linear-gradient(rgba(255,255,255,.014) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.014) 1px,transparent 1px);background-size:54px 54px}
-.shell{position:relative;width:min(1480px,calc(100% - 42px));margin:auto;padding-bottom:70px}
-.topbar{height:82px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line)}
-.brand{display:flex;align-items:center;gap:11px;text-decoration:none;color:#fff;font-weight:1000;font-style:italic}.brand img{display:block;height:54px;width:auto;max-width:220px;object-fit:contain}.brand b{font-size:17px}.brand b span{color:var(--green)}
-.back,.outline-btn,.primary-btn{min-height:42px;padding:0 16px;display:inline-flex;align-items:center;justify-content:center;text-align:center;text-decoration:none;text-transform:uppercase;font-size:9px;font-weight:1000;letter-spacing:1.25px;cursor:pointer}
-.back,.outline-btn{border:1px solid rgba(255,255,255,.12);background:#080908;color:#aaa}.back:hover,.outline-btn:hover{border-color:var(--green);color:var(--green)}
-.primary-btn{border:1px solid var(--green);background:var(--green);color:#061006}
-.hero{padding:42px 0 25px;display:flex;justify-content:space-between;gap:25px;align-items:end}
-.eyebrow{font-size:9px;font-weight:1000;letter-spacing:2.6px;text-transform:uppercase;color:var(--green)}
-.hero h1{font-size:clamp(40px,6vw,68px);line-height:.92;margin:8px 0 10px;font-style:italic;letter-spacing:-2.8px;text-transform:uppercase}
-.hero p{margin:0;color:#6e716e;font-size:12px}.server-pill{border:1px solid rgba(124,255,0,.22);background:rgba(124,255,0,.035);padding:11px 14px;color:#9a9d9a;font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:1px}
-.nav{display:flex;gap:7px;padding:0 0 18px;border-bottom:1px solid var(--line);margin-bottom:18px;overflow:auto}.nav button{flex:0 0 auto;border:0;border-bottom:2px solid transparent;background:transparent;color:#5f625f;padding:10px 14px;font-size:9px;font-weight:1000;letter-spacing:1.3px;text-transform:uppercase}.nav button.active{color:#fff;border-bottom-color:var(--green)}
-.dashboard{display:grid;grid-template-columns:minmax(0,1.9fr) minmax(300px,.8fr);gap:18px}
-.panel{position:relative;background:var(--panel);border:1px solid var(--line);padding:24px}.panel:before{content:"";position:absolute;left:-1px;top:-1px;width:64px;height:3px;background:var(--green)}
-.panel-head{display:flex;align-items:center;justify-content:space-between;gap:15px;margin-bottom:19px}.section-label{font-size:8px;font-weight:1000;letter-spacing:2px;color:#5e615e;text-transform:uppercase}.panel h2{font-size:20px;margin:5px 0 0;text-transform:uppercase}
-.champ-list{display:grid;gap:10px}.champ-card{position:relative;display:grid;grid-template-columns:110px minmax(0,1fr) auto;gap:16px;align-items:center;padding:13px;border:1px solid rgba(255,255,255,.075);background:#070807;cursor:pointer;transition:.15s}.champ-card:hover{border-color:rgba(124,255,0,.45);transform:translateY(-1px)}
-.champ-img{width:110px;aspect-ratio:16/9;background:#0d0f0d;border:1px solid rgba(255,255,255,.07);overflow:hidden;display:flex;align-items:center;justify-content:center;color:#404340;font-size:8px;font-weight:900;text-transform:uppercase}.champ-img img{width:100%;height:100%;object-fit:cover}
-.champ-name{font-size:15px;font-weight:1000;text-transform:uppercase}.champ-desc{margin-top:6px;color:#646764;font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.champ-meta{display:flex;gap:12px;margin-top:9px;color:#858885;font-size:8px;font-weight:900;text-transform:uppercase;letter-spacing:.8px}.champ-meta b{color:var(--green)}
-.status{justify-self:end;padding:7px 9px;border:1px solid rgba(124,255,0,.24);color:var(--green);font-size:8px;font-weight:1000;text-transform:uppercase}
-.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.stat{padding:16px;background:#070807;border:1px solid rgba(255,255,255,.065)}.stat span{display:block;color:#555;font-size:8px;font-weight:900;letter-spacing:1.1px;text-transform:uppercase}.stat strong{display:block;font-size:24px;margin-top:7px}
-.feature{display:flex;gap:11px;padding:13px 0;border-bottom:1px solid rgba(255,255,255,.055);font-size:10px;color:#858885}.feature b{color:var(--green)}
-.empty{padding:48px 24px;border:1px dashed rgba(255,255,255,.1);text-align:center;color:#5c5f5c;font-size:11px;line-height:1.7}.empty strong{display:block;color:#ddd;font-size:15px;text-transform:uppercase;margin-bottom:5px}
-.notice{display:none;margin-bottom:16px;padding:14px;border:1px solid rgba(255,100,100,.25);color:#ff8d8d;background:rgba(255,100,100,.035);font-size:10px}.notice.visible{display:block}
-.loading{position:fixed;z-index:1000;inset:0;display:flex;align-items:center;justify-content:center;background:#050605;color:var(--green);font-size:9px;font-weight:1000;letter-spacing:3px;text-transform:uppercase}.loading.hidden{display:none}
+:root{
+  --green:#7cff00;--bg:#050605;--panel:#0b0d0b;--panel-soft:#080a08;--panel-hover:#0e110e;
+  --line:rgba(255,255,255,.085);--line-strong:rgba(255,255,255,.14);--text:#f5f7f5;
+  --muted:#7a7e7a;--muted2:#555955;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,Helvetica,sans-serif}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;background:linear-gradient(rgba(255,255,255,.012) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.012) 1px,transparent 1px);background-size:52px 52px}
+.shell{position:relative;width:min(1480px,calc(100% - 36px));margin:auto;padding-bottom:70px}
+.topbar{min-height:76px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line)}
+.brand{display:inline-flex;align-items:center;text-decoration:none}.brand img{display:block;height:52px;width:auto;max-width:220px;object-fit:contain}
+.back,.outline-btn,.primary-btn{min-height:40px;padding:0 15px;display:inline-flex;align-items:center;justify-content:center;text-align:center;text-decoration:none;text-transform:uppercase;font-size:9px;font-weight:1000;letter-spacing:1.1px;cursor:pointer;transition:.15s}
+.back,.outline-btn{border:1px solid var(--line-strong);background:#080908;color:#a4a7a4}.back:hover,.outline-btn:hover{border-color:rgba(124,255,0,.55);color:var(--green)}
+.primary-btn{border:1px solid var(--green);background:var(--green);color:#061006}.primary-btn:hover{filter:brightness(1.04)}
 
-@media(max-width:900px){.showcase-grid{grid-template-columns:1fr 1fr}.dashboard{grid-template-columns:1fr}.hero{align-items:flex-start;flex-direction:column}.champ-card{grid-template-columns:80px minmax(0,1fr)}.champ-img{width:80px}.status{grid-column:2;justify-self:start}.shell{width:min(100% - 24px,1480px)}}
-@media(max-width:600px){.showcase-grid{grid-template-columns:1fr}}
-.race-discovery{
-    position:relative;
-    min-height:430px;
-    margin:0 calc(50% - 50vw);
-    padding:58px max(22px,calc((100vw - min(1480px,calc(100vw - 42px)))/2)) 45px;
-    overflow:hidden;
-    border-bottom:1px solid var(--line);
-    background:
-      radial-gradient(circle at 72% 28%,rgba(124,255,0,.10),transparent 28%),
-      linear-gradient(118deg,#020302 0%,#050805 48%,#10240a 100%);
-}
-.race-discovery:before{
-    content:"";
-    position:absolute;
-    top:-120px;
-    right:5%;
-    width:280px;
-    height:680px;
-    background:linear-gradient(180deg,rgba(124,255,0,.14),rgba(124,255,0,.035));
-    transform:skewX(-18deg);
-    pointer-events:none;
-}
-.race-discovery:after{
-    content:"";
-    position:absolute;
-    left:0;
-    right:0;
-    bottom:0;
-    height:4px;
-    background:linear-gradient(90deg,transparent 0%,var(--green) 66%,rgba(124,255,0,.1) 100%);
-    opacity:.9;
-}
-.race-discovery-top{
-    position:relative;
-    z-index:2;
-    display:flex;
-    align-items:flex-end;
-    justify-content:space-between;
-    gap:24px;
-    margin-bottom:26px;
-}
-.race-discovery h1{
-    margin:7px 0 8px;
-    font-size:clamp(42px,6vw,72px);
-    line-height:.9;
-    letter-spacing:-3px;
-    font-style:italic;
-    text-transform:uppercase;
-}
-.race-discovery p{margin:0;color:#777b77;font-size:12px}
-.race-discovery-actions{display:flex;align-items:center;gap:9px;flex-wrap:wrap;justify-content:flex-end}
-.featured-races{
-    position:relative;
-    z-index:2;
-    display:grid;
-    grid-template-columns:repeat(4,minmax(0,1fr));
-    gap:12px;
-}
-.featured-race{
-    position:relative;
-    min-height:205px;
-    overflow:hidden;
-    border:1px solid rgba(255,255,255,.09);
-    background:#080a08;
-    cursor:pointer;
-    transition:transform .16s ease,border-color .16s ease;
-}
-.featured-race:hover{transform:translateY(-3px);border-color:rgba(124,255,0,.55)}
-.featured-race-bg{
-    position:absolute;
-    inset:0;
-    background-size:cover;
-    background-position:center;
-    opacity:.42;
-}
-.featured-race-bg:after{
-    content:"";
-    position:absolute;
-    inset:0;
-    background:linear-gradient(0deg,rgba(3,4,3,.98) 0%,rgba(3,4,3,.74) 42%,rgba(3,4,3,.18) 100%);
-}
-.featured-race-body{
-    position:absolute;
-    z-index:2;
-    left:0;right:0;bottom:0;
-    padding:16px;
-}
-.featured-race-status{
-    display:inline-flex;
-    margin-bottom:7px;
-    padding:5px 7px;
-    border:1px solid rgba(124,255,0,.32);
-    background:rgba(124,255,0,.06);
-    color:var(--green);
-    font-size:7px;
-    font-weight:1000;
-    letter-spacing:1px;
-    text-transform:uppercase;
-}
-.featured-race-name{
-    font-size:15px;
-    line-height:1.05;
-    font-weight:1000;
-    text-transform:uppercase;
-}
-.featured-race-desc{
-    margin-top:6px;
-    color:#888b88;
-    font-size:9px;
-    line-height:1.4;
-    display:-webkit-box;
-    -webkit-line-clamp:2;
-    -webkit-box-orient:vertical;
-    overflow:hidden;
-}
-.featured-race-meta{
-    display:flex;
-    gap:10px;
-    flex-wrap:wrap;
-    margin-top:9px;
-    color:#656865;
-    font-size:7px;
-    font-weight:1000;
-    letter-spacing:.7px;
-    text-transform:uppercase;
-}
-.featured-race-meta b{color:#a8aba8}
-.featured-empty{
-    grid-column:1/-1;
-    min-height:205px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    border:1px dashed rgba(255,255,255,.1);
-    color:#5f625f;
-    font-size:10px;
-}
-.dashboard-title{padding-top:36px;padding-bottom:20px}
-.dashboard-title h1{font-size:clamp(34px,4vw,52px)}
+.race-discovery{position:relative;margin:0 calc(50% - 50vw);padding:42px max(18px,calc((100vw - min(1480px,calc(100vw - 36px)))/2)) 30px;overflow:hidden;border-bottom:1px solid var(--line);background:radial-gradient(circle at 78% 24%,rgba(124,255,0,.09),transparent 30%),linear-gradient(120deg,#020302 0%,#050705 55%,#0d1a09 100%)}
+.race-discovery:before{content:"";position:absolute;top:-140px;right:7%;width:250px;height:650px;background:linear-gradient(180deg,rgba(124,255,0,.11),rgba(124,255,0,.02));transform:skewX(-18deg)}
+.race-discovery:after{content:"";position:absolute;left:0;right:0;bottom:0;height:3px;background:linear-gradient(90deg,transparent 0%,var(--green) 64%,rgba(124,255,0,.08) 100%)}
+.race-discovery-top{position:relative;z-index:2;display:flex;justify-content:space-between;align-items:flex-end;gap:24px;margin-bottom:20px}
+.eyebrow{color:var(--green);font-size:9px;font-weight:1000;letter-spacing:2.2px;text-transform:uppercase}
+.race-discovery h1,.dashboard-title h1{margin:6px 0 8px;font-style:italic;text-transform:uppercase;letter-spacing:-2.4px;line-height:.93}
+.race-discovery h1{font-size:clamp(42px,5vw,64px)}.race-discovery p,.dashboard-title p{margin:0;color:var(--muted);font-size:11px;line-height:1.5}
+.race-discovery-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.server-pill{min-height:40px;padding:0 13px;display:inline-flex;align-items:center;border:1px solid rgba(124,255,0,.2);background:rgba(124,255,0,.03);color:#a0a4a0;font-size:8px;font-weight:900;text-transform:uppercase;letter-spacing:1px}
+.featured-races{position:relative;z-index:2;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.featured-race{position:relative;min-height:176px;overflow:hidden;border:1px solid rgba(255,255,255,.08);background:#080a08;cursor:pointer;transition:.16s}
+.featured-race:hover{transform:translateY(-2px);border-color:rgba(124,255,0,.42)}
+.featured-race-bg{position:absolute;inset:0;background-size:cover;background-position:center;opacity:.38}.featured-race-bg:after{content:"";position:absolute;inset:0;background:linear-gradient(0deg,rgba(3,4,3,.98) 0%,rgba(3,4,3,.72) 46%,rgba(3,4,3,.1) 100%)}
+.featured-race-body{position:absolute;z-index:2;left:0;right:0;bottom:0;padding:13px}
+.featured-race-status{display:inline-flex;padding:4px 6px;margin-bottom:6px;border:1px solid rgba(124,255,0,.28);background:rgba(124,255,0,.05);color:var(--green);font-size:7px;font-weight:1000;text-transform:uppercase}
+.featured-race-name{font-size:14px;font-weight:1000;text-transform:uppercase}.featured-race-desc{margin-top:4px;color:#8a8e8a;font-size:8px;line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}.featured-race-meta{display:flex;gap:8px;margin-top:7px;color:#656965;font-size:7px;font-weight:900;text-transform:uppercase}.featured-race-meta b{color:#a7aaa7}
+.featured-empty{grid-column:1/-1;min-height:176px;display:flex;align-items:center;justify-content:center;border:1px dashed rgba(255,255,255,.1);color:#5d615d;font-size:10px}
 
-@media(max-width:1100px){.featured-races{grid-template-columns:repeat(2,minmax(0,1fr))}}
-@media(max-width:720px){
- .race-discovery{min-height:auto;padding-top:38px}
- .race-discovery-top{align-items:flex-start;flex-direction:column}
- .race-discovery-actions{justify-content:flex-start}
- .featured-races{grid-template-columns:1fr}
-}
+.dashboard-title{padding:32px 0 17px;display:flex;align-items:flex-end;justify-content:space-between;gap:20px}.dashboard-title h1{font-size:clamp(34px,4vw,48px)}
+.workspace{display:grid;grid-template-columns:220px minmax(0,1fr);gap:14px}
+.sidebar{position:sticky;top:14px;align-self:start;background:var(--panel);border:1px solid var(--line);padding:9px}
+.sidebar-title{padding:7px 9px 11px;color:var(--muted2);font-size:8px;font-weight:1000;letter-spacing:1.6px;text-transform:uppercase}
+.sidebar button{width:100%;min-height:41px;padding:0 10px;border:1px solid transparent;background:transparent;color:#777b77;text-align:left;font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:.9px;cursor:pointer}
+.sidebar button:hover{background:#0d0f0d;color:#ddd}.sidebar button.active{background:#0d110d;border-color:rgba(124,255,0,.25);color:#fff}.sidebar button.active:before{content:"";display:inline-block;width:4px;height:4px;margin-right:8px;vertical-align:2px;background:var(--green)}
+.sidebar .sep{height:1px;background:var(--line);margin:7px 0}
+
+.main{min-width:0;display:grid;gap:14px}
+.summary-row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px}
+.summary-card{background:var(--panel);border:1px solid var(--line);padding:15px}.summary-card span{display:block;color:var(--muted2);font-size:8px;font-weight:900;letter-spacing:.9px;text-transform:uppercase}.summary-card strong{display:block;margin-top:6px;font-size:22px}.summary-card small{display:block;margin-top:4px;color:#6c706c;font-size:8px}
+.panel{background:var(--panel);border:1px solid var(--line);padding:19px}.panel-head{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:15px}.section-label{color:var(--muted2);font-size:8px;font-weight:1000;letter-spacing:1.6px;text-transform:uppercase}.panel h2{margin:4px 0 0;font-size:18px;text-transform:uppercase}
+.champ-list{display:grid;gap:8px}.champ-card{display:grid;grid-template-columns:92px minmax(0,1fr) auto;gap:13px;align-items:center;padding:10px;border:1px solid rgba(255,255,255,.07);background:var(--panel-soft);cursor:pointer;transition:.15s}.champ-card:hover{background:var(--panel-hover);border-color:rgba(124,255,0,.33)}
+.champ-img{width:92px;aspect-ratio:16/9;overflow:hidden;display:flex;align-items:center;justify-content:center;background:#0d0f0d;border:1px solid rgba(255,255,255,.06);color:#424642;font-size:7px;font-weight:900;text-transform:uppercase}.champ-img img{width:100%;height:100%;object-fit:cover}
+.champ-name{font-size:13px;font-weight:1000;text-transform:uppercase}.champ-desc{margin-top:4px;color:#666a66;font-size:9px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.champ-meta{display:flex;gap:9px;margin-top:6px;color:#767a76;font-size:7px;font-weight:900;text-transform:uppercase}.champ-meta b{color:var(--green)}
+.status{justify-self:end;padding:6px 8px;border:1px solid rgba(124,255,0,.22);color:var(--green);font-size:7px;font-weight:1000;text-transform:uppercase}
+.quick-links{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}.quick-link{min-height:88px;display:flex;flex-direction:column;justify-content:space-between;padding:13px;border:1px solid rgba(255,255,255,.07);background:var(--panel-soft);cursor:pointer;transition:.15s}.quick-link:hover{border-color:rgba(124,255,0,.32);background:var(--panel-hover)}.quick-link b{color:var(--green);font-size:9px;text-transform:uppercase}.quick-link span{margin-top:12px;color:#858985;font-size:9px;line-height:1.45}
+.empty{padding:36px 20px;border:1px dashed rgba(255,255,255,.1);text-align:center;color:#606460;font-size:10px;line-height:1.7}.empty strong{display:block;margin-bottom:4px;color:#e4e6e4;font-size:13px;text-transform:uppercase}
+.notice{display:none;margin-bottom:13px;padding:12px 14px;border:1px solid rgba(255,100,100,.24);background:rgba(255,100,100,.035);color:#ff8d8d;font-size:9px}.notice.visible{display:block}
+.loading{position:fixed;inset:0;z-index:999;display:flex;align-items:center;justify-content:center;background:#050605;color:var(--green);font-size:9px;font-weight:1000;letter-spacing:2.5px;text-transform:uppercase}.loading.hidden{display:none}
+@media(max-width:1100px){.featured-races{grid-template-columns:repeat(2,minmax(0,1fr))}.summary-row{grid-template-columns:repeat(2,minmax(0,1fr))}.quick-links{grid-template-columns:1fr}}
+@media(max-width:850px){.workspace{grid-template-columns:1fr}.sidebar{position:static;display:flex;overflow:auto;padding:7px}.sidebar-title,.sidebar .sep{display:none}.sidebar button{width:auto;flex:0 0 auto;min-height:38px}.dashboard-title{align-items:flex-start;flex-direction:column}}
+@media(max-width:720px){.shell{width:min(100% - 22px,1480px)}.race-discovery{padding-top:32px}.race-discovery-top{align-items:flex-start;flex-direction:column}.race-discovery-actions{justify-content:flex-start}.featured-races{grid-template-columns:1fr}.summary-row{grid-template-columns:1fr 1fr}.champ-card{grid-template-columns:70px minmax(0,1fr)}.champ-img{width:70px}.status{grid-column:2;justify-self:start}}
+@media(max-width:480px){.summary-row{grid-template-columns:1fr}.topbar{min-height:68px}.brand img{height:46px}}
 </style>
+
 </head>
 <body>
 <div class="loading" id="loading">Loading Race Control...</div>
@@ -209,33 +93,54 @@ body:before{content:"";position:fixed;inset:0;pointer-events:none;background:lin
 </div>
 </section>
 
-<section class="hero dashboard-title">
+<section class="dashboard-title">
 <div>
 <div class="eyebrow">Competition Management</div>
 <h1>Racing System</h1>
-<p>Create and manage championships for your MotoGrid server.</p>
+<p>Manage championships, results, standings and riders from one place.</p>
 </div>
+<button class="primary-btn" id="createChampionshipTop">+ Create Championship</button>
 </section>
+
 <div class="notice" id="notice"></div>
-<nav class="nav"><button class="active">Championships</button><button>Results</button><button>Standings</button><button>Riders</button><button>Settings</button></nav>
-<div class="dashboard">
+
+<div class="workspace">
+<aside class="sidebar">
+<div class="sidebar-title">Racing System</div>
+<button class="active" data-section="championships">Championships</button>
+<button data-section="results">Results</button>
+<button data-section="standings">Standings</button>
+<button data-section="riders">Riders</button>
+<div class="sep"></div>
+<button data-section="settings">Settings</button>
+</aside>
+
+<main class="main">
+<section class="summary-row">
+<div class="summary-card"><span>My Championships</span><strong id="champCount">0</strong><small>Total created</small></div>
+<div class="summary-card"><span>Active</span><strong id="activeCount">0</strong><small>Currently running</small></div>
+<div class="summary-card"><span>Server</span><strong id="serverStatusSummary">—</strong><small id="serverNameSummary">Loading</small></div>
+<div class="summary-card"><span>Next Step</span><strong>Setup</strong><small>Create or open a championship</small></div>
+</section>
+
 <section class="panel">
-<div class="panel-head"><div><div class="section-label">Competition Management</div><h2>Your Championships</h2></div><button class="primary-btn" id="createChampionship">+ Create Championship</button></div>
+<div class="panel-head">
+<div><div class="section-label">Your Events</div><h2>My Championships</h2></div>
+<button class="outline-btn" id="createChampionship">+ New Championship</button>
+</div>
 <div class="champ-list" id="championshipList"></div>
 </section>
-<aside class="panel">
-<div class="section-label">Racing System</div><h2 style="margin-bottom:18px">Overview</h2>
-<div class="stat-grid"><div class="stat"><span>Championships</span><strong id="champCount">0</strong></div><div class="stat"><span>Active</span><strong id="activeCount">0</strong></div></div>
-<div style="margin-top:18px">
-<div class="feature"><b>01</b><span>Qualifying, Race 1 and Race 2 result ingestion</span></div>
-<div class="feature"><b>02</b><span>MX, SX and custom scoring systems</span></div>
-<div class="feature"><b>03</b><span>Independent championship standings</span></div>
-<div class="feature"><b>04</b><span>Point penalties and manual adjustments</span></div>
-<div class="feature"><b>05</b><span>Rider suspension management</span></div>
-</div>
-</aside>
-</div>
 
+<section class="panel">
+<div class="panel-head"><div><div class="section-label">Quick Access</div><h2>Race Tools</h2></div></div>
+<div class="quick-links">
+<div class="quick-link" data-section="results"><b>Results</b><span>Review imported qualifying, Race 1 and Race 2 results.</span></div>
+<div class="quick-link" data-section="standings"><b>Standings</b><span>View championship points separate from global MotoGrid MMR.</span></div>
+<div class="quick-link" data-section="riders"><b>Riders</b><span>Manage riders, penalties and suspensions.</span></div>
+</div>
+</section>
+</main>
+</div>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="../js/supabase.js"></script>
@@ -252,11 +157,27 @@ function error(m){notice.textContent=m;notice.classList.add("visible")}
   const {data:servers,error:serverErr}=await supabaseClient.from("game_servers").select("id,server_code,server_name,status").eq("user_id",user.id).order("created_at",{ascending:true}).limit(1);if(serverErr)throw serverErr;
   const server=servers?.[0];if(!server)throw new Error("No MotoGrid server was found.");
   document.getElementById("serverPill").textContent=`${server.server_name||server.server_code} • ${server.status||"Server"}`;
+  document.getElementById("serverStatusSummary").textContent=String(server.status||"Server").toUpperCase();
+  document.getElementById("serverNameSummary").textContent=server.server_name||server.server_code||"MotoGrid Server";
   const {data:champs,error:champErr}=await supabaseClient.from("racing_championships").select("id,user_id,name,description,image_url,status,scoring_type,created_at").eq("game_server_id",server.id).order("created_at",{ascending:false});if(champErr)throw champErr;
   document.getElementById("champCount").textContent=String(champs?.length||0);document.getElementById("activeCount").textContent=String((champs||[]).filter(c=>c.status==="active").length);
   if(!champs?.length)list.innerHTML='<div class="empty"><strong>No Championships Yet</strong>Create your first championship to configure rounds, scoring and race results.</div>';
   else list.innerHTML=champs.map(c=>`<article class="champ-card" onclick="location.href='championship.html?id=${encodeURIComponent(c.id)}'"><div class="champ-img">${c.image_url?`<img src="${esc(c.image_url)}" alt="">`:"MotoGrid"}</div><div><div class="champ-name">${esc(c.name)}</div><div class="champ-desc">${esc(c.description||"No description")}</div><div class="champ-meta"><span><b>${esc(c.scoring_type).toUpperCase()}</b> scoring</span><span>Created ${new Date(c.created_at).toLocaleDateString()}</span></div></div><span class="status">${esc(c.status)}</span></article>`).join("");
-  document.getElementById("createChampionship").onclick=()=>location.href=`championship-create.html?server=${encodeURIComponent(server.id)}`;
+  const openCreate=()=>location.href=`championship-create.html?server=${encodeURIComponent(server.id)}`;
+  document.getElementById("createChampionship").onclick=openCreate;
+  document.getElementById("createChampionshipTop").onclick=openCreate;
+
+  document.querySelectorAll("[data-section]").forEach(el=>{
+    el.addEventListener("click",()=>{
+      const target=el.dataset.section;
+      document.querySelectorAll(".sidebar button").forEach(b=>b.classList.toggle("active",b.dataset.section===target));
+      if(target==="championships"){
+        document.getElementById("championshipList").scrollIntoView({behavior:"smooth",block:"start"});
+        return;
+      }
+      alert(`${target.charAt(0).toUpperCase()+target.slice(1)} is coming in the next Racing System step.`);
+    });
+  });
 
   const community=document.getElementById("communityChampionships");
   const {data:publicChamps,error:publicErr}=await supabaseClient
