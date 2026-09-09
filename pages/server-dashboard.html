@@ -821,6 +821,27 @@
                     </div>
 
                     <div class="field full">
+                        <label class="field-label" for="serverMessageInput">Automatic Server Chat Message</label>
+                        <input id="serverMessageInput" class="server-name-input" type="text" maxlength="180" autocomplete="off" placeholder="Welcome to my MotoGrid server!">
+                        <div class="settings-help">Optional. MotoGrid will post this message in public in-game chat while the server is online.</div>
+                    </div>
+
+                    <div class="field full">
+                        <label class="field-label" for="serverMessageIntervalSelect">Chat Message Frequency</label>
+                        <select id="serverMessageIntervalSelect" class="bike-class-select">
+                            <option value="0">Disabled</option>
+                            <option value="1">Every 1 minute</option>
+                            <option value="2">Every 2 minutes</option>
+                            <option value="5">Every 5 minutes</option>
+                            <option value="10">Every 10 minutes</option>
+                            <option value="15">Every 15 minutes</option>
+                            <option value="30">Every 30 minutes</option>
+                            <option value="60">Every 60 minutes</option>
+                        </select>
+                        <div class="settings-help">Changing only this message or its frequency does not require an MX Bikes server restart.</div>
+                    </div>
+
+                    <div class="field full">
                         <label class="field-label" for="minimumMmrSelect">Minimum Rider Rank</label>
                         <select id="minimumMmrSelect" class="bike-class-select">
                             <option value="0">Public · No Rank Requirement</option>
@@ -1211,7 +1232,7 @@
             .from("game_servers")
             .select(`
                 id, server_code, server_name, bike_class, track_key, port, max_players, current_players, status, started_at, node_id, race_phase,
-                practice_length, qualify_length, warmup_length, race_laps, realistic_weather, minimum_mmr,
+                practice_length, qualify_length, warmup_length, race_laps, realistic_weather, minimum_mmr, server_chat_message, server_chat_interval_minutes,
                 nodes ( node_name, public_ip )
             `)
             .eq("user_id", userId)
@@ -1478,6 +1499,8 @@ const warmupLengthInput=document.getElementById("warmupLengthInput");
 const raceLapsInput=document.getElementById("raceLapsInput");
 const realisticWeatherInput=document.getElementById("realisticWeatherInput");
 const minimumMmrSelect=document.getElementById("minimumMmrSelect");
+const serverMessageInput=document.getElementById("serverMessageInput");
+const serverMessageIntervalSelect=document.getElementById("serverMessageIntervalSelect");
 const saveServerSettingsBtn=document.getElementById("saveServerSettingsBtn");
 const serverSettingsMessage=document.getElementById("serverSettingsMessage");
 
@@ -1586,6 +1609,14 @@ function syncServerSettings(server){
   minimumMmrSelect.value=String(server.minimum_mmr??0);
  }
 
+ if(serverMessageInput&&document.activeElement!==serverMessageInput){
+  serverMessageInput.value=server.server_chat_message||"";
+ }
+
+ if(serverMessageIntervalSelect){
+  serverMessageIntervalSelect.value=String(server.server_chat_interval_minutes??0);
+ }
+
  updateTrackDownloadLink(server.track_key||trackSelect.value);
  updateCurrentTrackDisplay(server.track_key);
 }
@@ -1604,6 +1635,8 @@ async function saveServerSettings(){
  const raceLaps=Number(raceLapsInput?.value);
  const realisticWeather=realisticWeatherInput?.checked!==false;
  const minimumMmr=Number(minimumMmrSelect?.value||0);
+ const serverMessage=String(serverMessageInput?.value||"").trim().replace(/\s+/g," ");
+ const serverMessageInterval=Number(serverMessageIntervalSelect?.value||0);
 
  serverSettingsMessage.textContent="";
 
@@ -1642,6 +1675,17 @@ async function saveServerSettings(){
   return;
  }
 
+ if(serverMessage.length>180){
+  serverSettingsMessage.textContent="Server chat message cannot exceed 180 characters.";
+  return;
+ }
+
+ const allowedMessageIntervals=[0,1,2,5,10,15,30,60];
+ if(!allowedMessageIntervals.includes(serverMessageInterval)){
+  serverSettingsMessage.textContent="Select a valid chat message frequency.";
+  return;
+ }
+
  const allowedMinimumMmr=[0,1000,2000,3000,4000,5000,6000,7000,8000,9000,10000,11000,12000,13000,14000,15000,16000,17000,18000,19000,20000,21000,22000,23000,50000];
  if(!allowedMinimumMmr.includes(minimumMmr)){
   serverSettingsMessage.textContent="Select a valid minimum rider rank.";
@@ -1661,6 +1705,8 @@ async function saveServerSettings(){
  raceLapsInput.disabled=true;
  realisticWeatherInput.disabled=true;
  minimumMmrSelect.disabled=true;
+ serverMessageInput.disabled=true;
+ serverMessageIntervalSelect.disabled=true;
  saveServerSettingsBtn.textContent="Saving...";
  serverSettingsMessage.textContent="Saving server settings...";
 
@@ -1681,7 +1727,9 @@ async function saveServerSettings(){
     warmupLength:warmupLength,
     raceLaps:raceLaps,
     realisticWeather:realisticWeather,
-    minimumMmr:minimumMmr
+    minimumMmr:minimumMmr,
+    serverMessage:serverMessage,
+    serverMessageInterval:serverMessageInterval
    })
   });
 
@@ -1697,6 +1745,8 @@ async function saveServerSettings(){
   raceLapsInput.value=result.raceLaps??raceLaps;
   realisticWeatherInput.checked=result.realisticWeather??realisticWeather;
   minimumMmrSelect.value=String(result.minimumMmr??minimumMmr);
+  serverMessageInput.value=result.serverMessage??serverMessage;
+  serverMessageIntervalSelect.value=String(result.serverMessageInterval??serverMessageInterval);
 
   updateTrackDownloadLink(result.trackKey||trackKey);
   updateCurrentTrackDisplay(result.trackKey||trackKey);
@@ -1721,6 +1771,8 @@ async function saveServerSettings(){
   raceLapsInput.disabled=false;
   realisticWeatherInput.disabled=false;
   minimumMmrSelect.disabled=false;
+ serverMessageInput.disabled=false;
+ serverMessageIntervalSelect.disabled=false;
   saveServerSettingsBtn.textContent="Save Changes";
  }
 }
