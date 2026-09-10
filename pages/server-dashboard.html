@@ -1531,8 +1531,8 @@
             const [{ data: identities, error: identityError }, { data: bans, error: bansError }] =
                 await Promise.all([
                     supabaseClient
-                        .from("server_rider_identities")
-                        .select("mxbikes_guid,rider_name,race_number,last_seen_at")
+                        .from("server_live_players")
+                        .select("rider_guid,rider_name,race_number,last_seen_at")
                         .eq("game_server_id", gameServerId)
                         .order("last_seen_at", { ascending: false }),
                     supabaseClient
@@ -1544,22 +1544,10 @@
             if (identityError) throw identityError;
             if (bansError) throw bansError;
 
-            // server_rider_identities is historical. The Agent refreshes current
-            // identities from Live Timing, so only rows seen very recently are
-            // eligible for host controls. server-control + Agent re-verify GUID
-            // and race number before any kick occurs.
-            const cutoff = Date.now() - 30000;
-            const seenGuids = new Set();
-            const live = [];
-
-            for (const rider of identities || []) {
-                const seenAt = new Date(rider.last_seen_at || 0).getTime();
-                const guid = String(rider.mxbikes_guid || "").trim().toLowerCase();
-                if (!guid || !Number.isFinite(seenAt) || seenAt < cutoff) continue;
-                if (seenGuids.has(guid)) continue;
-                seenGuids.add(guid);
-                live.push(rider);
-            }
+            const live = (identities || []).map(rider => ({
+                ...rider,
+                mxbikes_guid: rider.rider_guid
+            }));
 
             const banned = new Set(
                 (bans || [])
