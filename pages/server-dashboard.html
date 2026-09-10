@@ -677,6 +677,7 @@
         }
 
         .track-download:hover { text-decoration: underline; }
+        .track-mode-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}.track-mode-btn,.rotation-btn{min-height:36px;border:1px solid var(--line-strong);background:#060706;color:#777;cursor:pointer;font-size:8px;font-weight:1000;text-transform:uppercase}.track-mode-btn.active{border-color:var(--green);color:var(--green)}.rotation-builder{display:none;margin-top:9px;padding:10px;border:1px solid var(--line);background:#060706}.rotation-builder.visible{display:block}.rotation-add{display:grid;grid-template-columns:1fr auto;gap:7px}.rotation-list{display:grid;gap:6px;margin-top:8px}.rotation-item{display:grid;grid-template-columns:24px 1fr auto;gap:7px;align-items:center;padding:8px;border:1px solid var(--line);background:#090b09}.rotation-item span:first-child{color:var(--green);font-weight:1000}.rotation-actions{display:flex;gap:4px}.rotation-actions button{width:27px;height:27px;border:1px solid var(--line);background:#060706;color:#999;cursor:pointer}.rotation-empty{padding:10px;border:1px dashed var(--line);color:var(--muted-2);font-size:9px;text-align:center;text-transform:uppercase}
 
         .secondary-grid {
             display: grid;
@@ -1005,11 +1006,11 @@
                     </div>
 
                     <div class="field">
-                        <label class="field-label" for="trackSelect">Track</label>
-                        <select id="trackSelect" class="track-select">
-                            <option value="">Loading tracks...</option>
-                        </select>
+                        <label class="field-label">Track Selection</label>
+                        <div class="track-mode-row"><button id="singleTrackModeBtn" class="track-mode-btn active" type="button">Single Track</button><button id="rotationTrackModeBtn" class="track-mode-btn" type="button">Track Rotation</button></div>
+                        <select id="trackSelect" class="track-select"><option value="">Loading tracks...</option></select>
                         <a id="trackDownloadLink" class="track-download" href="#" target="_blank" rel="noopener noreferrer">Download Track</a>
+                        <div id="rotationBuilder" class="rotation-builder"><div class="rotation-add"><select id="rotationTrackSelect" class="track-select"><option value="">Select track to add...</option></select><button id="addRotationTrackBtn" class="rotation-btn" type="button">Add</button></div><div id="rotationList" class="rotation-list"></div><div class="settings-help">Tracks run top to bottom, then loop back to #1.</div></div>
                     </div>
 
                     <div class="weather-toggle-row">
@@ -1699,7 +1700,7 @@
         const { data: servers, error } = await supabaseClient
             .from("game_servers")
             .select(`
-                id, server_code, server_name, bike_class, track_key, port, max_players, current_players, status, started_at, node_id, race_phase,
+                id, server_code, server_name, bike_class, track_key, track_mode, track_rotation, track_rotation_index, port, max_players, current_players, status, started_at, node_id, race_phase,
                 practice_length, qualify_length, warmup_length, race_laps, race_length_format, race_minutes, race_extralaps, race2_laps, race2_minutes, race2_extralaps, realistic_weather, minimum_mmr, server_chat_message, server_chat_interval_minutes,
                 nodes ( node_name, public_ip )
             `)
@@ -1963,6 +1964,7 @@ const serverNameInput=document.getElementById("serverNameInput");
 const bikeClassSelect=document.getElementById("bikeClassSelect");
 const trackSelect=document.getElementById("trackSelect");
 const trackDownloadLink=document.getElementById("trackDownloadLink");
+const singleTrackModeBtn=document.getElementById("singleTrackModeBtn"),rotationTrackModeBtn=document.getElementById("rotationTrackModeBtn"),rotationBuilder=document.getElementById("rotationBuilder"),rotationTrackSelect=document.getElementById("rotationTrackSelect"),addRotationTrackBtn=document.getElementById("addRotationTrackBtn"),rotationList=document.getElementById("rotationList");
 const practiceLengthInput=document.getElementById("practiceLengthInput");
 const qualifyLengthInput=document.getElementById("qualifyLengthInput");
 const warmupLengthInput=document.getElementById("warmupLengthInput");
@@ -2022,7 +2024,10 @@ for(const control of serverSettingsControls){
 raceFormatSelect?.addEventListener("change",updateRaceFormatFields);
 updateRaceFormatFields();
 
-let trackCatalog=[];
+let trackCatalog=[],trackMode="single",trackRotation=[];
+function renderRotation(){rotationList.innerHTML="";if(!trackRotation.length){rotationList.innerHTML='<div class="rotation-empty">No tracks added</div>';return;}trackRotation.forEach((key,i)=>{const row=document.createElement("div");row.className="rotation-item";const name=getTrackByKey(key)?.display_name||key;row.innerHTML=`<span>${i+1}</span><strong>${name}</strong><div class="rotation-actions"><button type="button" data-a="up">↑</button><button type="button" data-a="down">↓</button><button type="button" data-a="remove">×</button></div>`;row.querySelectorAll("button").forEach(b=>b.onclick=()=>{const a=b.dataset.a;if(a==="remove")trackRotation.splice(i,1);else{const n=a==="up"?i-1:i+1;if(n<0||n>=trackRotation.length)return;[trackRotation[i],trackRotation[n]]=[trackRotation[n],trackRotation[i]];}renderRotation();markServerSettingsDirty();});rotationList.appendChild(row);});}
+function setTrackMode(mode,dirty=true){trackMode=mode==="rotation"?"rotation":"single";singleTrackModeBtn.classList.toggle("active",trackMode==="single");rotationTrackModeBtn.classList.toggle("active",trackMode==="rotation");rotationBuilder.classList.toggle("visible",trackMode==="rotation");trackSelect.style.display=trackMode==="single"?"":"none";updateTrackDownloadLink(trackMode==="single"?trackSelect.value:"");renderRotation();if(dirty)markServerSettingsDirty();}
+singleTrackModeBtn.onclick=()=>setTrackMode("single");rotationTrackModeBtn.onclick=()=>setTrackMode("rotation");addRotationTrackBtn.onclick=()=>{const k=rotationTrackSelect.value;if(k&&!trackRotation.includes(k)){trackRotation.push(k);renderRotation();markServerSettingsDirty();}};
 
 function getTrackByKey(trackKey){
  return trackCatalog.find(track=>track.track_key===trackKey)||null;
@@ -2073,11 +2078,9 @@ async function loadTrackCatalog(){
  }
 
  for(const track of trackCatalog){
-  const option=document.createElement("option");
-  option.value=track.track_key;
-  option.textContent=track.display_name;
-  trackSelect.appendChild(option);
+  const option=document.createElement("option");option.value=track.track_key;option.textContent=track.display_name;trackSelect.appendChild(option);
  }
+ if(rotationTrackSelect){rotationTrackSelect.innerHTML='<option value="">Select track to add...</option>';for(const track of trackCatalog){const o=document.createElement("option");o.value=track.track_key;o.textContent=track.display_name;rotationTrackSelect.appendChild(o);}}
 
  trackSelect.disabled=false;
 
@@ -2114,6 +2117,7 @@ function syncServerSettings(server){
  if(document.activeElement!==trackSelect&&server.track_key){
   trackSelect.value=server.track_key;
  }
+ trackRotation=Array.isArray(server.track_rotation)?server.track_rotation.filter(k=>getTrackByKey(k)):[];if(!trackRotation.length&&server.track_key)trackRotation=[server.track_key];setTrackMode(server.track_mode==="rotation"?"rotation":"single",false);
 
  if(practiceLengthInput&&document.activeElement!==practiceLengthInput){
   practiceLengthInput.value=server.practice_length??15;
@@ -2179,7 +2183,8 @@ trackSelect?.addEventListener("change",()=>{
 async function saveServerSettings(){
  const newName=serverNameInput.value.trim().replace(/\s+/g," ");
  const bikeClass=bikeClassSelect.value;
- const trackKey=trackSelect.value;
+ const rotationKeys=trackRotation.slice();
+ const trackKey=trackMode==="rotation"?(rotationKeys[0]||""):trackSelect.value;
  const practiceLength=Number(practiceLengthInput?.value);
  const qualifyLength=Number(qualifyLengthInput?.value);
  const warmupLength=Number(warmupLengthInput?.value);
@@ -2207,10 +2212,8 @@ async function saveServerSettings(){
   return;
  }
 
- if(!trackKey){
-  serverSettingsMessage.textContent="Select a track.";
-  return;
- }
+ if(!trackKey){serverSettingsMessage.textContent=trackMode==="rotation"?"Add at least two tracks to the rotation.":"Select a track.";return;}
+ if(trackMode==="rotation"&&rotationKeys.length<2){serverSettingsMessage.textContent="Track rotation requires at least two tracks.";return;}
 
  if(!Number.isInteger(practiceLength)||practiceLength<0||practiceLength>120){
   serverSettingsMessage.textContent="Practice length must be a whole number between 0 and 120 minutes.";
