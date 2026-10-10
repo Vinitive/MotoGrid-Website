@@ -172,6 +172,8 @@ begin
     end loop;
     update pg_temp.mg_rating_work w set rating=greatest(100,least(4000,w.rating+c.delta)),ranked_races=w.ranked_races+1
     from pg_temp.mg_rating_changes c where c.rider_id=w.rider_id;
+    update public.race_results rr set rating_change=c.delta
+    from pg_temp.mg_rating_changes c where rr.race_id=v_event.id and rr.rider_id=c.rider_id;
   end loop;
 
   update public.profiles p set
@@ -188,8 +190,6 @@ begin
   ) a on a.rider_id=w.rider_id
   where p.id=w.rider_id;
 
-  -- Keep event rows' rating_change populated for audit/history displays.
-  update public.race_results rr set rating_change=0 where rr.race_id=v_race_id;
   return v_race_id;
 end;
 $$;
