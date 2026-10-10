@@ -1,7 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 import './style.css';
 const root=document.querySelector('#app'), env=import.meta.env;
-if(!env.VITE_SUPABASE_URL||!env.VITE_SUPABASE_PUBLISHABLE_KEY){root.innerHTML='<main class="setup"><div class="brand">MOTO<span>GRID</span></div><h1>Connect your league.</h1><p>Create <code>src/.env</code> from <code>src/.env.example</code>, add your Supabase URL and publishable key, then restart.</p></main>';}else{
+if(!env.VITE_SUPABASE_URL||!env.VITE_SUPABASE_PUBLISHABLE_KEY){root.innerHTML='<main class="setup"><div class="brand">MOTO<span>GRID</span></div><h1>Connect your league.</h1><p>Copy <code>.env.example</code> to <code>.env</code> in the project root, add your Supabase URL and publishable key, then restart.</p></main>';}else{
 const db=createClient(env.VITE_SUPABASE_URL,env.VITE_SUPABASE_PUBLISHABLE_KEY),s={session:null,profile:null,tab:'championship',riders:[],races:[],notice:'',bad:false};
 const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])),ini=x=>(x||'Rider').split(/\s+/).slice(0,2).map(v=>v[0]).join('').toUpperCase(),num=x=>Number(x||0).toLocaleString(),tier=n=>n>=1700?'Elite':n>=1500?'Diamond':n>=1300?'Platinum':n>=1100?'Gold':n>=900?'Silver':'Bronze';
 function notice(m,b=false){s.notice=m;s.bad=b;render();}
