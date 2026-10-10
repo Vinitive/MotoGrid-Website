@@ -15,7 +15,7 @@ Standalone Tauri desktop app project. It is isolated under `mxgp26-desktop/` on 
 1. Create a Supabase project dedicated to the desktop app.
 2. Run `supabase/schema.sql` in the Supabase SQL Editor.
 3. Copy the project URL and publishable/anon key from Project Settings → API.
-4. Copy `src/.env.example` to `src/.env` and fill in the URL/key. Never put a service-role key in the app.
+4. Copy `.env.example` to `.env` at the project root and fill in the URL/key. Never put a service-role key in the app.
 5. Create an account in the app. Promote your own account to admin from the trusted Supabase SQL Editor:
    ```sql
    update public.profiles set role='admin' where lower(email)=lower('YOUR-EMAIL');
