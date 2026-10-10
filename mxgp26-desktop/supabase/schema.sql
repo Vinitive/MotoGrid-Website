@@ -79,7 +79,7 @@ for select to authenticated using (true);
 -- Lock sensitive profile fields against client-side edits. Only the trusted
 -- SECURITY DEFINER result function can update scores, ratings, or role.
 revoke all on public.profiles from anon, authenticated;
-grant select on public.profiles to authenticated;
+grant select (id,display_name,team_name,bio,role,championship_points,wins,races_entered,rating,ranked_races,created_at) on public.profiles to authenticated;
 grant insert (id,email,display_name,team_name,bio) on public.profiles to authenticated;
 grant update (display_name,team_name,bio) on public.profiles to authenticated;
 
